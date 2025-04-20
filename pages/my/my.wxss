@@ -1,0 +1,647 @@
+.page-background {
+  /* 设置渐变背景 */
+  background: linear-gradient(to bottom, #eeeeee, #ffffff);
+  /* 确保页面有足够的高度来显示渐变 */
+  min-height: 105vh;
+  position: relative;
+  /* 设置相对定位，以便图片可以绝对定位 */
+  overflow: hidden;
+  /* 防止内容溢出 */
+
+}
+
+.page-image {
+  position: absolute;
+  top: 125rpx;
+  left: 35%;
+  transform: translateX(-50%);
+  width: 400rpx;
+  height: 100rpx;
+  border-radius: 400rpx;
+  overflow: hidden;
+}
+
+.avatar {
+  position: absolute;
+  top: 250rpx;
+  left: 10%;
+  transform: translateX(-50%);
+  width: 100rpx;
+  height: 100rpx;
+  border-radius: 50%;
+}
+
+.q {
+  position: absolute;
+  top: 270rpx;
+  left: 85%;
+  transform: translateX(-50%);
+  width: 50rpx;
+  height: 50rpx;
+  /* border-radius: 50%; */
+}
+
+.calendar {
+  position: absolute;
+  top: 320rpx;
+  left: 85%;
+  transform: translateX(-50%);
+  width: 200rpx;
+  padding-left: 80rpx;
+  font-size: 30rpx;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  /* 垂直排列文本 */
+  position: absolute;
+  top: 250rpx;
+  left: 20%;
+}
+
+.username {
+  font-size: 40rpx;
+  /* 字体大小 */
+  font-weight: bold;
+  /* 加粗 */
+  color: #333;
+  /* 字体颜色 */
+  margin-bottom: 10rpx;
+}
+
+.user-role {
+  font-size: 30rpx;
+  /* 字体大小 */
+  color: #666;
+  /* 字体颜色 */
+
+}
+
+.horizontal-line {
+  background-color: #6b696948;
+  position: absolute;
+  top: 200rpx;
+  left: 0rpx;
+}
+
+.horizontal-line2 {
+  background-color: #6b696948;
+}
+
+.welcome-box {
+  background-color: #ffffff;
+  box-shadow: 0rpx 4rpx 8rpx rgba(194, 194, 194, 0.2);
+  /* 添加阴影效果 */
+  overflow: hidden;
+  /* 隐藏超出部分 */
+  border-radius: 20rpx;
+  padding: 10rpx;
+  text-align: center;
+  margin-top: 140rpx;
+}
+
+.welcome {
+  font-size: 26rpx;
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 30rpx;
+  /* 距离父容器顶部20像素 */
+  left: 35rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.user-id {
+  font-size: 40rpx;
+  color: rgb(0, 0, 0);
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 55rpx;
+  /* 距离父容器顶部20像素 */
+  left: 35rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.action-button {
+  color: #6a6b6d;
+  font-size: 22rpx;
+  margin-top: 5rpx;
+  position: absolute;
+  top: 30rpx;
+  left: 550rpx;
+}
+
+/* pages/index/index.wxss */
+.custom-progress {
+  width: 90%;
+  height: 6rpx;
+  background-color: #e0e0e0;
+  border-radius: 10rpx;
+  overflow: hidden;
+  position: absolute;
+  top: 120rpx;
+  left: 35rpx;
+}
+
+.progress-bar {
+  height: 100%;
+  border-radius: 10rpx;
+  /* 进度条前端圆角 */
+  transition: width 0.5s ease;
+  /* 平滑过渡效果 */
+}
+
+.order-box {
+  width: 70%;
+  height: 100rpx;
+  background-color: #ffffff;
+  box-shadow: 0rpx 4rpx 8rpx rgba(194, 194, 194, 0.2);
+  /* 添加阴影效果 */
+  overflow: hidden;
+  /* 隐藏超出部分 */
+  border-radius: 20rpx;
+  padding: 10rpx;
+  text-align: center;
+  margin-top: 128rpx;
+}
+
+.order {
+  font-size: 26rpx;
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 30rpx;
+  /* 距离父容器顶部20像素 */
+  left: 35rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.order-id {
+  font-size: 23rpx;
+  color: #666;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 85rpx;
+  /* 距离父容器顶部20像素 */
+  left: 40rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.action-button1 {
+  color: #6a6b6d;
+  font-size: 22rpx;
+  margin-top: 5rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 30rpx;
+  /* 距离父容器顶部20像素 */
+  left: 550rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.info-container {
+  background-color: #ffffff;
+  box-shadow: 0rpx 4rpx 8rpx rgba(194, 194, 194, 0.2);
+  /* 添加阴影效果 */
+  overflow: hidden;
+  /* 隐藏超出部分 */
+  border-radius: 20rpx;
+  padding: 10rpx;
+  text-align: center;
+  margin-top: 140rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 530rpx;
+  /* 距离父容器顶部20像素 */
+  left: 0rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.info-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.label {
+  font-size: 27rpx;
+  margin-bottom: 5rpx;
+  position: absolute;
+  top: 40rpx;
+  left: 35rpx;
+}
+
+.label2 {
+  font-size: 27rpx;
+  margin-bottom: 5rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 40rpx;
+  /* 距离父容器顶部20像素 */
+  left: 410rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.amount {
+  font-size: 35rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 95rpx;
+  /* 距离父容器顶部20像素 */
+  left: 37rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.amount2 {
+  font-size: 35rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 95rpx;
+  /* 距离父容器顶部20像素 */
+  left: 410rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.exchange-button {
+  display: flex;
+  justify-content: center;
+  /* 水平居中 */
+  align-items: center;
+  /* 垂直居中 */
+  font-size: 22rpx;
+  background-color: #000000;
+  color: white;
+  border: none;
+  padding: 0rpx 30rpx;
+  /* 为按钮提供内边距 */
+  border-radius: 50rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 90rpx;
+  /* 距离父容器顶部20像素 */
+  left: 210rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.vertical-line {
+  width: 1rpx;
+  height: 100rpx;
+  background-color: rgb(196, 195, 195);
+  position: absolute;
+  top: 40rpx;
+  left: 370rpx;
+}
+
+.exchange-button1 {
+  height: 50rpx;
+  display: flex;
+  justify-content: center;
+  /* 水平居中 */
+  align-items: center;
+  /* 垂直居中 */
+  font-size: 22rpx;
+  background-color: rgb(205, 174, 242);
+  color: white;
+  border: none;
+  padding: 0rpx 30rpx;
+  /* 为按钮提供内边距 */
+  border-radius: 50rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 90rpx;
+  /* 距离父容器顶部20像素 */
+  left: 590rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.dongjie-box {
+  overflow: hidden;
+  /* 隐藏超出部分 */
+  border-radius: 20rpx;
+  padding: 10rpx;
+  text-align: center;
+  margin-top: 80rpx;
+
+}
+
+.dongjie {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.label3 {
+  font-size: 27rpx;
+  margin-bottom: 5rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 35rpx;
+  /* 距离父容器顶部20像素 */
+  left: 37rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.label4 {
+  font-size: 27rpx;
+  margin-bottom: 5rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 35rpx;
+  /* 距离父容器顶部20像素 */
+  left: 410rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.amount3 {
+  font-size: 40rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 85rpx;
+  /* 距离父容器顶部20像素 */
+  left: 55rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.amount4 {
+  font-size: 40rpx;
+  font-weight: bold;
+  margin-bottom: 10rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 85rpx;
+  /* 距离父容器顶部20像素 */
+  left: 410rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.exchange-button3 {
+  height: 50rpx;
+  display: flex;
+  justify-content: center;
+  /* 水平居中 */
+  align-items: center;
+  /* 垂直居中 */
+  font-size: 22rpx;
+  background-color: rgb(205, 174, 242);
+  color: white;
+  border: none;
+  padding: 0rpx 30rpx;
+  /* 为按钮提供内边距 */
+  border-radius: 50rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 90rpx;
+  /* 距离父容器顶部20像素 */
+  left: 210rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.vertical-line2 {
+  width: 1rpx;
+  height: 100rpx;
+  background-color: rgb(196, 195, 195);
+  position: absolute;
+  top: 40rpx;
+  left: 370rpx;
+}
+
+.exchange-button4 {
+  height: 50rpx;
+  display: flex;
+  justify-content: center;
+  /* 水平居中 */
+  align-items: center;
+  /* 垂直居中 */
+  font-size: 22rpx;
+  background-color: rgb(205, 174, 242);
+  color: white;
+  border: 1px solid rgb(205, 174, 242);
+  padding: 0rpx 30rpx;
+  /* 为按钮提供内边距 */
+  border-radius: 60rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 90rpx;
+  /* 距离父容器顶部20像素 */
+  left: 590rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.ka-box {
+  background-color: #ffffff;
+  box-shadow: 0rpx 4rpx 8rpx rgba(194, 194, 194, 0.2);
+  /* 添加阴影效果 */
+  overflow: hidden;
+  /* 隐藏超出部分 */
+  border-radius: 20rpx;
+  padding: 20rpx;
+  text-align: center;
+  margin-top: 60rpx;
+  margin-bottom: 10rpx;
+}
+
+.ka {
+  font-size: 26rpx;
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 30rpx;
+  /* 距离父容器顶部20像素 */
+  left: 35rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.ka-id {
+  font-size: 28rpx;
+  color: #666;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 80rpx;
+  /* 距离父容器顶部20像素 */
+  left: 25rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.action-button5 {
+  font-size: 22rpx;
+  color: #454649;
+  margin-top: 5rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 20rpx;
+  /* 距离父容器顶部20像素 */
+  left: 500rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.shouyi-box {
+  background-color: #ffffff;
+  box-shadow: 0rpx 4rpx 8rpx rgba(194, 194, 194, 0.2);
+  /* 添加阴影效果 */
+  overflow: hidden;
+  /* 隐藏超出部分 */
+  border-radius: 20rpx;
+  padding: 10rpx;
+  text-align: center;
+  margin-top: 60rpx;
+}
+
+.yi {
+  font-size: 30rpx;
+  color: rgb(0, 0, 0);
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 20rpx;
+  /* 距离父容器顶部20像素 */
+  left: 25rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.qian-id {
+  font-size: 23rpx;
+  color: rgb(0, 0, 0);
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 94rpx;
+  /* 距离父容器顶部20像素 */
+  left: 75rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.action-button6 {
+  font-size: 21rpx;
+  color: #454649;
+  margin-top: 5rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 20rpx;
+  /* 距离父容器顶部20像素 */
+  left: 590rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.dangri-box {
+  background-color: #ffffff;
+  box-shadow: 0rpx 4rpx 8rpx rgba(194, 194, 194, 0.2);
+  /* 添加阴影效果 */
+  overflow: hidden;
+  /* 隐藏超出部分 */
+  border-radius: 20rpx;
+  padding: 10rpx;
+  text-align: center;
+  margin-top: 60rpx;
+  position: absolute;
+  top: 995rpx;
+}
+
+.ri {
+  font-size: 26rpx;
+  color: rgb(0, 0, 0);
+  font-weight: bold;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 30rpx;
+  /* 距离父容器顶部20像素 */
+  left: 35rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.qian1-id {
+  font-size: 23rpx;
+  color: rgb(0, 0, 0);
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 94rpx;
+  /* 距离父容器顶部20像素 */
+  left: 75rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.action-button7 {
+  font-size: 21rpx;
+  color: #454649;
+  margin-top: 5rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 20rpx;
+  /* 距离父容器顶部20像素 */
+  left: 590rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.fapiao-box {
+  background-color: #ffffff;
+  box-shadow: 0rpx 4rpx 8rpx rgba(194, 194, 194, 0.2);
+  /* 添加阴影效果 */
+  overflow: hidden;
+  /* 隐藏超出部分 */
+  border-radius: 20rpx;
+  padding: 10rpx;
+  text-align: center;
+  margin-top: 215rpx;
+}
+
+.ri {
+  font-size: 26rpx;
+  color: rgb(0, 0, 0);
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 20rpx;
+  /* 距离父容器顶部20像素 */
+  left: 25rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.qian1-id {
+  font-size: 23rpx;
+  color: rgb(0, 0, 0);
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 94rpx;
+  /* 距离父容器顶部20像素 */
+  left: 75rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.action-button7 {
+  font-size: 21rpx;
+  color: #454649;
+  margin-top: 5rpx;
+  position: absolute;
+  /* 子元素设置为绝对定位 */
+  top: 20rpx;
+  /* 距离父容器顶部20像素 */
+  left: 590rpx;
+  /* 距离父容器左侧30像素 */
+}
+
+.ma-box {
+  background-color: #ffffff;
+  box-shadow: 0rpx 4rpx 8rpx rgba(194, 194, 194, 0.2);
+  /* 添加阴影效果 */
+  overflow: hidden;
+  /* 隐藏超出部分 */
+  border-radius: 20rpx;
+  padding: 10rpx;
+  text-align: center;
+  margin-top: -20rpx;
+}
+
+.anquan-box {
+  background-color: #ffffff;
+  box-shadow: 0rpx 4rpx 8rpx rgba(194, 194, 194, 0.2);
+  border-radius: 20rpx;
+  padding: 10rpx;
+  text-align: center;
+  margin-top: 20rpx;
+}

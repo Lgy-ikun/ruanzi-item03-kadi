@@ -1,0 +1,14 @@
+<view class="container">
+  <view class="qrcode-container">
+    <view class="qrcode-wrapper">
+      <canvas wx:if="{{!qrcodeSrc}}" canvas-id="myQrcode" class="qrcode-canvas"></canvas>
+      <image class="qrcode-image" show-menu-by-longpress="{{true}}" src="{{qrcodeSrc}}" mode="aspectFit"></image>
+    </view>
+
+    <view class="info-container">
+      <text class="account-info">帐号：{{name}}</text>
+      <text class="recommend-info">推荐码：{{randomId}}</text>
+    </view>
+  </view>
+
+</view>

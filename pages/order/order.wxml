@@ -1,0 +1,119 @@
+<view class="order-confirm">
+  <view class="pickup-delivery-group">
+    <navigator url="/subPackages/package/pages/ziti/ziti?type=order" class="pickup-button {{selected === '自提' ? 'active' : ''}}" bindtap="selectOption" data-option="自提">
+      <text>自提</text>
+    </navigator>
+    <navigator url="/subPackages/package/pages/chooseLocation/chooseLocation?type=order" class="delivery-button {{selected === '外送' ? 'active' : ''}}" bindtap="selectOption" data-option="外送">
+      <text>外送</text>
+    </navigator>
+  </view>
+  <navigator url="/subPackages/package/pages/search/search" class="example-search">
+    <view class="search-bar">
+      <icon class="search-icon" type="search" size="14"></icon>
+      <input class="search-input" placeholder="搜索商品" bindinput="onSearchInput" value="{{searchValue}}" />
+    </view>
+  </navigator>
+  <view class="ad">
+    <view class="store-section" style="position: relative;top: 20rpx; left: -10rpx; font-size: 30rpx;" wx:if="{{selected === '自提'}}">
+      <text>门店：{{storeName}}</text>
+    </view>
+    <view class="address-section" wx:else>
+      <text class="a" style="font-size: 28rpx; position: relative;top: 5rpx; left: -10rpx;">{{address}}</text>
+    </view>
+  </view>
+</view>
+<view class="side-bar-wrapper" style="height:calc(100vh - 200rpx)">
+  <t-side-bar value="{{sideBarIndex}}" bind:change="onSideBarChange">
+    <t-side-bar-item wx:for="{{categories}}" wx:key="label" value="{{item.value || index}}" label="{{item.text}}" disabled="{{item.disabled}}" badge-props="{{item.badgeProps}}" />
+  </t-side-bar>
+  <view class="content" style="transform: translateY(-{{sideBarIndex * 100}}%)">
+    <scroll-view wx:for="{{categories}}" wx:for-index="cIndex" wx:key="label" class="section" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation show-scrollbar="{{false}}">
+      <view class="title">{{item.text}}</view>
+      <t-cell-group>
+        <view class="dishItem" wx:for="{{item.children}}" wx:for-item="dItem" wx:for-index="dIndex" wx:key="dIndex">
+          <view class="left">
+            <image class="image" src='{{AUrl}}/jy/wxUserImg/106/{{dItem.image}}' />
+          </view>
+          <view class="right">
+            <view class="name">{{dItem.name}}</view>
+            <view class="desc">{{dItem.desc}}</view>
+            <view class="price">¥{{dItem.price}}</view>
+            <view class="add-button" bindtap="navigateToDianDan" data-dishId="{{dItem.id}}" data-img="{{dItem.image}}" price data-index1="{{cIndex}}" data-index2="{{dIndex}}">
+              +
+            </view>
+            <view wx:if="{{dItem.num > 0}}" class="number-box">
+              <text class="number">{{dItem.num}}</text>
+            </view>
+            <!-- <t-stepper class="stepper" value="{{dItem.num}}" theme="filled" bind:change="handelChange" data-id="{{cIndex + 1}}" data-dishId="{{dIndex + 1}}" /> -->
+          </view>
+        </view>
+        <view class="kong" style="height: 120rpx; width: 100%;"></view>
+      </t-cell-group>
+    </scroll-view>
+  </view>
+</view>
+
+<view class="bottom" wx:if="{{sum}}">
+  <view class="left">
+    <!-- <image src="/images/头像.jpg" /> -->
+    <!-- 共 {{sum}}  杯 -->
+    <image src="/images/购物袋.png" bindtap="toggleCartPopup"></image><text style="font-size: 34rpx;">预计到手¥{{totalprice}}</text>
+  </view>
+  <view class="right">
+    <t-button theme="primary" bind:tap="gobackPublish" style="background-color: rgb(205, 174, 242);">去结算</t-button>
+  </view>
+</view>
+<!--  推荐门店弹窗 -->
+
+<view wx:if="{{showRecommendationPopup}}" class="recommendation-popup" style="position: fixed; top:0; left:0; right:0; bottom:0;  z-index: 1;">
+  <view class="popup-content">
+    <view class="popup-header">
+      <text>离你最近</text>
+      <view class="close-icon" bindtap="closeRecommendationPopup">×</view>
+    </view>
+    <view class="popup-body">
+      <view class="store-info" bindtap="selectRecommendedStore">
+        <text>门店名称：{{recommendedStore ? recommendedStore.name : '暂无数据'}}</text>
+        <text>地址：{{recommendedStore ? recommendedStore.add : '暂无数据'}}</text>
+        <text>距离：{{recommendedStore ? recommendedStore.distance : '暂无数据'}} 公里</text>
+      </view>
+      <button class="navigate-button" bindtap="navigateToStore" style="position: absolute; right: 90rpx; top: 50%; transform: translateY(-30%); background: #f5f5f5; color: white; border: none; padding: 10rpx 20rpx; border-radius: 10rpx; width: 100rpx; height: 100rpx;">
+        <image src="/images/导航.png" style="width: 50rpx; height: 50rpx;"></image>
+      </button>
+    </view>
+  </view>
+</view>
+
+
+<!-- 购物车弹窗 -->
+<view wx:if="{{showCartPopup && sum > 0}}" class="cart-popup" style="position: fixed; top:0; left:0; right:0; bottom:0; z-index: 999;" bindtap="toggleCartPopup">
+  <view class="popup-content1" style="background: rgb(245, 246, 247); margin: 20rpx; padding: 20rpx; border-radius: 10rpx;" catchtap="stopPropagation">
+    <view class="popup-header" style="display: flex; justify-content: space-between; align-items: center;">
+      <text style="font-size: 30rpx;">购物车</text>
+    </view>
+    <scroll-view class="popup-body" style="max-height: 70vh; margin-top: 20rpx;">
+      <block wx:for="{{cartItems}}" wx:key="index">
+        <view class="cart-item" style="display: flex; padding: 10rpx 0; border-bottom: 1px solid #eee; align-items: center;">
+          <image class="item-image" src='{{AUrl}}/jy/wxUserImg/106/{{item.image}}' style="width: 100rpx; height: 100rpx;"></image>
+          <view class="item-info" style="flex: 1; margin-left: 10rpx;">
+            <text class="item-name" style="font-size: 28rpx;">{{item.name}}</text>
+            <!-- 显示杯型、温度、甜度 -->
+            <view class="item-options" style="margin-top: 5rpx;">
+              <text wx:if="{{item.add}}">杯型：{{item.add}}</text>
+
+            </view>
+            <!-- 显示数量 -->
+            <view class="stepper" style="display: flex; align-items: center; margin-top: 10rpx;">
+              <button class="btn-minus" data-skucode="{{item.skuCode}}" bindtap="onDecrease" style="width: 40rpx; height: 40rpx; display: flex; justify-content: center; align-items: center;">
+                <text class="jianhao">-</text>
+              </button>
+
+              <text class="num" style="margin: 0 20rpx;">{{item.num || 0}}</text>
+              <button class="btn-plus" data-skucode="{{item.skuCode}}" bindtap="onIncrease" style="width: 40rpx; height: 40rpx;display: flex; justify-content: center; align-items: center;">+</button>
+            </view>
+          </view>
+        </view>
+      </block>
+    </scroll-view>
+  </view>
+</view>

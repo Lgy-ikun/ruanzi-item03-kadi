@@ -1,0 +1,27 @@
+<view class="search-container">
+  <icon class="search-icon" type="search" size="14"></icon>
+  <input class="search-input" placeholder="搜索商品" bindinput="onSearchInput" value="{{searchValue}}" />
+  <button class="search-button" bindtap="onSearch">
+    <text class="ww" style="font-size: 30rpx;">搜索</text>
+  </button>
+</view>
+
+<view wx:if="{{searchResults.length > 0}}">
+  <view class="dishItem" wx:for="{{searchResults}}" wx:key="id">
+    <view class="item-container">
+      <view class="left">
+        <image class="result-image" src="https://www.ruanzi.net/jy/wxUserImg/106/{{item.image}}" />
+      </view>
+      <view class="right">
+        <view class="name">{{item.name}}</view>
+        <view class="price">¥{{item.price}}</view>
+      </view>
+      <button class="add-button" bindtap="navigateToDianDan" data-dishid="{{item.id}}" data-img="{{item.image}}" data-index1="{{index}}" data-index2="{{index}}">
+        +
+      </button>
+    </view>
+  </view>
+</view>
+<view wx:else>
+  <text class="tex" style="position: relative;left: 40rpx;top: 30rpx;">未找到相关商品</text>
+</view>

@@ -1,0 +1,5 @@
+{
+  "usingComponents": {
+    "sqb-pay": "plugin://sqb-pay/sqb-pay"
+  }
+}

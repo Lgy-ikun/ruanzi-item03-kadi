@@ -1,0 +1,7 @@
+{
+  "usingComponents": {
+    "sqb-pay": "plugin://sqb-pay/sqb-pay"
+  },
+  "navigationBarTitleText": "收银台",
+  "enablePullDownRefresh": false
+}

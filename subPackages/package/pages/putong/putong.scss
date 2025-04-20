@@ -1,0 +1,58 @@
+.container {
+  width: 100%;
+  min-height: 100vh;
+  background-color: rgb(243, 243, 243);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20rpx;
+  box-sizing: border-box;
+}
+
+.qrcode-container {
+  width: 100%;
+  max-width: 800rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.qrcode-wrapper {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 40rpx;
+}
+
+.qrcode-canvas {
+  width: 200px;
+  height: 200px;
+}
+
+.qrcode-image {
+  width: 200px;
+  height: 200px;
+}
+
+.info-container {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.account-info,
+.recommend-info {
+  font-size: 32rpx;
+  color: #333;
+  margin: 10rpx 0;
+  text-align: center;
+}
+
+/* 如果是分享页面，增加顶部间距 */
+.qrcode-container.is-share-page {
+  margin-top: 200rpx;
+}

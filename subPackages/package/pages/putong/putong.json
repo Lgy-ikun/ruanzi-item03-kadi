@@ -1,0 +1,6 @@
+{
+  "usingComponents": {
+    "t-progress": "tdesign-miniprogram/progress/progress"
+  },
+  "navigationBarTitleText": "普通会员"
+}

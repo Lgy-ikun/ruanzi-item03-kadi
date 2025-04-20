@@ -1,0 +1,60 @@
+.container {
+  padding: 0rpx;
+  background-color: rgb(240, 238, 238);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.store-scroll-view {
+  display: flex;
+  flex-direction: column;
+  /* 垂直排列 */
+  justify-content: center;
+  /* 垂直居中 */
+  align-items: center;
+  /* 水平居中 */
+  height: 98vh;
+  overflow: scroll;
+  /* 确保内容超出时可以滚动 */
+}
+
+.store-list {
+  display: block;
+  flex-direction: column;
+  width: 95%;
+
+}
+
+
+.store-item {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid #eee;
+  padding: 20rpx;
+  cursor: pointer;
+  height: 130rpx;
+  border: 1rpx solid rgb(138, 138, 138);
+  /* 边框 */
+  background-color: rgb(255, 255, 255);
+  margin-top: 10rpx;
+
+}
+
+.store-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.store-name {
+  font-size: 30rpx;
+  font-weight: bold;
+}
+
+.store-address {
+  font-size: 26rpx;
+  color: #666;
+  margin-top: 30rpx;
+}

@@ -1,0 +1,161 @@
+<!-- <view class="container">
+  <view class="balance-title">账户余额 (元)</view>
+  <view class="balance-amount">{{balance}}</view>
+  <navigator url="/pages/balance/balance" class="balance-link">查看余额></navigator>
+  
+ 充值福利 -->
+<!-- <view class="benefits">
+  <view class="chong">选择充值金额</view>
+  <view class="recharge-options">
+    <block wx:for="{{rechargeOptions}}" wx:key="index">
+      <view 
+        class="recharge-option {{index === 1 ? 'recommended' : ''}}" 
+        bindtap="selectRecharge" 
+        data-value="{{item}}">
+        ¥{{item}}
+      </view>
+    </block>
+  </view>
+    <text class="benefits-title">充值福利</text>
+    <view class="benefits-icons">
+      <view class="icon-item">
+        <image class="avatar" src="{{tupianUrl}}/info/huiyuankaidian.jpg" mode="aspectFill"></image>
+        <text class="a">会员开店</text>
+      </view>
+      <view class="icon-item">
+        <image class="avatar1"  src="{{tupianUrl}}/info/touzi.jpg" mode="aspectFill"></image>
+        <text class="b">体验馆投资</text>
+      </view>
+      <view class="icon-item">
+        <image src="{{tupianUrl}}/info/coupon.png" mode="aspectFill"></image>
+        <text class="c">兑换消费券</text>
+      </view>
+      <button class="recharge-button" bindtap="recharge">立即充值 ¥{{selectedRecharge}}</button>
+    </view>
+  </view>
+</view> -->
+
+
+<!-- 余额显示 -->
+<!-- <view class="container">
+  <view class="balance">
+    <text class="yue">账户余额(元)</text>
+    <text class="balance-amount">0.00</text>
+    <navigator url="/pages/balance/balance" class="balance-link">查看余额></navigator>
+  </view>
+</view> -->
+<!--充值-->
+<!-- <view class="benefits">
+  <view class="recharge-info">
+    <text class="recharge-title">每份</text>
+    <view class="text-container">
+      <text class="recharge-title2">￥{{pricePerUnit}}</text>
+    </view>
+    <text class="shuliang">数量</text>
+    <button class="decrease" data-quantity="{{quantity}}" bindtap="onDecrease">-</button>
+    <text class="quantity-text">{{quantity}}</text>
+    <button class="increase" data-quantity="{{quantity}}" bindtap="onIncrease">+</button>
+  </view>
+  <text class="benefits-title">充值福利</text>
+  <view class="benefits-icons">
+    <view class="icon-item">
+      <image class="avatar" src="{{tupianUrl}}/info/huiyuankaidian.jpg" mode="aspectFill"></image>
+      <text class="a">会员开店</text>
+    </view>
+    <view class="icon-item">
+      <image class="avatar1" src="{{tupianUrl}}/info/touzi.jpg" mode="aspectFill"></image>
+      <text class="b">体验馆投资</text>
+    </view>
+    <view class="icon-item">
+      <image src="{{tupianUrl}}/info/coupon.png" mode="aspectFill"></image>
+      <text class="c">兑换消费券</text>
+    </view>
+  </view>
+  <button class="recharge-button" bindtap="onRecharge">立即充值</button>
+</view> -->
+
+
+
+<!-- 新版交易码弹窗 -->
+<view wx:if="{{showCodeDialog}}" class="code-dialog-mask">
+  <view class="code-content">
+    <view class="img">
+      <image bindtap="closeDialog" src="{{tupianUrl}}/new/close.png" mode=""/>
+    </view>
+    <view class="title1">请输入交易码</view>
+    <view class="input-container">
+      <block wx:for="{{inputBoxes}}" wx:key="index">
+        <view class="input-box">
+          <!-- input 输入框 -->
+          <input id="input-{{index}}" focus="false" type="number" value="{{item}}" data-index="{{index}}" disabled="true" maxlength="1" />
+        </view>
+        <view class="overlay" bind:tap="handleGetFocus"></view> <!-- 蒙层 -->
+      </block>
+    </view>
+    <input class="ipt" value="{{codeValue}}" focus="{{testFocus}}" type="number" bindinput="handleTestInput" maxlength="6" bind:tap="handleNotFocus" />
+    <view class="dialog-buttons">
+      <!-- <button class="dialog-btn cancel" bindtap="closeDialog">取消</button> -->
+      <!-- <button class="dialog-btn confirm" bindtap="verifyCode">确认</button> -->
+      <view class="btn" bindtap="verifyCode">确定</view>
+    </view>
+  </view>
+</view>
+
+<!-- 新版“申请股东” -->
+<view class="view-comtainer">
+  <view class="account">
+    <image src="{{tupianUrl}}/new/gd-bgimg.png" mode=""/>
+    <view class="content">
+      <view class="money">{{money || 0}}</view>
+      <view class="txt">账户余额（元）</view>
+    </view>
+  </view>
+</view>
+<!-- 新版“充值福利” -->
+<view class="chongzhi">
+  <view class="title">充值福利</view>
+  <view class="content">
+    <view class="item">
+      <view class="img">
+        <image src="{{tupianUrl}}/new/gd-hykd.png" alt=""/>
+      </view>
+      <view class="txt">会员开店</view>
+    </view>
+    <view class="item">
+      <view class="img">
+        <image src="{{tupianUrl}}/new/gd-tygtz.png" alt=""/>
+      </view>
+      <view class="txt">体验馆投资</view>
+    </view>
+    <view class="item">
+      <view class="img">
+        <image src="{{tupianUrl}}/new/gd-dhxfq.png" alt=""/>
+      </view>
+      <view class="txt">兑换消费券</view>
+    </view>
+  </view>
+</view>
+<!-- 新版“立即充值” -->
+<view class="lijichongzhi">
+  <view class="title">立即充值</view>
+  <view class="content">
+    <view class="price">
+      <text>￥{{pricePerUnit || 0}}</text>
+    </view>
+    <view class="amount">
+      <!-- <button class="decrease" data-quantity="{{quantity}}" bindtap="onDecrease">-</button>
+      <text class="quantity-text">{{quantity}}</text>
+      <button class="increase" data-quantity="{{quantity}}" bindtap="onIncrease">+</button> -->
+      <view class="img" bindtap="onDecrease">
+        <image src="{{tupianUrl}}/new/gd-decrease.png" mode=""/>
+      </view>
+      <text>{{quantity}}</text>
+      <view class="img" bindtap="onIncrease">
+        <image src="{{tupianUrl}}/new/gd-increase.png" mode=""/>
+      </view>
+    </view>
+  </view>
+  <view class="btn" bindtap="onRecharge">
+    <text>确定</text>
+  </view>
+</view>

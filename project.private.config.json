@@ -1,0 +1,190 @@
+{
+  "description": "项目私有配置文件。此文件中的内容将覆盖 project.config.json 中的相同字段。项目的改动优先同步到此文件中。详见文档：https://developers.weixin.qq.com/miniprogram/dev/devtools/projectconfig.html",
+  "projectname": "kadi4-0415",
+  "setting": {
+    "compileHotReLoad": true,
+    "urlCheck": false
+  },
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "subPackages/package/pages/chongzhikaipiao/chongzhikaipiao",
+          "pathName": "subPackages/package/pages/chongzhikaipiao/chongzhikaipiao",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/loading/loading",
+          "pathName": "pages/loading/loading",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/package/pages/chongzhijilu/chongzhijilu",
+          "pathName": "subPackages/package/pages/chongzhijilu/chongzhijilu",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/package/pages/tuijianma/tuijianma",
+          "pathName": "subPackages/package/pages/tuijianma/tuijianma",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/package/pages/inputTransactionCode/inputTransactionCode",
+          "pathName": "subPackages/package/pages/inputTransactionCode/inputTransactionCode",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/package/pages/diandan/diandan",
+          "pathName": "subPackages/package/pages/diandan/diandan",
+          "query": "image=https%253A%252F%252Fwww.caldicoffee.com%252Fjy%252FwxUserImg%252F106%252FM2.jpg&index1=0&index2=0&dishId=010101",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/package/pages/shareholder/shareholder",
+          "pathName": "subPackages/package/pages/shareholder/shareholder",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/package/pages/jifen/jifen",
+          "pathName": "subPackages/package/pages/jifen/jifen",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/package/pages/recharge/recharge",
+          "pathName": "subPackages/package/pages/recharge/recharge",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/home/home",
+          "pathName": "pages/home/home",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/loading/loading",
+          "pathName": "pages/loading/loading",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/package/pages/address/address",
+          "pathName": "subPackages/package/pages/address/address",
+          "query": "target=add",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/package/pages/shareholder/shareholder",
+          "pathName": "subPackages/package/pages/shareholder/shareholder",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/orders/orders",
+          "pathName": "pages/orders/orders",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/user/pages/login/login",
+          "pathName": "subPackages/user/pages/login/login",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/user/pages/login/login",
+          "pathName": "subPackages/package/pages/zhifu/zhifu",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/user/pages/login/login",
+          "pathName": "subPackages/package/pages/gushi/gushi",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/my/my",
+          "pathName": "subPackages/package/pages/recharge/recharge",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/order/order",
+          "pathName": "pages/order/order",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/my/my",
+          "pathName": "pages/home/home",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/package/pages/jiesuan/jiesuan",
+          "pathName": "pages/home/home",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/user/pages/register/register",
+          "pathName": "subPackages/user/pages/register/register",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/user/pages/register/register",
+          "pathName": "pages/order/order",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "subPackages/user/pages/regi",
+          "pathName": "pages/order/order",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
+          "name": "pages/my/my",
+          "pathName": "subPackages/package/pages/chooseLocation/chooseLocation",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        }
+      ]
+    }
+  },
+  "libVersion": "trial"
+}

@@ -1,0 +1,2 @@
+<!--subPackages/package/pages/xieyi/xieyi.wxml-->
+<text style="white-space: pre-line;">{{content}}</text>

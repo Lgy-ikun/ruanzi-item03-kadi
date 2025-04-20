@@ -1,0 +1,222 @@
+<!--pages/home/home.wxml-->
+<!-- 轮播图 -->
+<view class="swiper-list">
+  <t-swiper current="{{0}}" autoplay="{{true}}" duration="{{1000}}" interval="{{2000}}" list="{{swiperList}}" navigation="{{ { type: 'none' } }}" style="--td-swiper-radius: 0;" height="523rpx">
+  </t-swiper>
+  <!-- <view class="txt">
+    <view class="title">卡狄咖啡</view>
+    <view>起源于公元6至8世纪，埃塞俄比亚</view>
+    <view>牧童卡狄KALDI被公认为发现咖啡的祖宗</view>
+  </view> -->
+</view>
+
+<view class="container" style="display: flex;flex-direction: column;padding: 0;margin: 0;background-color: rgba(243, 243, 243, 0.979);height: 2160rpx;padding-top: 20rpx;">
+  <!-- 用户信息 & 点单 配送 -->
+  <view class="user-info">
+    <!-- 用户信息 -->
+    <view class="user">
+      <view class="left">
+        <!-- 头像 -->
+        <view class="avatar">
+          <image src="{{tupianUrl}}/new/avatar.png" mode="" />
+        </view>
+        <text class="name" style="color: white;">{{name}}</text>
+        <!-- 电话 -->
+        <!-- <text>139****8989</text> -->
+        <!-- 卡狄会员vip （图片）-->
+        <!-- <view class="vip">
+        <image src="" mode=""/>
+      </view> -->
+      </view>
+    </view>
+
+    <!-- 点单配送 -->
+    <view class="order">
+      <!-- 到店 -->
+      <navigator url="/pages/order/order" class="order-drink" style="margin-right: 60rpx;" open-type="switchTab">
+        <image src="{{tupianUrl}}/new/order1.png" style="width: 114rpx; height: 114rpx;" mode="aspectFill" />
+        <view class="text">
+          <view class="title">到店自取</view>
+          <view class="desc">线上下单免排队</view>
+        </view>
+      </navigator>
+
+      <!-- 分割线 -->
+      <!-- <t-divider layout="vertical" style="height: 150rpx;" /> -->
+
+      <!-- 外卖 -->
+      <navigator url="/subPackages/package/pages/chooseLocation/chooseLocation?type=order" class="order-drink" open-type="navigate">
+        <image src="{{tupianUrl}}/new/order2.png" style="width: 114rpx; height: 114rpx; scale: 1.1;" mode="aspectFill" />
+        <view class="text">
+          <view class="title">外卖配送</view>
+          <view class="desc">外卖极速送到家</view>
+        </view>
+      </navigator>
+    </view>
+
+
+    <!-- 分割线 -->
+    <t-divider style="width: 90%; margin: 40rpx auto; --td-divider-color: gray" />
+
+    <!-- 积分 消费券 余额 冻结积分 -->
+    <view class="more">
+      <view class="item" style="margin-left: 30rpx;">
+        <view class="num">{{score || 0}}</view>
+        <view class="txt">消费券</view>
+      </view>
+      <!-- <view class="item">
+        <view class="num">{{content || 0}}</view>
+        <view class="txt">消费券</view>
+      </view> -->
+      <view class="item">
+        <view class="num">{{money || 0}}</view>
+        <view class="txt">余额</view>
+      </view>
+      <!-- <view class="item" style="margin-right: 30rpx;">
+        <view class="num">{{freeze || 0}}</view>
+        <view class="txt">冻结积分</view>
+      </view> -->
+    </view>
+  </view>
+
+  <!-- 更多功能 会员中心 成为股东 积分商城 余额充值 -->
+  <view class="tools">
+    <!-- <view class="item" style="margin-left: 40rpx;">
+    <image src="{{tupianUrl}}/info/huiyuanzhongxin.jpg" mode="" />
+    <view class="txt">会员中心</view> -->
+    <!-- </view> -->
+    <!-- 分割线 -->
+    <t-divider layout="vertical" style="height: 110rpx; margin-top: 50rpx;" />
+    <navigator bindtap="handleNavigate" class="item">
+      <image style="scale: 1.6;" src="{{tupianUrl}}/new/chengweivip.png" mode="aspectFill" />
+      <view class="txt" style="width: 150rpx;">成为VIP会员</view>
+    </navigator>
+    <!-- 分割线 -->
+
+    <t-divider layout="vertical" style="height: 110rpx; margin-top: 50rpx;" />
+    <navigator url="/subPackages/package/pages/recharge/recharge" class="item" style="margin-right: 40rpx;">
+      <image style="scale: 1.6;" src="{{tupianUrl}}/new/shenqinggudong.png" mode="aspectFill" />
+      <view class="txt">申请股东</view>
+    </navigator>
+    <!-- 分割线 -->
+    <t-divider layout="vertical" style="height: 110rpx; margin-top: 50rpx;" />
+    <navigator url="/subPackages/package/pages/jifen/jifen" class="item">
+      <image style="scale: 1.6;" src="{{tupianUrl}}/new/jifenshangcheng.png" mode="aspectFill" />
+      <view class="txt">积分商城</view>
+    </navigator>
+
+
+    <!-- 分割线 -->
+  </view>
+
+  <!-- 品牌故事 -->
+  <!-- <view class="story">
+    <view class="title">
+      <view class="txt">品牌故事</view>
+      <navigator url="/subPackages/package/pages/gushi/gushi" class="more">了解更多 ></navigator>
+    </view>
+
+    背景图part1
+    <view class="part1">
+      <view class="txt" style="margin-top: 60rpx; margin-left: 150rpx;">C A L D I <text class="black">卡 狄</text></view>
+      <view class="txt" style="margin-top: 20rpx; margin-left: 260rpx;"><text class="black">咖 啡</text> C a f e</view>
+      <view class="img">
+        <view class="gray-img">
+          <image src="{{tupianUrl}}/info/storyimg1.jpg" style="width: 300rpx; height: 400rpx;" />
+           图片蒙层 
+          <view class="overlay"></view>
+        </view>
+        <image src="{{tupianUrl}}/info/storyimg2.jpg" style="width: 240rpx; height: 300rpx;" />
+      </view>
+      <image class="float-img" src="{{tupianUrl}}/info/storyimg1.jpg" style="width: 170rpx; height: 225rpx;" />
+      <view class="float-txt1">公元6至8世纪</view>
+      <view class="float-txt2">热果汁“咖瓦”</view>
+    </view>
+    分割
+    <view class="devider">
+      <view class="color color1"></view>
+    </view>
+    背景图part2
+    <view class="part2">
+      <view class="img">
+        <image src="{{tupianUrl}}/info/storyimg3.png" style="width: 220rpx; height: 300rpx;" />
+        <image src="{{tupianUrl}}/info/storyimg4.png" style="width: 400rpx; height: 300rpx;" />
+      </view>
+      <view class="txt">
+        <view class="txt1">公元6至8世纪</view>
+        <view class="txt2">牧童卡狄</view>
+        <view class="txt2">创立卡狄咖啡</view>
+      </view>
+    </view>
+    分割
+    <view class="devider">
+      <view class="color color2"></view>
+    </view>
+    背景图part3
+    <view class="part3">
+      <view class="img">
+        <image src="{{tupianUrl}}/info/storyimg5.jpg" style="width: 220rpx; height: 300rpx;" />
+        <view class="gray-img">
+          <image src="{{tupianUrl}}/info/storyimg6.jpg" style="width: 290rpx; height: 400rpx;" />
+           图片蒙层 
+          <view class="overlay"></view>
+        </view>
+      </view>
+      <image class="float-img" src="{{tupianUrl}}/info/storyimg6.jpg" style="width: 170rpx; height: 230rpx;" />
+      <view class="txt">
+        <view class="txt1">公元6至8世纪</view>
+        <view class="txt2">探索与崛起</view>
+      </view>
+    </view>
+    分割
+    <view class="devider">
+      <view class="color color3"></view>
+    </view>
+    背景图part4
+    <view class="part4">
+      <view class="img">
+        <image src="{{tupianUrl}}/info/storyimg7.jpg" style="width: 400rpx; height: 300rpx;" />
+        <image src="{{tupianUrl}}/info/storyimg8.jpg" style="width: 230rpx; height: 300rpx;" />
+      </view>
+      <view class="txt">
+        <view class="txt1">公元19世纪末</view>
+        <view class="txt2">文化传承</view>
+      </view>
+    </view>
+    分割
+    <view class="devider">
+      <view class="color color4"></view>
+    </view>
+    背景图part5
+    <view class="part5">
+      <view class="img">
+        <view class="gray-img">
+          <image src="{{tupianUrl}}/info/storyimg9.jpg" style="width: 300rpx; height: 400rpx;" />
+           图片蒙层 
+          <view class="overlay"></view>
+        </view>
+        <image src="{{tupianUrl}}/info/storyimg10.jpg" style="width: 220rpx; height: 300rpx;" />
+      </view>
+      <image class="float-img" src="{{tupianUrl}}/info/storyimg9.jpg" style="width: 160rpx; height: 230rpx;" />
+      <view class="txt">
+        <view class="txt1">公元21世纪至未来</view>
+        <view class="txt2">全球视野</view>
+      </view>
+    </view>
+  </view> -->
+
+  <!-- 新版--图片展示区 -->
+  <view class="story-new">
+    <view class="item" wx:for="{{newImgs}}">
+      <view class="img">
+        <image style="width: 100%; height: 100%;" src="{{item.url}}" mode=""/>
+      </view>
+      <view class="txt">
+        <text>{{item.desc}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 占位盒子(没用的，但也不能删) -->
+  <!-- <view class="useless"></view> -->
+</view>

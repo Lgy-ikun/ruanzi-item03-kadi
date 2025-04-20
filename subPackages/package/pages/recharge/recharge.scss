@@ -1,0 +1,747 @@
+/*.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20rpx;
+  width: 100%;
+  height: 16vh;
+  background: linear-gradient(to bottom, #ffffff, #eeeeee);
+}
+
+.balance-title {
+  font-size: 33rpx;
+  color: rgb(0, 0, 0);
+  position: absolute; 
+  top: 40rpx; 
+  left: 50rpx; 
+}
+
+.balance-amount {
+  font-size: 69rpx;
+  color: rgb(0, 0, 0);
+  font-weight: bold; 
+  position: absolute; 
+  top: 85rpx; 
+  left: 55rpx; 
+  letter-spacing: 10rpx;
+}
+.balance-link {
+  color: #323333;
+  position: absolute; 
+  top: 43rpx; 
+  left: 580rpx; 
+}
+
+.benefits {
+  position: absolute;
+    top: 210rpx;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    height: 85.5vh;
+    background-color: #ffffff; /* 设置一个明显的背景颜色 */
+
+/* border-top-left-radius: 40rpx; */
+/* 为右下角设置圆角 */
+/* border-top-right-radius: 40rpx; */
+/* box-shadow: 0 8rpx 16rpx rgba(0, 0, 0, 0.2); /* 增加阴影的模糊半径和扩展半径 */
+/* overflow: hidden; /* 确保内容不会超出圆角和阴影范围 */
+/* }.chong{ 
+  font-size: 35rpx;
+  color: rgb(0, 0, 0);
+  font-weight: bold; 
+  position: absolute; 
+  top: 45rpx;  
+  left: 40rpx; 
+  letter-spacing: 1rpx;
+}
+.recharge-options {
+  font-size: 50rpx;
+  font-weight: bold; 
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  position: absolute; 
+  top: 140rpx; 
+  left: 40rpx; 
+  width: 680rpx;
+}
+.recharge-option {
+  width: 48%; 
+  margin-bottom: 25rpx; 
+  text-align: center;
+  border: 1rpx solid #ccc;
+  border-radius: 5rpx;
+  padding: 10rpx; 
+  box-sizing: border-box;
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  height: 150rpx;
+}
+
+.recommended {
+  position: relative;
+}
+
+.recommended::before {
+  content: '超值推荐';
+  position: absolute;
+  top: -5rpx;
+  left: 0rpx;
+  background-color: #68550379;
+  color: #fff;
+  padding: 5rpx 5rpx;
+  border-radius: 3rpx;
+  font-size: 22rpx;
+  border-top-left-radius: 10rpx;
+  /* 为右下角设置圆角 */
+/* border-bottom-right-radius: 10rpx;
+}
+
+.benefits-title{
+font-size: 35rpx;
+color: rgb(0, 0, 0);
+font-weight: bold; 
+position: absolute; 
+top: 520rpx; 
+left: 40rpx; 
+letter-spacing: 1rpx;
+}
+.benefits-icons { */
+/* display: flex; /* 使容器成为弹性盒子 */
+/* justify-content: space-between; 子元素之间的间隔平均分布 */
+/* padding: 30rpx; 根据需要调整内边距 */
+/* position: absolute; 
+top: 570rpx; 
+left: 10rpx; 
+width: 90%;
+  height: 25%;
+}  */
+
+/* .icon-item {
+flex: 1; /* 每个子元素占据相同的空间 */
+/* text-align: center; /* 文本居中对齐 */
+/* margin: 0 5rpx; /* 如果需要，可以添加一些外边距 */
+/* }
+
+.avatar{
+width: 60rpx;
+height: 60rpx;
+border-radius: 50%;
+overflow: hidden;
+margin-left: 20rpx;
+position: absolute; 
+top: 52rpx; 
+left: 40rpx; 
+}
+.avatar1{
+width: 60rpx;
+height: 60rpx;
+border-radius: 50%;
+overflow: hidden;
+margin-left: 20rpx;
+position: absolute; 
+top: 52rpx; 
+left: 305rpx; 
+}
+.icon-item image {
+width: 80rpx;
+height: 80rpx;
+} */
+/* .a{
+font-size: 27rpx;
+color: rgb(65, 65, 65);
+position: absolute; 
+top: 150rpx; 
+left: 44rpx; 
+letter-spacing: 1rpx;
+}
+.b{
+font-size: 27rpx;
+color: rgb(65, 65, 65);
+position: absolute; 
+top: 150rpx; 
+left: 300rpx; 
+letter-spacing: 1rpx;
+}
+.c{
+font-size: 27rpx;
+color: rgb(65, 65, 65);
+position: absolute; 
+top: 150rpx; 
+left: 550rpx; 
+letter-spacing: 1rpx;
+}
+
+.recharge-button {
+  background-color: #000;
+  color: #fff;
+  position: absolute; 
+  top: 515rpx; 
+  left: 17rpx;
+  border-radius: 5rpx;
+  padding: 1rpx 15rpx;
+  border-radius: 50rpx; 
+  width: 700rpx; 
+  height: 100rpx;
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
+} */
+// .container {
+//   display: flex;
+//   flex-direction: column;
+//   align-items: center;
+//   padding: 20rpx;
+//   width: 100%;
+//   height: 16vh;
+//   background: linear-gradient(to bottom, #ffffff, #eeeeee);
+// }
+
+// .balance {
+//   margin-bottom: 33rpx;
+// }
+
+// .yue {
+//   font-size: 33rpx;
+//   color: rgb(0, 0, 0);
+//   position: absolute;
+//   top: 40rpx;
+//   left: 50rpx;
+// }
+
+// .balance-amount {
+//   font-size: 69rpx;
+//   color: rgb(0, 0, 0);
+//   font-weight: bold;
+//   position: absolute;
+//   top: 85rpx;
+//   left: 55rpx;
+//   letter-spacing: 10rpx;
+// }
+
+// .balance-link {
+//   color: #323333;
+//   position: absolute;
+//   top: 43rpx;
+//   left: 580rpx;
+// }
+
+// .benefits {
+//   position: absolute;
+//   top: 200rpx;
+//   left: 50%;
+//   transform: translateX(-50%);
+//   width: 100%;
+//   height: 86.2vh;
+//   background-color: #ffffff;
+//   /* 设置一个明显的背景颜色 */
+//   border-top-left-radius: 40rpx;
+//   /* 左上圆角半径 */
+//   border-top-right-radius: 40rpx;
+//   /* 右上圆角半径 */
+//   box-shadow: 0px -2px 5px rgba(129, 128, 128, 0.2);
+//   /* 增加阴影的模糊半径和扩展半径 */
+//   overflow: hidden;
+//   /* 确保内容不会超出圆角和阴影范围 */
+// }
+
+// .recharge-info {
+//   display: flex;
+//   align-items: center;
+//   margin-bottom: 10rpx;
+//   /* 与充值福利的间距 */
+// }
+
+// .recharge-title {
+//   font-size: 52rpx;
+//   color: rgb(0, 0, 0);
+//   position: absolute;
+//   top: 70rpx;
+//   left: 130rpx;
+//   letter-spacing: 2rpx;
+// }
+
+// .text-container {
+//   border: 1rpx solid rgb(138, 138, 138);
+//   /* 边框 */
+//   padding: 5rpx;
+//   /* 内边距 */
+//   border-radius: 2rpx;
+//   /* 圆角 */
+//   width: 320rpx;
+//   /* 设置容器宽度 */
+//   height: 70rpx;
+//   /* 设置容器高度 */
+//   position: relative;
+//   /* 设置定位 */
+//   top: 70rpx;
+//   /* 设置距离顶部的距离 */
+//   left: 260rpx;
+//   /* 设置距离左侧的距离 */
+//   display: flex;
+//   /* 使用 flexbox 来居中内容 */
+//   justify-content: center;
+//   /* 水平居中 */
+//   align-items: center;
+//   /* 垂直居中 */
+//   border: 1.8rpx solid rgb(224, 222, 222);
+//   letter-spacing: 1.5rpx;
+// }
+
+// .recharge-title2 {
+//   font-size: 50rpx;
+//   /* 设置字体大小 */
+//   color: rgb(0, 0, 0);
+//   /* 设置字体颜色 */
+// }
+
+// .shuliang {
+//   font-size: 52rpx;
+//   color: rgb(0, 0, 0);
+//   position: absolute;
+//   top: 180rpx;
+//   left: 130rpx;
+//   letter-spacing: 2rpx;
+// }
+
+// .quantity-text {
+//   font-size: 30rpx;
+//   color: rgb(90, 87, 87);
+//   position: absolute;
+//   top: 195rpx;
+//   left: 379rpx;
+//   background-color: #f0f0f0;
+//   /* 设置背景颜色为灰色 */
+//   padding: 5rpx 35rpx;
+// }
+
+// /* 设置按钮的通用样式 */
+// .decrease,
+// .increase {
+//   position: absolute;
+//   top: 50%;
+//   /* 垂直居中 */
+//   transform: translateY(-50%);
+//   /* 垂直居中调整 */
+//   color: rgb(54, 46, 46);
+//   background-color: #f1f1f1;
+//   border: none;
+//   padding: 5rpx;
+//   border-radius: 2rpx;
+//   cursor: pointer;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   width: 50rpx;
+//   /* 按钮宽度 */
+//   height: 45rpx;
+//   /* 按钮高度 */
+//   font-size: 55rpx;
+// }
+
+// .decrease {
+//   left: 320rpx;
+//   top: 219rpx;
+// }
+
+// .increase {
+//   right: 230rpx;
+//   top: 219rpx;
+// }
+
+// .benefits-title {
+//   font-size: 35rpx;
+//   color: rgb(0, 0, 0);
+//   font-weight: bold;
+//   position: absolute;
+//   top: 520rpx;
+//   left: 40rpx;
+//   letter-spacing: 1rpx;
+// }
+
+// .benefits-icons {
+//   display: flex;
+//   /* 使容器成为弹性盒子 */
+//   justify-content: space-between;
+//   /* 子元素之间的间隔平均分布 */
+//   padding: 30rpx;
+//   /* 根据需要调整内边距 */
+//   position: absolute;
+//   top: 570rpx;
+//   left: 10rpx;
+//   width: 90%;
+//   height: 25%;
+// }
+
+// .icon-item {
+//   flex: 1;
+//   /* 每个子元素占据相同的空间 */
+//   text-align: center;
+//   /* 文本居中对齐 */
+//   margin: 0 5rpx;
+//   /* 如果需要，可以添加一些外边距 */
+// }
+
+// .avatar {
+//   width: 60rpx;
+//   height: 60rpx;
+//   border-radius: 50%;
+//   overflow: hidden;
+//   margin-left: 20rpx;
+//   position: absolute;
+//   top: 52rpx;
+//   left: 40rpx;
+// }
+
+// .avatar1 {
+//   width: 60rpx;
+//   height: 60rpx;
+//   border-radius: 50%;
+//   overflow: hidden;
+//   margin-left: 20rpx;
+//   position: absolute;
+//   top: 52rpx;
+//   left: 305rpx;
+// }
+
+// .icon-item image {
+//   width: 80rpx;
+//   height: 80rpx;
+// }
+
+// .a {
+//   font-size: 27rpx;
+//   color: rgb(65, 65, 65);
+//   position: absolute;
+//   top: 150rpx;
+//   left: 44rpx;
+//   letter-spacing: 1rpx;
+// }
+
+// .b {
+//   font-size: 27rpx;
+//   color: rgb(65, 65, 65);
+//   position: absolute;
+//   top: 150rpx;
+//   left: 300rpx;
+//   letter-spacing: 1rpx;
+// }
+
+// .c {
+//   font-size: 27rpx;
+//   color: rgb(65, 65, 65);
+//   position: absolute;
+//   top: 150rpx;
+//   left: 550rpx;
+//   letter-spacing: 1rpx;
+// }
+
+// .recharge-button {
+//   background-color: #000;
+//   color: #fff;
+//   position: absolute;
+//   top: 1130rpx;
+//   left: 25rpx;
+//   border-radius: 5rpx;
+//   padding: 1rpx 15rpx;
+//   border-radius: 50rpx;
+//   width: 700rpx;
+//   height: 100rpx;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+// }
+
+// .title1 {
+//   font-size: 30rpx;
+//   font-weight: bold;
+//   margin-bottom: 20px;
+//   position: relative;
+//   left: 210rpx;
+// }
+
+// .input-container {
+//   position: relative;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   margin-bottom: 20px;
+// }
+
+// .input-box input {
+//   width: 40px;
+//   height: 40px;
+//   border: 1px solid #ccc;
+//   margin: 0 2px;
+//   text-align: center;
+//   font-size: 18px;
+// }
+
+// button {
+//   background-color: #007aff;
+//   color: white;
+//   padding: 10px;
+//   width: 100%;
+// }
+
+// .overlay {
+//   position: absolute;
+//   top: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 100%;
+//   z-index: 5;
+// }
+
+// .ipt {
+//   position: absolute;
+//   margin: 0 auto;
+//   top: 10rpx;
+//   width: 200rpx;
+//   height: 10rpx;
+//   border: 0px solid rgb(255, 255, 255);
+//   color: rgb(255, 255, 255);
+// }
+
+// .dialog-buttons {
+//   display: flex;
+//   justify-content: space-between;
+//   margin-top: 40rpx;
+// }
+
+// .dialog-btn {
+//   flex: 1;
+//   margin: 0 20rpx;
+//   font-size: 32rpx;
+// }
+
+// .confirm {
+//   background: #07c160;
+//   color: white;
+// }
+
+// .cancel {
+//   background: #f0f0f0;
+//   color: #333;
+// }
+
+page{
+  background-color: rgb(245, 245, 245);
+}
+
+.view-comtainer{
+  border: 1px solid rgba(0, 0, 0, 0);
+  .account{
+    margin: 30rpx auto;
+    margin-bottom: 0;
+    position: relative;
+    width: 90%;
+    height: 300rpx;
+    overflow: hidden;
+    border-radius: 24rpx;
+    image{
+      width: 100%;
+      height: 100%;
+      scale: 1.4;
+    }
+    .content{
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      // transform: translateY(-50%);
+      position: absolute;
+      // z-index: 1;
+      .money{
+        margin-bottom: 20rpx;
+        font-size: 46rpx;
+        color: white;
+      }
+      .txt{
+        font-size: 26rpx;
+        color: white;
+      }
+    }
+  }
+}
+
+.chongzhi{
+  margin: 30rpx auto;
+  width: 90%;
+  height: 300rpx;
+  border-radius: 24rpx;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+  .title{
+    font-size: 32rpx;
+    font-weight: 600;
+    padding: 20rpx 30rpx;
+  }
+  .content{
+    display: flex;
+    justify-content: space-around;
+    margin-top: 15rpx;
+    .item{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      .img{
+        width: 120rpx;
+        height: 120rpx;
+        overflow: hidden;
+        image{
+          width: 100%;
+          height: 100%;
+        }
+      }
+      .txt{
+
+      }
+    }
+  }
+}
+
+.lijichongzhi{
+  margin: 30rpx auto;
+  width: 90%;
+  height: 300rpx;
+  border-radius: 24rpx;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+  background-color: #fff;
+  .title{
+    font-size: 32rpx;
+    font-weight: 600;
+    padding: 20rpx 30rpx;
+  }
+  .content{
+    margin-top: 20rpx;
+    display: flex;
+    justify-content: space-around;
+    .price{
+      display: flex;
+      align-items: center;
+      width: 360rpx;
+      height: 60rpx;
+      background-color: rgb(250, 247, 252);
+      text{
+        margin-left: 20rpx;
+      }
+    }
+    .amount{
+      display: flex;
+      align-items: center;
+      .img{
+        width: 56rpx;
+        height: 56rpx;
+        image{
+          width: 100%;
+          height: 100%;
+        }
+      }
+      text{
+        margin: 0 30rpx;
+      }
+    }
+  }
+  .btn{
+    margin: 30rpx auto;
+    width: 220rpx;
+    height: 70rpx;
+    border-radius: 60rpx;
+    background-color: rgb(205, 174, 242);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    font-size: 32rpx;
+  }
+}
+
+// 交易码弹窗
+.code-dialog-mask{
+  position: absolute; 
+  width: 100%;
+  height: 100%;
+  background-color: rgba(100, 100, 100, .8);
+  z-index: 5;
+  .code-content{
+    margin: 0 auto;
+    margin-top: 40%;
+    height: 450rpx; 
+    width: 90%;  
+    border-radius: 30rpx;
+    background-color: rgb(255, 255, 255);
+    .img{
+      display: flex;
+      width: 100%;
+      height: 80rpx;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      image{
+        margin-right: 30rpx;
+        width: 40rpx;
+        height: 40rpx;
+      }
+    }
+    .title1 {
+      text-align: center;
+      font-size: 32rpx;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+    .input-container {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+      .input-box input {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #ccc;
+        border-radius: 15rpx;
+        margin: 0 2px;
+        text-align: center;
+        font-size: 18px;
+      }
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+      }
+    }
+    .ipt {
+      position: absolute;
+      margin: 0 auto;
+      top: -100vh;
+      width: 200rpx;
+      height: 10rpx;
+      border: 0px solid rgb(255, 255, 255);
+      color: rgb(255, 255, 255);
+    }
+    .dialog-buttons {
+      border: 1px solid rgba(0, 0, 0, 0);
+      .btn{
+        margin: 20rpx auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 220rpx;
+        height: 70rpx;
+        border-radius: 60rpx;
+        background-color: rgb(205, 174, 242);
+        color: white;
+        font-size: 32rpx;
+      }
+    }
+  }
+}

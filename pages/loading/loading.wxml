@@ -1,0 +1,10 @@
+<!-- <view class="loading-container" style="height: 1422rpx; display: flex; box-sizing: content-box"> -->
+<view class="loading-container">
+  <image class="coffee-logo" src="{{tupianUrl}}/new/loading-logo.png"></image>
+  <image class="coffee-beans" src="{{tupianUrl}}/new/loading.png"></image>
+  <!-- <image class="coffe-logo" src="{{tupianUrl}}/info/beiload.png"></image> -->
+  <!-- <view class="logo">
+  </view> -->
+  <view class="countdown" bind:tap="passCountDown">跳过 {{seconds}}秒</view>
+  <button open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber" wx:if="{{button}}">注册</button>
+</view>

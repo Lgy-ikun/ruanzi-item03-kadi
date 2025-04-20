@@ -1,0 +1,106 @@
+/* 搜索容器样式 */
+.search-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20rpx;
+}
+
+.search-icon {
+  position: relative;
+  left: 40rpx;
+}
+
+/* 搜索输入框样式 */
+.search-input {
+  flex: 1;
+  height: 80rpx;
+  padding: 0 60rpx;
+  border: 1px solid #ccc;
+  border-radius: 40rpx;
+  font-size: 30rpx;
+}
+
+/* 搜索按钮样式 */
+.search-button {
+  height: 80rpx;
+  background-color: #007AFF;
+  color: #FFFFFF;
+  border-radius: 10rpx;
+  margin-left: 20rpx;
+
+}
+
+
+
+/* 搜索结果项样式 */
+.dishItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+
+/* 搜索结果图片样式 */
+.result-image {
+  width: 180rpx;
+  height: 180rpx;
+  border-radius: 10rpx;
+}
+
+/* 搜索结果信息容器样式 */
+.item-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* 搜索结果名称样式 */
+.name {
+  font-size: 32rpx;
+  margin: 0 20rpx;
+  margin-bottom: 60rpx;
+}
+
+/* 搜索结果价格样式 */
+.price {
+  font-size: 35rpx;
+  color: #cc471e;
+  margin-left: 20rpx;
+
+}
+
+/* 未找到相关商品样式 */
+.no-result {
+  color: #999;
+  text-align: center;
+  padding: 20rpx;
+}
+
+.add-button {
+  position: relative;
+  left: 140rpx;
+  /* 距离右侧20rpx */
+  top: 50rpx;
+  /* 距离顶部20rpx */
+  width: 50rpx;
+  /* 按钮宽度 */
+  height: 50rpx;
+  /* 按钮高度 */
+  line-height: 50rpx;
+  /* 行高与按钮高度相同，使文字垂直居中 */
+  display: flex;
+  /* 使用Flex布局 */
+  justify-content: center;
+  /* 水平居中 */
+  align-items: center;
+  /* 垂直居中 */
+  border-radius: 50%;
+  /* 圆形 */
+  background-color: #be5907;
+  /* 背景颜色 */
+  color: white;
+  /* 文字颜色 */
+  font-size: 36rpx;
+  /* 文字大小 */
+  font-weight: bolder;
+}

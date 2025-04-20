@@ -1,0 +1,467 @@
+/* pages/home/home.wxss */
+
+.navigator-hover {
+  background-color: transparent !important; /* 移除背景色 */
+}
+
+.swiper-list {
+  position: relative;
+
+  .txt {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    top: 170rpx;
+    left: 50rpx;
+    color: white;
+    font-size: 22rpx;
+
+    view:nth-child(2) {
+      margin-bottom: 14rpx;
+    }
+
+    .title {
+      margin-bottom: 14rpx;
+      left: 100rpx;
+      font-size: 30rpx;
+    }
+  }
+}
+
+.user-info {
+  position: absolute;
+  top: 453rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  height: 520rpx;
+  box-shadow: 0 0 8rpx rgba(233, 229, 229, 0.2);
+  border-radius: 20rpx;
+  background-color: white;
+
+  // 用户信息
+  .user {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    height: 71rpx;
+    background-color: rgb(205, 174, 242);
+    border-radius: 20rpx 20rpx 0 0;
+
+    .left {
+      display: flex;
+      align-items: center;
+
+      .avatar {
+        width: 60rpx;
+        height: 60rpx;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-left: 20rpx;
+
+
+
+        image {
+          width: 100%;
+          height: 100%;
+        }
+      }
+
+      text {
+        margin-left: 20rpx;
+        color: white;
+        font-size: 28rpx;
+      }
+    }
+  }
+
+
+  // 点单
+  .order {
+    margin-top: 80rpx;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .order-drink {
+      display: flex;
+      // flex-direction: column;
+      align-items: center;
+      .text{
+        margin-left: 10rpx;
+        .title {
+          font-size: 30rpx;
+          margin-bottom: 20rpx;
+        }
+        .desc {
+          font-size: 24rpx;
+          color: gray;
+        }
+      }
+    }
+
+    --td-divider-color: gray // 分割线颜色
+  }
+
+  // 积分 消费券 余额 冻结积分
+  .more {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 80rpx;
+
+    .item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+      .num {
+        font-size: 34rpx;
+        font-weight: 600;
+        margin-bottom: 18rpx;
+      }
+
+      .txt {
+        color: gray;
+        font-size: 28rpx;
+      }
+    }
+  }
+}
+
+// 更多功能 会员中心 成为股东 积分商城 余额充值
+.tools {
+  position: absolute;
+  top: 1000rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  height: 220rpx;
+  box-shadow: 0 0 8rpx rgba(233, 229, 229, 0.2);
+  display: flex;
+  justify-content: space-between;
+  background-color: white;
+  border-radius: 20rpx;
+
+  .item {
+    flex: 1;
+    margin: 50rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+
+    image {
+      width: 70rpx;
+      height: 70rpx;
+      margin-bottom: 10rpx;
+    }
+
+    .txt {
+      font-size: 26rpx;
+    }
+  }
+
+  --td-divider-color: gray
+}
+
+// 品牌故事
+// .story {
+//   position: absolute;
+//   top: 1250rpx;
+//   left: 50%;
+//   transform: translateX(-50%);
+//   width: 95%;
+//   height: 100%;
+//   // margin-bottom: 100rpx;
+//   box-shadow: 0 0 8px rgba(233, 229, 229, 0.2);
+//   background-color: white;
+//   border-radius: 20rpx;
+//   .title {
+//     height: 80rpx;
+//     display: flex;
+//     justify-content: space-between;
+//     align-items: center;
+//     .txt {
+//       margin-left: 30rpx;
+//       font-weight: 600;
+//     }
+//     .more {
+//       margin-right: 30rpx;
+//     }
+//   }
+//   // 背景图part1
+//   .part1 {
+//     position: relative;
+//     width: 99.9%;
+//     height: 860rpx;
+//     background-color: rgb(162, 162, 162);
+//     font-size: 50rpx;
+//     border: 1px solid rgba(0, 0, 0, 0.0);
+//     .txt {
+//       color: white;
+//       font-style: italic;
+//     }
+//     .black {
+//       margin: 0 20rpx;
+//       color: black;
+//       font-weight: 600;
+//     }
+//     .img {
+//       margin-top: 70rpx;
+//       display: flex;
+//       align-items: center;
+//       justify-content: space-between;
+//       .gray-img {
+//         position: relative;
+//         .overlay {
+//           position: absolute;
+//           top: 0;
+//           left: 0;
+//           width: 300rpx;
+//           height: 400rpx;
+//           background-color: rgba(100, 100, 100, 0.6);
+//           /* 半透明黑色 */
+//           z-index: 1;
+//           /* 确保在图片之上 */
+//         }
+//       }
+//     }
+//     .float-img {
+//       position: absolute;
+//       top: 380rpx;
+//       left: 200rpx;
+//       z-index: 2;
+//     }
+//     .float-txt1 {
+//       position: absolute;
+//       top: 650rpx;
+//       left: 330rpx;
+//       z-index: 2;
+//       font-size: 28rpx;
+//       font-weight: 600;
+//       font-style: italic;
+//     }
+//     .float-txt2 {
+//       margin-top: 30rpx;
+//       font-weight: 600;
+//       margin-left: 260rpx;
+//       font-style: italic;
+//     }
+//   }
+//   // 分割 ------------------------------------------------------
+//   .devider {
+//     width: 100%;
+//     height: 50rpx;
+//     background-color: #fff;
+//     .color {
+//       width: 50rpx;
+//       height: 100%;
+//       background-color: rgb(162, 162, 162);
+//     }
+//     .color1 {
+//       margin-left: 500rpx;
+//     }
+//     .color2 {
+//       margin-left: 400rpx;
+//     }
+//     .color3 {
+//       margin-left: 300rpx;
+//     }
+//     .color4 {
+//       margin-left: 200rpx;
+//     }
+//   }
+//   // 背景图part2
+//   .part2 {
+//     width: 99.9%;
+//     height: 760rpx;
+//     background-color: rgb(162, 162, 162);
+//     border: 1px solid rgba(0, 0, 0, 0.0);
+//     .img {
+//       margin-top: 80rpx;
+//       display: flex;
+//       justify-content: space-between;
+//     }
+//     .txt {
+//       text-align: center;
+//       margin-top: 30rpx;
+//       font-style: italic;
+//       font-weight: 600;
+//       .txt2 {
+//         margin-top: 30rpx;
+//         font-size: 54rpx;
+//       }
+//     }
+//   }
+//   // 背景图part3
+//   .part3 {
+//     position: relative;
+//     width: 99.9%;
+//     height: 640rpx;
+//     background-color: rgb(162, 162, 162);
+//     border: 1px solid rgba(0, 0, 0, 0.0);
+//     .img {
+//       margin-top: 50rpx;
+//       display: flex;
+//       justify-content: space-between;
+//       align-items: center;
+//       .gray-img {
+//         position: relative;
+//         .overlay {
+//           position: absolute;
+//           top: 0;
+//           left: 0;
+//           width: 290rpx;
+//           height: 400rpx;
+//           background-color: rgba(100, 100, 100, 0.6);
+//           /* 半透明黑色 */
+//           z-index: 1;
+//           /* 确保在图片之上 */
+//         }
+//       }
+//     }
+//     .float-img {
+//       position: absolute;
+//       top: 140rpx;
+//       left: 320rpx;
+//       z-index: 2;
+//     }
+//     .txt {
+//       font-style: italic;
+//       font-weight: 600;
+//       .txt1 {
+//         position: absolute;
+//         top: 420rpx;
+//         left: 200rpx;
+//       }
+//       .txt2 {
+//         font-size: 50rpx;
+//         margin-top: 40rpx;
+//         margin-left: 160rpx;
+//       }
+//       .t1 {
+//         font-size: 12rpx;
+//       }
+//     }
+//   }
+//   // 背景图part4
+//   .part4 {
+//     position: relative;
+//     width: 99.9%;
+//     height: 580rpx;
+//     background-color: rgb(162, 162, 162);
+//     border: 1px solid rgba(0, 0, 0, 0.0);
+//     .img {
+//       margin-top: 50rpx;
+//       display: flex;
+//       justify-content: space-between;
+//     }
+//     .txt {
+//       font-style: italic;
+//       font-weight: 600;
+//       text-align: center;
+//       .txt1 {
+//         margin-top: 30rpx;
+//       }
+//       .txt2 {
+//         margin-top: 20rpx;
+//         font-size: 50rpx;
+//       }
+//     }
+//   }
+//   // 背景图part5
+//   .part5 {
+//     position: relative;
+//     width: 99.9%;
+//     height: 660rpx;
+//     background-color: rgb(162, 162, 162);
+//     border: 1px solid rgba(0, 0, 0, 0.0);
+//     border-radius: 0rpx 0rpx 20rpx 20rpx;
+//     .img {
+//       margin-top: 50rpx;
+//       display: flex;
+//       justify-content: space-between;
+//       .gray-img {
+//         position: relative;
+//         .overlay {
+//           position: absolute;
+//           top: 0;
+//           left: 0;
+//           width: 300rpx;
+//           height: 400rpx;
+//           background-color: rgba(100, 100, 100, 0.7);
+//           /* 半透明黑色 */
+//           z-index: 1;
+//           /* 确保在图片之上 */
+//         }
+//       }
+//     }
+//     .float-img {
+//       position: absolute;
+//       top: 134rpx;
+//       left: 220rpx;
+//       z-index: 1;
+//     }
+//     .txt {
+//       font-style: italic;
+//       font-weight: 600;
+//       .txt1 {
+//         position: absolute;
+//         top: 400rpx;
+//         left: 360rpx;
+//       }
+//       .txt2 {
+//         margin-top: 30rpx;
+//         margin-left: 340rpx;
+//         font-size: 50rpx;
+//       }
+//     }
+//   }
+// }
+
+// 新版-图片展示区
+.story-new{
+  position: absolute;
+  top: 1250rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 95%;
+  // height: 100%;
+  // margin-bottom: 100rpx;
+  box-shadow: 0 0 8px rgba(233, 229, 229, 0.2);
+  background-color: white;
+  border-radius: 20rpx;
+  .item{
+    margin: 40rpx;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    .img{
+      width: 640rpx;
+      height: 320rpx;
+    }
+    .txt{
+      display: flex;
+      align-items: center;
+      width: 640rpx;
+      height: 90rpx;
+      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
+      text{
+        margin-left: 30rpx;
+        font-size: 26rpx;
+        color: gray;
+      }
+    }
+  }
+}
+
+
+// 占位盒子
+// .useless {
+//   position: absolute;
+//   width: 100%;
+//   height: 200rpx;
+//   top: 5000rpx;
+// }

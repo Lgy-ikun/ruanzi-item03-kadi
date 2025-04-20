@@ -1,0 +1,32 @@
+{
+  "compileType": "miniprogram",
+  "libVersion": "trial",
+  "setting": {
+    "coverView": true,
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "enhance": true,
+    "showShadowRootInWxmlPanel": true,
+    "packNpmRelationList": [],
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    },
+    "useCompilerPlugins": [
+      "sass"
+    ],
+    "ignoreUploadUnusedFiles": true
+  },
+  "condition": {},
+  "editorSetting": {
+    "tabIndent": "auto",
+    "tabSize": 2
+  },
+  "packOptions": {
+    "ignore": [],
+    "include": []
+  },
+  "appid": "wxe1d69cebee046787"
+}

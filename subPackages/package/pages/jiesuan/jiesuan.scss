@@ -1,0 +1,378 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  background-color: #ffffff;
+}
+
+.order-settlement {
+  padding: 16rpx;
+  background-color: #f8f8f8;
+  width: 100%;
+  position: absolute;
+  top: 10rpx;
+  flex: 1;
+  overflow-y: auto;
+  max-height: 85vh;
+}
+
+.shop-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20rpx;
+
+  width: 100%;
+  height: 150rpx;
+}
+
+.info-detail {
+  display: flex;
+  flex-direction: column;
+  width: 70%;
+
+  .item-adress {
+    margin-top: 30rpx;
+    font-size: 32rpx;
+    font-weight: bolder;
+    margin-left: 30rpx;
+  }
+
+  .user-id {
+    margin-top: 15rpx;
+    color: rgb(61, 61, 61);
+    font-size: 14px;
+    position: relative;
+    top: 20rpx;
+    left: 30rpx;
+  }
+}
+
+.pickup-delivery-group {
+  display: flex;
+  background-color: #f5f5f5;
+  border-radius: 50rpx;
+  position: relative;
+  left: 0rpx;
+  top: 30rpx;
+  height: 50rpx;
+}
+
+.pickup-button,
+.delivery-button {
+  font-size: 22rpx;
+  padding: 10rpx 20rpx;
+  color: #000;
+  background-color: #f5f5f5;
+  border-radius: 50rpx;
+  cursor: pointer;
+  transition: background-color 0.3s, color 0.3s;
+
+}
+
+.pickup-button.active,
+.delivery-button.active {
+  background-color: rgb(205, 174, 242);
+  color: #fff;
+}
+
+// .order-list{
+//    background-color: #fff;
+//   padding: 10px;
+//   margin-bottom: 10px;
+//   border-radius: 5px;
+//   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+// }
+// .order-item, .delivery-fee, .total {
+//   background-color: #fff;
+//   padding: 10px;
+//   margin-bottom: 10px;
+//   border-radius: 5px;
+//   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+// }
+
+// .item-image {
+//   width: 80px;
+//   height: 80px;
+//   margin-right: 10px;
+// }
+
+// .item-details {
+//   display: flex;
+//   flex-direction: column;
+//   justify-content: space-between;
+// }
+
+// .item-name {
+//   font-size: 16px;
+//   color: #333;
+// }
+
+// .item-description {
+//   font-size: 14px;
+//   color: #666;
+// }
+
+// .item-price {
+//   color: #f00;
+//   font-size: 16px;
+//   font-weight: bold;
+// }
+
+// .selected-items {
+//   margin-top: 10px;
+// }
+.order-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-item {
+  display: flex;
+  border-bottom: 1px solid #eee;
+  padding: 10px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.item-image {
+  width: 100px;
+  height: 100px;
+  margin-right: 10px;
+}
+
+.item-details {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex-grow: 1;
+}
+
+.item-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.item-description {
+  font-size: 14px;
+  color: #666;
+}
+
+.item-price {
+  font-size: 14px;
+  color: #333;
+}
+
+.item-quantity,
+.item-customizations {
+  font-size: 12px;
+  color: #999;
+}
+
+.points-option {
+  padding: 20rpx;
+  // background-color: #f5f5f5;
+  background-color: rgba(100, 100, 100, .1);
+  border-radius: 10rpx;
+  margin: 20rpx;
+  font-size: 28rpx;
+}
+
+.checkbox {
+  margin-right: 10rpx;
+}
+
+.zhifu {
+  width: 100%;
+  height: 100rpx;
+  // background-color: #ffffff;
+  position: absolute;
+  bottom: 70rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pay-button {
+  background-color: rgb(205, 174, 242);
+  color: white;
+  text-align: center;
+  border-radius: 50rpx;
+  width: 76%;
+  height: 90rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 交易码弹窗样式 */
+// .title1 {
+//   font-size: 30rpx;
+//   font-weight: bold;
+//   margin-bottom: 20px;
+//   position: relative;
+//   left: 210rpx;
+// }
+
+// .input-container {
+//   position: relative;
+//   display: flex;
+//   justify-content: center;
+//   align-items: center;
+//   margin-bottom: 20px;
+// }
+
+// .input-box input {
+//   width: 40px;
+//   height: 40px;
+//   border: 1px solid #ccc;
+//   margin: 0 2px;
+//   text-align: center;
+//   font-size: 18px;
+// }
+
+button {
+  background-color: #007aff;
+  color: white;
+  padding: 10px;
+  width: 100%;
+}
+
+// .overlay {
+//   position: absolute;
+//   top: 0;
+//   left: 0;
+//   width: 100%;
+//   height: 100%;
+//   z-index: 5;
+// }
+
+// .ipt {
+//   position: absolute;
+//   margin: 0 auto;
+//   top: -1000rpx;
+//   width: 200rpx;
+//   height: 10rpx;
+//   border: 0px solid rgb(255, 255, 255);
+//   color: rgb(255, 255, 255);
+// }
+
+// .dialog-buttons {
+//   display: flex;
+//   justify-content: space-between;
+//   margin-top: 40rpx;
+// }
+
+.dialog-btn {
+  flex: 1;
+  margin: 0 20rpx;
+  font-size: 32rpx;
+}
+
+.confirm {
+  background: #07c160;
+  color: white;
+}
+
+.cancel {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.intro {
+  margin: 30px;
+  text-align: center;
+}
+
+
+
+// 新版交易码弹窗
+.code-dialog-mask{
+  position: absolute; 
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(100, 100, 100, .7);
+  z-index: 5;
+  .code-content{
+    margin: 0 auto;
+    margin-top: 40%;
+    height: 450rpx; 
+    width: 90%;  
+    border-radius: 30rpx;
+    background-color: rgb(255, 255, 255);
+    .img{
+      display: flex;
+      width: 100%;
+      height: 80rpx;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      image{
+        margin-right: 30rpx;
+        width: 40rpx;
+        height: 40rpx;
+      }
+    }
+    .title1 {
+      text-align: center;
+      font-size: 32rpx;
+      font-weight: bold;
+      margin-bottom: 30px;
+    }
+    .input-container {
+      position: relative;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 20px;
+      .input-box input {
+        width: 40px;
+        height: 40px;
+        border: 1px solid #ccc;
+        border-radius: 15rpx;
+        margin: 0 2px;
+        text-align: center;
+        font-size: 18px;
+      }
+      .overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 5;
+      }
+    }
+    .ipt {
+      position: absolute;
+      margin: 0 auto;
+      top: -100vh;
+      width: 200rpx;
+      height: 10rpx;
+      border: 0px solid rgb(255, 255, 255);
+      color: rgb(255, 255, 255);
+    }
+    .dialog-buttons {
+      border: 1px solid rgba(0, 0, 0, 0);
+      .btn{
+        margin: 20rpx auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 220rpx;
+        height: 70rpx;
+        border-radius: 60rpx;
+        background-color: rgb(205, 174, 242);
+        color: white;
+        font-size: 32rpx;
+      }
+    }
+  }
+}
