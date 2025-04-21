@@ -1,3 +1,12 @@
+<wxs module="utils">
+  function toNumber(str) {
+    return +str;  // 或者 parseFloat(str)
+  }
+  module.exports = {
+    toNumber: toNumber
+  };
+</wxs>
+
 <!-- <view class="container">
   顶部导航栏
   <view class="beijing">
@@ -44,20 +53,41 @@
         </view>
         <text class="product-name">{{dItem.name}}</text>
         <text class="product-price">{{dItem.price}}<text style="font-size: 18rpx; color: gray; margin-left: 10rpx;">积分</text></text>
-        <text class="product-desc" wx:if="{{child.desc}}">{{child.desc}}</text>
-        <view wx:if="{{score >= dItem.price}}" class="exchange-button" bindtap="navigateToduihuan" data-itemid="{{dItem.id}}" data-index1="{{cIndex}}" data-index2="{{dIndex}}">立即兑换</view>
+        <!-- <text class="product-desc" wx:if="{{dItem.desc}}">{{dItem.desc}}</text> -->
+        <view wx:if="{{utils.toNumber(score) >= utils.toNumber(dItem.price)}}" class="exchange-button" bindtap="navigateToduihuan" data-itemid="{{dItem.id}}" data-index1="{{cIndex}}" data-index2="{{dIndex}}">立即兑换</view>
         <view wx:else class="exchange-button exchange-gray" data-itemid="{{dItem.id}}" data-index1="{{cIndex}}" data-index2="{{dIndex}}">积分不足</view>
       </view>
     </view>
   </view>
 </view>
-<!-- 空数据状态 -->
-<view class="empty" wx:else>
-  <view class="img">
-    <image src="{{tupianUrl}}/new/jfsc-empty.png" mode=""/>
-  </view>
-  <view class="txt">
-    <text>积分不足，暂无可兑换商品</text>
+<!-- 我能兑换 -->
+<view wx:else>
+  <block wx:if="{{isNotEmpty}}">
+    <view class="category-item" wx:for="{{ships}}" wx:key="id">
+      <!-- <text class="category-name">{{item.text}}</text> -->
+      <view class="product-list">
+        <view class="product-item" wx:for="{{item.children}}" wx:for-item="dItem" wx:if="{{utils.toNumber(score) >= utils.toNumber(dItem.price)}}" wx:key="id">
+          <view class="product-image-container">
+            <image style="width: 100%; height: 100%; border-radius: 18rpx;" src='{{AUrl}}/jy/wxUserImg/106/{{dItem.image}}' />
+          </view>
+          <text class="product-name">{{dItem.name}}</text>
+          <text class="product-price">{{dItem.price}}<text style="font-size: 18rpx; color: gray; margin-left: 10rpx;">积分</text></text>
+          <!-- <text class="product-desc" wx:if="{{dItem.desc}}">{{dItem.desc}}</text> -->
+          <view wx:if="{{utils.toNumber(score) >= utils.toNumber(dItem.price)}}" class="exchange-button" bindtap="navigateToduihuan" data-itemid="{{dItem.id}}" data-index1="{{cIndex}}" data-index2="{{dIndex}}">立即兑换</view>
+          <view wx:else class="exchange-button exchange-gray" data-itemid="{{dItem.id}}" data-index1="{{cIndex}}" data-index2="{{dIndex}}">积分不足</view>
+        </view>
+      </view>
+    </view>
+  </block>
+  <view class="empty" wx:else>
+    <view >
+      <view class="img">
+        <image src="{{tupianUrl}}/new/jfsc-empty.png" mode=""/>
+      </view>
+      <view class="txt">
+        <text>积分不足，暂无可兑换商品</text>
+      </view>
+    </view>
   </view>
 </view>
 
@@ -65,3 +95,5 @@
 <view class="loading" wx:if="{{loading}}">
   <text>加载中...</text>
 </view>
+
+

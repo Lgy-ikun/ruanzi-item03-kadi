@@ -56,7 +56,8 @@
     </view>
   </view>
   <view class="zhifu">
-    <view class="pay-button" bindtap="initiatePayment">去支付</view>
+    <view wx:if="{{isShow}}" class="pay-button" bindtap="initiatePayment">去支付</view>
+    <view wx:else class="pay-button">去支付</view>
   </view>
 
 </view>

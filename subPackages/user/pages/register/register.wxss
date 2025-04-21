@@ -60,14 +60,17 @@
 }
 
 .phone-tip {
-  color: #666;
+  color: rgb(205, 174, 242);
   font-size: 28rpx;
   margin-bottom: 40rpx;
+}
+.phone-tip-active {
+  color: #666;
 }
 
 .phone-btn {
   width: 88%;
-  background: #07c160;
+  background: rgb(205, 174, 242);
   color: white;
   border-radius: 50rpx;
 }
@@ -103,7 +106,7 @@
 
 .shengqin_botton1 {
   width: 78%;
-  background: #07c160;
+  background: rgb(205, 174, 242);
   color: white;
   text-align: center;
   padding: 30rpx;
@@ -159,13 +162,13 @@
 
 .agreement-fixed {
   display: flex;
-  margin-bottom: 30rpx;
+  margin-bottom: 50rpx;
   justify-content: center;
   align-items: center;
 }
 
 .link {
-  color: #007AFF;
+  color: rgb(205, 174, 242);
   text-decoration: underline;
 }
 

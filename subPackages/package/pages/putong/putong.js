@@ -44,11 +44,12 @@ Page({
           .catch(err => {
             console.error('fetchData 失败', err);
           });
-      } else {
-        wx.navigateTo({
-          url: '/subPackages/user/pages/login/login'
-        });
-      }
+      } 
+      // else {
+      //   wx.navigateTo({
+      //     url: '/subPackages/user/pages/register/register'
+      //   });
+      // }
     }
   },
 

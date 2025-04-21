@@ -23,8 +23,17 @@ Page({
     testFocus: false, // 隐藏输入框聚焦
     AUrl: app.globalData.AUrl,
     tupianUrl: app.globalData.tupianUrl,
+    isShow: true,
   },
   initiatePayment() {
+    this.setData({
+      isShow: false
+    })
+    wx.showToast({
+      title: '加载中',
+      icon: 'loading',
+      mask: true
+    })
     console.log('点击付款，当前支付方式：', {
       useCoupon: this.data.useCoupon,
       usePoints: this.data.usePoints
@@ -33,7 +42,53 @@ Page({
       this.showCodeDialog();
     } else {
       // 现金支付无需验证交易码
-      this.cashPayment();
+      const itsid = wx.getStorageSync('itsid');
+      const app = getApp();
+      // const unitId = this.data.selected === '自提' ? wx.getStorageSync('selectedStoreId') : '';
+      const unitId = this.data.unitId
+      let totalAmount = parseFloat(this.data.totalprice);
+      if(this.data.selected === '自提' && !unitId){
+        wx.showToast({
+          title: '请选择门店',
+          duration: 2000
+        })
+        return
+      }
+      if (this.data.selected === '外送') {
+        totalAmount += this.data.delivery;
+      }
+      let that = this
+      wx.request({
+        url: `${app.globalData.backUrl}phone.aspx?mbid=122&ituid=${app.globalData.ituid}&itsid=${itsid}`,
+        method: 'POST',
+        data: {
+          MCODE: '',
+          OPID: '1200',
+          // UNITID: this.data.selected === '自提' ? unitId : '',
+          UNITID: unitId,
+          NUM: '',
+          USERID: '0',
+          NOTE: ' ',
+          // 现金支付金额为订单总价
+          AMT: totalAmount,
+          // IMGS: JSON.stringify(this.data.items.map(item => item.img))
+          XXSQ: 'SQB',
+          RURL: '/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult'
+        },
+        method: 'POST',
+        header: {
+          'content-type': 'application/json'
+        },
+        success: (res) => {
+          if(!that.data.usePoints && !that.data.useCoupon){
+            console.log(res)
+            wx.navigateTo({
+              url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}`,
+            })
+            wx.hideToast()
+          }
+        }
+      });
     }
   },
 
@@ -582,9 +637,16 @@ Page({
   cashPayment() {
     const itsid = wx.getStorageSync('itsid');
     const app = getApp();
-    const unitId = this.data.selected === '自提' ? wx.getStorageSync('selectedStoreId') : '';
+    // const unitId = this.data.selected === '自提' ? wx.getStorageSync('selectedStoreId') : '';
+    const unitId = this.data.unitId
     let totalAmount = parseFloat(this.data.totalprice);
-
+    if(this.data.selected === '自提' && !unitId){
+      wx.showToast({
+        title: '请选择门店',
+        duration: 2000
+      })
+      return
+    }
     if (this.data.selected === '外送') {
       totalAmount += this.data.delivery;
     }
@@ -595,7 +657,8 @@ Page({
       data: {
         MCODE: '',
         OPID: '1200',
-        UNITID: this.data.selected === '自提' ? unitId : '',
+        // UNITID: this.data.selected === '自提' ? unitId : '',
+        UNITID: unitId,
         NUM: '',
         USERID: '0',
         NOTE: ' ',
@@ -610,76 +673,77 @@ Page({
         'content-type': 'application/json'
       },
       success: (res) => {
+        wx.hideToast()
         if(!that.data.usePoints && !that.data.useCoupon){
           console.log(res)
           wx.navigateTo({
             url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}`,
           })
         }
-        wx.requestPayment({
-          timeStamp: res.data.timeStamp,
-          nonceStr: res.data.nonceStr,
-          package: res.data.package,
-          signType: res.data.signType,
-          paySign: res.data.paySign,
-          success: async (payRes) => {
-            // 支付成功后按顺序调用两个接口
-            try {
-              // 1. 获取 orderid
-              const userid = wx.getStorageSync('userid');
-              const orderid = await new Promise((resolve, reject) => {
-                wx.request({
-                  url: `${app.globalData. AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10622&userid=${userid}`,
-                  success: (res) => {
-                    if (res.data.code === '1' && res.data.result?.list?.[0]?.orderid) {
-                      resolve(res.data.result.list[0].orderid);
-                    } else {
-                      reject('接口返回数据异常');
-                    }
-                  },
-                  fail: reject
-                });
-              });
+        // wx.requestPayment({
+        //   timeStamp: res.data.timeStamp,
+        //   nonceStr: res.data.nonceStr,
+        //   package: res.data.package,
+        //   signType: res.data.signType,
+        //   paySign: res.data.paySign,
+        //   success: async (payRes) => {
+        //     // 支付成功后按顺序调用两个接口
+        //     try {
+        //       // 1. 获取 orderid
+        //       const userid = wx.getStorageSync('userid');
+        //       const orderid = await new Promise((resolve, reject) => {
+        //         wx.request({
+        //           url: `${app.globalData. AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10622&userid=${userid}`,
+        //           success: (res) => {
+        //             if (res.data.code === '1' && res.data.result?.list?.[0]?.orderid) {
+        //               resolve(res.data.result.list[0].orderid);
+        //             } else {
+        //               reject('接口返回数据异常');
+        //             }
+        //           },
+        //           fail: reject
+        //         });
+        //       });
 
-              // 2. 更新订单状态
-              await new Promise((resolve, reject) => {
-                wx.request({
-                  url: `${app.globalData.AUrl}/jy/go/phone.aspx?mbid=10617&ituid=106&itsid=${itsid}`,
-                  method: 'POST',
-                  data: {
-                    orderid: String(orderid),
-                    type: this.data.selected === '自提' ? 1 : 2,
-                    username: this.data.username,
-                    phone: this.data.phone,
-                    address: this.data.address
-                  },
-                  success: resolve,
-                  fail: reject
-                });
-              });
+        //       // 2. 更新订单状态
+        //       await new Promise((resolve, reject) => {
+        //         wx.request({
+        //           url: `${app.globalData.AUrl}/jy/go/phone.aspx?mbid=10617&ituid=106&itsid=${itsid}`,
+        //           method: 'POST',
+        //           data: {
+        //             orderid: String(orderid),
+        //             type: this.data.selected === '自提' ? 1 : 2,
+        //             username: this.data.username,
+        //             phone: this.data.phone,
+        //             address: this.data.address
+        //           },
+        //           success: resolve,
+        //           fail: reject
+        //         });
+        //       });
 
-              console.log('订单处理完成');
+        //       console.log('订单处理完成');
 
-              // 跳转到订单页面
-              wx.switchTab({
-                url: '/pages/orders/orders'
-              });
-            } catch (err) {
-              console.error('订单处理失败:', err);
-              wx.showToast({
-                title: '订单状态更新失败',
-                icon: 'none'
-              });
-            }
-          },
-          fail: (err) => {
-            console.error('支付失败2:', err);
-            // wx.showToast({
-            //   title: '支付失败，请重试',
-            //   icon: 'none'
-            // });
-          }
-        });
+        //       // 跳转到订单页面
+        //       wx.switchTab({
+        //         url: '/pages/orders/orders'
+        //       });
+        //     } catch (err) {
+        //       console.error('订单处理失败:', err);
+        //       wx.showToast({
+        //         title: '订单状态更新失败',
+        //         icon: 'none'
+        //       });
+        //     }
+        //   },
+        //   fail: (err) => {
+        //     console.error('支付失败2:', err);
+        //     // wx.showToast({
+        //     //   title: '支付失败，请重试',
+        //     //   icon: 'none'
+        //     // });
+        //   }
+        // });
       }
     });
   },
@@ -819,11 +883,13 @@ Page({
     const selected = app.globalData.selected;
     // 更新全局相关信息
     this.setData({
+      isShow: true,
       selected: app.globalData.selected,
       address: app.globalData.selected === '外送' ? app.globalData.addressDesc : app.globalData.storeName,
       phone: app.globalData.phone,
       username: app.globalData.username,
       storeName: app.globalData.selectedStoreName,
+      unitId: app.globalData.selectedStoreId,
       delivery: app.globalData.delivery || 5
     }, () => {
       // 直接调用 fetchItems，回调中会计算总价

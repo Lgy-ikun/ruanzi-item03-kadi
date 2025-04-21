@@ -1,8 +1,8 @@
 const app = getApp();
 Page({
   data: {
-    name: '', // 用户名
-    leixing: '', //用户类型
+    name: '未登录', // 用户名
+    leixing: '用户', //用户类型
     content: '', // 我的消费券
     score: '', // 可用积分
     freeze: '', // 冻结积分
@@ -46,6 +46,51 @@ Page({
       progress: progress
     });
   },
+
+  handleNavigate() {
+    if(!wx.getStorageSync('itsid')) {
+      wx.navigateTo({
+        url: '/subPackages/user/pages/register/register',
+      })
+      return
+    }
+    wx.navigateTo({
+      url: '/subPackages/package/pages/qiehuan/qiehuan',
+    })
+  },
+  handleNavigate2() {
+    if(!wx.getStorageSync('itsid')) {
+      wx.navigateTo({
+        url: '/subPackages/user/pages/register/register',
+      })
+      return
+    }
+    wx.navigateTo({
+      url: '/subPackages/package/pages/putong/putong',
+    })
+  },
+  handleNavigate3() {
+    if(!wx.getStorageSync('itsid')) {
+      wx.navigateTo({
+        url: '/subPackages/user/pages/register/register',
+      })
+      return
+    }
+    wx.navigateTo({
+      url: '/subPackages/package/pages/fapiao/fapiao',
+    })
+  },
+  handleNavigate4() {
+    if(!wx.getStorageSync('itsid')) {
+      wx.navigateTo({
+        url: '/subPackages/user/pages/register/register',
+      })
+      return
+    }
+    wx.navigateTo({
+      url: '/subPackages/package/pages/chongzhijilu/chongzhijilu',
+    })
+  },
   /**
    * 生命周期函数--监听页面加载
    */
@@ -70,19 +115,19 @@ Page({
   },
   onLoad: function () {
     const itsid = wx.getStorageSync('itsid');
-
     if (itsid) {
       this.fetchData(itsid);
     } else {
       console.error('itsid 未定义或获取失败');
       // 处理 itsid 未定义的情况，例如提示用户或跳转到登录页面
       wx.showToast({
-        title: '未登录或会话已过期',
-        icon: 'none'
+        title: '请先登录',
+        icon: 'none',
+        duration: 3000
       });
-      wx.navigateTo({
-        url: '/subPackages/user/pages/login/login',
-      });
+      // wx.navigateTo({
+      //   url: '/subPackages/user/pages/login/login',
+      // });
     }
   },
   fetchData: function (itsid) {
@@ -90,7 +135,7 @@ Page({
     const AUrl = app.globalData.AUrl;
     const userid = wx.getStorageSync('userid');
     wx.request({
-      url: `${app.globalData. AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`, // 注意：这里需要确保 URL 是合法的
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`, // 注意：这里需要确保 URL 是合法的
       method: 'GET',
       success: (res) => {
         if (res.statusCode === 200 && res.data) {
@@ -105,11 +150,11 @@ Page({
             freeze: res.data.freeze || '0',
             money: res.data.money || '0',
             score: res.data.score || '0',
-            avatar:  `${app.globalData. AUrl}/jy/wxuser/106/images/singeravatar/`+ res.data.avatar,
+            avatar:  `${app.globalData.AUrl}/jy/wxuser/106/images/singeravatar/`+ res.data.avatar,
             userid: res.data.userid
           });
-          app.globalData.userid = res.data.userid;
-          wx.setStorageSync('userid', res.data.userid)
+          // app.globalData.userid = res.data.userid;
+          // wx.setStorageSync('userid', res.data.userid)
         }
       },
       fail: (error) => {
@@ -121,7 +166,7 @@ Page({
       }
     });
     wx.request({
-      url: `${app.globalData. AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10634&userid=${userid}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10634&userid=${userid}`,
       method: 'GET',
       success: function (res) {
         console.log('接口返回数据:', res.data); // 调试信息

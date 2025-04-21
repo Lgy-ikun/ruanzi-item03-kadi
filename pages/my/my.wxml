@@ -90,29 +90,29 @@
     </navigator>
   </block>
 
-  <block wx:if="{{leixing !== '用户'}}">
+  <block wx:if="{{leixing === 'VIP会员' || leixing === '股东'}}">
     <navigator url="/subPackages/package/pages/anquan/anquan" class="anquan-box" style="position: absolute; left: 21rpx; top: 1920rpx; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx; ">
       <text class="ri">安全中心</text>
       <text class="qian1-id"></text>
       <text class="action-button7">详情 ></text>
     </navigator>
   </block>
-  <navigator url="/subPackages/package/pages/chongzhijilu/chongzhijilu" class="ma-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1620rpx' : '1250rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
+  <navigator bind:tap="handleNavigate4" class="ma-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1620rpx' : '1250rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
     <text class="ri">会员充值</text>
     <text class="qian1-id"></text>
     <text class="action-button7">详情 ></text>
   </navigator>
-  <navigator url="/subPackages/package/pages/putong/putong" class="ma-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1450rpx' : '907rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
+  <navigator bind:tap="handleNavigate2" class="ma-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1450rpx' : '907rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
     <text class="ri">我的邀请码</text>
     <text class="qian1-id"></text>
     <text class="action-button7">详情 ></text>
   </navigator>
-  <navigator url="/subPackages/package/pages/fapiao/fapiao" class="fapiao-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1560rpx' : '847rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
+  <navigator bind:tap="handleNavigate3" class="fapiao-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1560rpx' : '847rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
     <text class="ri">发票管理</text>
     <text class="qian1-id"></text>
     <text class="action-button7">详情 ></text>
   </navigator>
-  <navigator url="/subPackages/package/pages/qiehuan/qiehuan" class="fapiao-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1920rpx' : '1180rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
+  <navigator bind:tap="handleNavigate" class="fapiao-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1900rpx' : '1180rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
     <text class="ri">账号切换</text>
     <text class="qian1-id"></text>
     <text class="action-button7">详情 ></text>

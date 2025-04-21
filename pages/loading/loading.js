@@ -315,48 +315,73 @@ Page({
   executeJump: function() {
     console.log('跳转执行。');
     let that = this;
-    wx.login({
-      success: (res) => {
-        wx.request({
-          url: `${app.globalData.backUrl}phone.aspx?mbid=129&ituid=106`,
-          data: {
-            code: res.code
-          },
-          success(res) {
-            let itsid_exist = res.data.value
-            app.globalData.itsid = res.data.value.itsid
-            console.log("login的itsid:", app.globalData.itsid);
-            wx.setStorageSync('itsid', app.globalData.itsid);
-            if (itsid_exist.itsid == '0') {
-              wx.showModal({
-                content: '没有账号，请注册',
-                complete: (res) => {
-                  if (res.cancel) {}
-                  if (res.confirm) {
-                    wx.navigateTo({
-                      url: '/subPackages/user/pages/register/register',
-                    })
-                  }
-                }
-              })
-            } else {
-              wx.switchTab({
-                url: "/pages/home/home",
-                success: function () {
-                  console.log('跳转成功');
-                },
-                fail: function (err) {
-                  console.error('跳转失败', err);
-                }
-              });
-            }
-          }
-        })
-      },
-      complete() {
-        wx.hideLoading()
-      }
-    });
+    wx.switchTab({
+      url: '/pages/home/home',
+    })
+    // wx.showToast({
+    //   title: '加载中',
+    //   icon: 'loading',
+    //   duration: 2000,
+    //   mask: true,
+    // })
+    if(wx.getStorageSync('itsid')){
+      wx.setStorageSync('isLoginSuccess', true)
+      wx.switchTab({
+        url: '/pages/home/home',
+      })
+    }
+    else {
+      wx.setStorageSync('isLoginSuccess', false)
+      wx.switchTab({
+        url: '/pages/home/home',
+      })
+    }
+    // wx.login({
+    //   success: (res) => {
+    //     wx.request({
+    //       url: `${app.globalData.backUrl}phone.aspx?mbid=129&ituid=106`,
+    //       data: {
+    //         code: res.code
+    //       },
+    //       success(res) {
+    //         let itsid_exist = res.data.value
+    //         // app.globalData.itsid = res.data.value.itsid
+    //         // console.log("login的itsid:", app.globalData.itsid);
+    //         // wx.setStorageSync('itsid', app.globalData.itsid);
+    //         console.log(res)
+    //         wx.hideToast()
+    //         if (itsid_exist.itsid == '0') {
+    //           wx.setStorageSync('isLoginSuccess', false)
+    //           wx.switchTab({
+    //             url: '/pages/home/home',
+    //           })
+    //           // wx.showModal({
+    //           //   content: '没有账号，请注册',
+    //           //   complete: (res) => {
+    //           //     if (res.cancel) {}
+    //           //     if (res.confirm) {
+    //           //       wx.navigateTo({
+    //           //         url: '/subPackages/user/pages/register/register',
+    //           //       })
+    //           //     }
+    //           //   }
+    //           // })
+    //         } else {
+    //           wx.setStorageSync('isLoginSuccess', true)
+    //           wx.switchTab({
+    //             url: "/pages/home/home",
+    //             success: function () {
+    //               console.log('跳转成功');
+    //             },
+    //             fail: function (err) {
+    //               console.error('跳转失败', err);
+    //             }
+    //           });
+    //         }
+    //       }
+    //     })
+    //   },
+    // });
   },
 
   passCountDown() {

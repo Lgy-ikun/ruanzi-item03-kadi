@@ -10,14 +10,14 @@
   <view class="neirong">
     <text class="jifen">{{selectedItemPrice}}积分</text>
     <!-- <text class="jifen1">积分</text> -->
-    <text class="name">{{selectedItemName}}醇香浓缩卡拉非也 4489咖啡杯</text>
-    <text class="li">已售卖1977件</text>
+    <text class="name">{{selectedItemName}}{{desc}}</text>
+    <!-- <text class="li">已售卖1977件</text> -->
   </view>
   <view class="pingjia">
-    <view class="dw">
+    <!-- <view class="dw">
       <view class="pj">评价(1700+)</view>
       <navigator class="action-button" url="/subPackages/package/pages/pingjia/pingjia">查看全部 ></navigator>
-    </view>
+    </view> -->
     <!-- <view class="pingjia-item">
       <view class="pingjia-avatar">
         <image src="{{tupianUrl}}/new/avatar.png" mode=""/>

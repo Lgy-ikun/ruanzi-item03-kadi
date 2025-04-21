@@ -17,6 +17,40 @@ Page({
 
   },
 
+  handleLogin(e) {
+    console.log(e.currentTarget.dataset.email);
+    const email = e.currentTarget.dataset.email
+    const itsid = wx.getStorageSync('itsid')
+    wx.showModal({
+      title: '账号切换',
+      content: `确定以${email}登录吗？`,
+      complete: (res) => {
+        if (res.cancel) {
+          
+        }
+        if (res.confirm) {
+          wx.request({
+            url: `${app.globalData.backUrl}phone.aspx?mbid=10631&ituid=106&itsid=${itsid}`,
+            method: 'POST',
+            data: {
+              email
+            },
+            success(res) {
+              console.log(res)
+              wx.setStorageSync('itsid', res.data.itsid)
+              wx.setStorageSync('userid', res.data.userid)
+              app.globalData.itsid = res.data.itsid;
+              app.globalData.userid = res.data.userid; 
+              wx.switchTab({
+                url: '/pages/home/home',
+              }) 
+            }
+          })
+        }
+      }
+    })
+  },
+
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
@@ -32,7 +66,7 @@ Page({
     const itsid = wx.getStorageSync('itsid')
     wx.request({
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10642&itcid=10642&itsid=${itsid}`,
-      method: 'POST',
+      method: 'GET',
       success(res) {
         console.log(res)
         that.setData({

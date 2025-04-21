@@ -22,6 +22,6 @@
       {{selectAll ? '已全选' : '全选'}}
     </view>
     <text class="total-amount">共 ¥{{totalAmount}}</text>
-    <button class="next-button" bindtap="onNextTap">下一步</button>
+    <view class="next-button" bindtap="onNextTap">下一步</view>
   </view>
 </view>

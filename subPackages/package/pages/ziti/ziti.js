@@ -54,6 +54,7 @@ Page({
   },
 
   onStoreSelect: function (e) {
+    console.log(e);
     const storeId = e.currentTarget.dataset.id;
     const selectedStore = this.data.stores.find(store => store.id === storeId);
     const app = getApp();
@@ -62,8 +63,8 @@ Page({
     app.globalData.selectedStoreName = selectedStore.name;
 
     // 存储选中的门店ID到全局变量
-    // app.globalData.selectedStoreId = storeId;
     wx.setStorageSync('selectedStoreId', storeId);
+    app.globalData.selectedStoreId = storeId;
 
     wx.showToast({
       title: `已选择：${selectedStore.name}`,

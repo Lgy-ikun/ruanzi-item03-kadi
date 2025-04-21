@@ -338,6 +338,12 @@ Page({
   },
 
   handleNavigate: function () {
+    if(!wx.getStorageSync('isLoginSuccess')) {
+      wx.navigateTo({
+        url: '/subPackages/user/pages/register/register',
+      })
+      return
+    }
     // 调用接口10637判断是否有推荐
     this.checkRecommendation();
     // 调用接口10610判断是否有交易码
@@ -369,6 +375,28 @@ Page({
       }
     }, 500); // 延迟500ms确保接口返回结果
   },
+  handleNavigate2() {
+    if(!wx.getStorageSync('isLoginSuccess')) {
+      wx.navigateTo({
+        url: '/subPackages/user/pages/register/register',
+      })
+      return
+    }
+    wx.navigateTo({
+      url: '/subPackages/package/pages/recharge/recharge',
+    })
+  },
+  handleNavigate3() {
+    if(!wx.getStorageSync('isLoginSuccess')) {
+      wx.navigateTo({
+        url: '/subPackages/user/pages/register/register',
+      })
+      return
+    }
+    wx.navigateTo({
+      url: '/subPackages/package/pages/jifen/jifen',
+    })
+  },
 
 
   /**
@@ -387,8 +415,15 @@ Page({
       this.fetchData10603(itsid); // 调用10603接口获取数据
     }
     this.setData({
-      avatar: wx.getStorageSync('avatar')
+      avatar: wx.getStorageSync('avatar'),
+      isLoginSuccess: wx.getStorageSync('isLoginSuccess')
     });
+  },
+
+  gotoLogin() {
+    wx.navigateTo({
+      url: `/subPackages/user/pages/register/register`,
+    })
   },
 
   /**

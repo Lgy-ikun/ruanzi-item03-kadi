@@ -24,7 +24,8 @@ Page({
       itemId: options.itemId,
       currentImage: decodeURIComponent(options.image),
       selectedItemName: decodeURIComponent(options.name),
-      selectedItemPrice: decodeURIComponent(options.price)
+      selectedItemPrice: decodeURIComponent(options.price),
+      desc: decodeURIComponent(options.desc),
     });
   },
 

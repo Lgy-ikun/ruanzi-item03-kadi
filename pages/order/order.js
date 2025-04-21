@@ -185,27 +185,22 @@ Page({
 
   // 检查位置权限并获取位置
   checkLocationPermission: function () {
-
+    console.log(123);
     const that = this;
-    wx.getSetting({
-      success(settingdata) {
-        if (settingdata.authSetting['scope.userLocation']) {
-          that.getLocation();
-        } else {
-          wx.authorize({
-            scope: 'scope.userLocation',
-            success() {
-              that.getLocation();
-            },
-            fail() {
-              wx.showToast({
-                title: '需要授权位置信息',
-                icon: 'none'
-              });
-              that.setData({
-                authorized: false
-              });
-            }
+    wx.getLocation({
+      success(res) {
+        console.log('获取位置成功:', res);
+        that.getLocation(); // 或者直接用 res 中的经纬度
+      },
+      fail(err) {
+        console.log('获取位置失败:', err);
+        if (err.errMsg === 'getLocation:fail auth deny' || err.errMsg === 'getLocation:fail:auth denied') {
+          wx.showToast({
+            title: '需要授权位置信息',
+            icon: 'none'
+          });
+          that.setData({
+            authorized: false
           });
         }
       }
@@ -296,6 +291,12 @@ Page({
   // },
 
   navigateToDianDan: function (e) {
+    if(!wx.getStorageSync('isLoginSuccess')) {
+      wx.navigateTo({
+        url: '/subPackages/user/pages/register/register',
+      })
+      return
+    }
     console.log(e);
     const dishId = e.currentTarget.dataset.dishid;
     const dish = this.data.categories.reduce((acc, category) => {
@@ -654,6 +655,7 @@ Page({
 
     // 更新全局变量
     app.globalData.selectedStoreName = recommendedStore.name;
+    app.globalData.selectedStoreId = recommendedStore.id;
 
     // 更新页面数据
     this.setData({

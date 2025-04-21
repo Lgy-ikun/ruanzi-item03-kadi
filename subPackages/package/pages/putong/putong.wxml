@@ -1,8 +1,9 @@
 <view class="container">
   <view class="qrcode-container">
     <view class="qrcode-wrapper">
-      <canvas wx:if="{{!qrcodeSrc}}" canvas-id="myQrcode" class="qrcode-canvas"></canvas>
-      <image class="qrcode-image" show-menu-by-longpress="{{true}}" src="{{qrcodeSrc}}" mode="aspectFit"></image>
+      <!-- <canvas wx:if="{{!qrcodeSrc}}" canvas-id="myQrcode" class="qrcode-canvas"></canvas> -->
+      <!-- <image class="qrcode-image" show-menu-by-longpress="{{true}}" src="{{qrcodeSrc}}" mode="aspectFit"></image> -->
+      <canvas canvas-id="myQrcode" class="qrcode-canvas"></canvas>
     </view>
 
     <view class="info-container">

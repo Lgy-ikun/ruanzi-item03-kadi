@@ -43,7 +43,8 @@ Page({
     //   },
     // ],
     ships: [],
-    showAll: true
+    showAll: true,
+    isNotEmpty: false
   },
 
   onLoad: function () {
@@ -51,18 +52,31 @@ Page({
     const itsid = wx.getStorageSync('itsid');
     console.log(itsid);
     this.fetchData(itsid);
-    if (wx.getStorageSync('ships')) {
-      this.setData({
-        ships: wx.getStorageSync('ships')
-      });
-    } else {
+    // if (wx.getStorageSync('ships')) {
+    //   this.setData({
+    //     ships: wx.getStorageSync('ships')
+    //   });
+    // } else {
       // 如果本地存储中没有数据，则调用接口获取数据
-      this.fetchCategories();
-    }
+      // this.fetchCategories();
+    // }
   },
 
   changeShowTab(e) {
     e.currentTarget.dataset.tab === 'all' ? this.setData({showAll: true}) : this.setData({showAll: false})
+    e.currentTarget.dataset.tab !== 'all' ? this.handleFilter() : ''
+  },
+
+  handleFilter() {
+    let that = this
+    console.log(this.data.ships);
+    this.data.ships.forEach((item) => {
+      item.children.forEach((i) => {
+        if(Number(that.data.score) >= Number(i.price)) {
+          return that.setData({isNotEmpty: true})
+        }
+      })
+    })
   },
 
   fetchCategories: function () {
@@ -77,7 +91,7 @@ Page({
             ships: res.data.result.goods,
           });
           // 同时将数据存储到本地存储中
-          wx.setStorageSync('ships', res.data.result.goods);
+          // wx.setStorageSync('ships', res.data.result.goods);
         } else {
           // 如果请求成功但数据格式不正确
           wx.showToast({
@@ -264,7 +278,7 @@ Page({
       const fullImageURL = `${app.globalData.AUrl}/jy/wxUserImg/106/${targetItem.image}`;
       wx.navigateTo({
         url: `/subPackages/package/pages/duihuan/duihuan?itemId=${itemId}&image=${encodeURIComponent(fullImageURL)}&name=${encodeURIComponent(targetItem.name)}
-        &price=${encodeURIComponent(targetItem.price)}`
+        &price=${encodeURIComponent(targetItem.price)}&desc=${encodeURIComponent(targetItem.desc)}`
       });
     } else {
       wx.showToast({
@@ -282,7 +296,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-
+    this.fetchCategories();
     this.fetchData();
 
   },

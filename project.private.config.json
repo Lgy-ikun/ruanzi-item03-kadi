@@ -9,6 +9,13 @@
     "miniprogram": {
       "list": [
         {
+          "name": "subPackages/package/pages/jifen/jifen",
+          "pathName": "subPackages/package/pages/jifen/jifen",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        },
+        {
           "name": "subPackages/package/pages/chongzhikaipiao/chongzhikaipiao",
           "pathName": "subPackages/package/pages/chongzhikaipiao/chongzhikaipiao",
           "query": "",

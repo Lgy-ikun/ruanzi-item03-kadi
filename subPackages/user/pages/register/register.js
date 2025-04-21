@@ -8,6 +8,7 @@ Page({
    */
   data: {
     email: '', // 新增邮箱字段
+    password: '', // 密码
     code: '', // 新增验证码字段
     countdown: 0, // 验证码倒计时
     isEmailRegister: false, // 注册方式标识
@@ -59,14 +60,16 @@ Page({
         isEmailRegister: true,
         isPhoneRegister: false,
         email: '',
-        code: ''
+        code: '',
+        agreed: false
       });
     } else if (type === 'phone') {
       this.setData({
         isPhoneRegister: true,
         isEmailRegister: false,
         email: '',
-        code: ''
+        code: '',
+        agreed: false
       });
     } else if (type === 'back') {
       this.setData({
@@ -80,6 +83,74 @@ Page({
     this.setData({
       email: e.detail.value.trim()
     });
+  },
+  onPasswordInput(e) {
+    this.setData({
+      password: e.detail.value.trim()
+    });
+  },
+
+  handleEmailLogin() {
+    const {
+      email,
+      password,
+      agreed
+    } = this.data;
+    const emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+    if (!emailReg.test(email)) {
+      wx.showToast({
+        title: '邮箱格式错误',
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
+    if (!email) {
+      wx.showToast({
+        title: '请填写邮箱信息',
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
+    // if (!password) {
+    //   wx.showToast({
+    //     title: '请输入密码',
+    //     icon: 'none',
+    //     duration: 2000
+    //   });
+    //   return;
+    // }
+    if (!agreed) {
+      wx.showToast({
+        title: '请勾选协议',
+        icon: 'none',
+        duration: 2000
+      });
+      return;
+    }
+    this.fetchEmailLogin(email, password)
+  },
+
+  fetchEmailLogin(email, password) {
+    // 发送请求
+    wx.request({
+      url: `${app.globalData.backUrl}phone.aspx?mbid=10631&ituid=106`,
+      method: 'POST',
+      data: {
+        email
+      },
+      success(res) {
+        console.log(res)
+        wx.setStorageSync('itsid', res.data.itsid)
+        wx.setStorageSync('userid', res.data.userid)
+        app.globalData.itsid = res.data.itsid;
+        app.globalData.userid = res.data.userid; 
+        wx.switchTab({
+          url: '/pages/home/home',
+        }) 
+      }
+    })
   },
 
   // 新增方法 - 验证码输入
@@ -105,33 +176,33 @@ Page({
       return;
     }
 
-    try {
-      const res = await wx.request({
-        url: `${app.globalData.backUrl}send_code`,
-        method: 'POST',
-        data: {
-          email
-        }
-      });
+    // try {
+    //   const res = await wx.request({
+    //     url: `${app.globalData.backUrl}send_code`,
+    //     method: 'POST',
+    //     data: {
+    //       email
+    //     }
+    //   });
 
-      if (res.data.success) {
-        wx.showToast({
-          title: '验证码已发送'
-        });
-        this.startCountdown();
-      } else {
-        wx.showToast({
-          title: res.data.message || '发送失败',
-          icon: 'none'
-        });
-      }
-    } catch (error) {
-      console.error('发送验证码失败:', error);
-      wx.showToast({
-        title: '请求失败',
-        icon: 'none'
-      });
-    }
+    //   if (res.data.success) {
+    //     wx.showToast({
+    //       title: '验证码已发送'
+    //     });
+    //     this.startCountdown();
+    //   } else {
+    //     wx.showToast({
+    //       title: res.data.message || '发送失败',
+    //       icon: 'none'
+    //     });
+    //   }
+    // } catch (error) {
+    //   console.error('发送验证码失败:', error);
+    //   wx.showToast({
+    //     title: '请求失败',
+    //     icon: 'none'
+    //   });
+    // }
   },
 
   // 新增方法 - 倒计时处理
@@ -365,6 +436,11 @@ Page({
   handleEmailRegister(email) {
     let that = this
     const itsid = wx.getStorageSync('itsid')
+    wx.showToast({
+      title: '加载中',
+      icon: 'loading',
+      mask: true
+    })
     wx.login({
       success: (res) => {
         wx.request({
@@ -376,10 +452,32 @@ Page({
           },
           success(res) {
             console.log(res)
+            wx.showToast({
+              title: '注册成功',
+              icon: 'success',
+              duration: 2000,
+              mask: true,
+            });
+            setTimeout(() => {
+              wx.navigateBack({
+                delta: -1
+              });
+            }, 2000);
           }
         })
       },
     })
+    // wx.hideToast()
+    // wx.showToast({
+    //   title: '注册成功',
+    //   duration: 3000,
+    //   mask: true,
+    //   success() {
+    //     wx.navigateBack({
+    //       delta: -1
+    //     })
+    //   }
+    // })
   },
 
   // 新增：获取 itsid 并存入全局变量和缓存
@@ -547,6 +645,11 @@ Page({
       this.setData({
         RegWay: options.regway
       })
+      if(options.regway === 'youxiang'){
+        wx.setNavigationBarTitle({
+          title: '邮箱注册',
+        })
+      }
     }
     if (options?.q) {
       const url = decodeURIComponent(options.q);
@@ -698,7 +801,7 @@ Page({
       return;
     }
     wx.showToast({
-      title: '登陆中',
+      title: '登录中',
       icon: 'loading'
     })
     const that = this;
@@ -745,6 +848,7 @@ Page({
                             // 更新全局变量
                             app.globalData.itsid = itsid;
                             app.globalData.userid = userid;
+                            wx.setStorageSync('isLoginSuccess', true)
                             wx.setStorageSync('inviteUserid', that.data.userid2); // 存储到缓存，键名为invite
                             wx.setStorageSync('itsid', itsid);
                             wx.setStorageSync('userid', userid);

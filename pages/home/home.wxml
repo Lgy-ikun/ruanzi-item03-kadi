@@ -28,6 +28,9 @@
         <image src="" mode=""/>
       </view> -->
       </view>
+      <view class="right" wx:if="{{!isLoginSuccess}}">
+        <view class="btn" bind:tap="gotoLogin">注册/登录</view>
+      </view>
     </view>
 
     <!-- 点单配送 -->
@@ -94,13 +97,13 @@
     <!-- 分割线 -->
 
     <t-divider layout="vertical" style="height: 110rpx; margin-top: 50rpx;" />
-    <navigator url="/subPackages/package/pages/recharge/recharge" class="item" style="margin-right: 40rpx;">
+    <navigator bind:tap="handleNavigate2" class="item" style="margin-right: 40rpx;">
       <image style="scale: 1.6;" src="{{tupianUrl}}/new/shenqinggudong.png" mode="aspectFill" />
       <view class="txt">申请股东</view>
     </navigator>
     <!-- 分割线 -->
     <t-divider layout="vertical" style="height: 110rpx; margin-top: 50rpx;" />
-    <navigator url="/subPackages/package/pages/jifen/jifen" class="item">
+    <navigator bind:tap="handleNavigate3" class="item">
       <image style="scale: 1.6;" src="{{tupianUrl}}/new/jifenshangcheng.png" mode="aspectFill" />
       <view class="txt">积分商城</view>
     </navigator>
