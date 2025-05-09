@@ -96,7 +96,7 @@
 
 .popup-content {
   width: 600rpx;
-  height: 400rpx;
+  height: 480rpx;
   background-color: #fff;
   padding: 50rpx 30rpx;
   border-radius: 20rpx;
@@ -234,46 +234,52 @@
 
 
 // 新版交易码弹窗
-.code-dialog-mask{
-  position: absolute; 
+.code-dialog-mask {
+  position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background-color: rgba(100, 100, 100, .7);
   z-index: 5;
-  .code-content{
+
+  .code-content {
     margin: 0 auto;
     margin-top: 70%;
-    height: 450rpx; 
-    width: 90%;  
+    height: 450rpx;
+    width: 90%;
     border-radius: 30rpx;
     background-color: rgb(255, 255, 255);
-    .img{
+
+    .img {
       display: flex;
       width: 100%;
       height: 80rpx;
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      image{
+
+      image {
         margin-right: 30rpx;
         width: 40rpx;
         height: 40rpx;
       }
     }
+
     .title1 {
       text-align: center;
       font-size: 32rpx;
       font-weight: bold;
       margin-bottom: 30px;
     }
+
     .input-container {
       position: relative;
       display: flex;
       justify-content: center;
       align-items: center;
       margin-bottom: 20px;
+
       .input-box input {
         width: 40px;
         height: 40px;
@@ -283,6 +289,7 @@
         text-align: center;
         font-size: 18px;
       }
+
       .overlay {
         position: absolute;
         top: 0;
@@ -292,6 +299,7 @@
         z-index: 5;
       }
     }
+
     .ipt {
       position: absolute;
       margin: 0 auto;
@@ -301,9 +309,11 @@
       border: 0px solid rgb(255, 255, 255);
       color: rgb(255, 255, 255);
     }
+
     .dialog-buttons {
       border: 1px solid rgba(0, 0, 0, 0);
-      .btn{
+
+      .btn {
         margin: 20rpx auto;
         display: flex;
         justify-content: center;

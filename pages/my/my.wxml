@@ -1,12 +1,12 @@
 <view class="profile-container"></view>
-<view class="page-background" style="position: relative; left: 0rpx; top: 0rpx;height: {{leixing !== '用户' ? '2300rpx' : '1000rpx'}};">
+<view class="page-background" style="position: relative; left: 0rpx; top: 0rpx;height: {{leixing !== '用户' ? '2450rpx' : '1750rpx'}};">
   <!-- <image class="page-image" src="{{tupianUrl}}/info/mylogo2.jpg" mode="aspectFit"></image> -->
   <image class="avatar" src="{{AUrl}}/jy/wxuser/106/images/new/avatar.png" mode="aspectFill" bindtap="avatar"></image>
   <view class="user-info">
     <text class="username">{{name}}</text>
     <navigator url="/subPackages/package/pages/xq/xq" class="user-role">
       <view style="display: flex; align-items: center;">
-        <image src="/images/皇冠.png" style="width: 45rpx;height: 45rpx;margin-right: 20rpx;"></image>{{leixing}} >
+        <image src="/images/皇冠.png" style="width: 45rpx;height: 45rpx;margin-right: 20rpx;"></image>{{leixing}} {{agent}}
       </view>
     </navigator>
     <block wx:if="{{leixing !== '用户'}}">
@@ -58,14 +58,14 @@
       <view class="dongjie">
         <text class="label3">待释放券</text>
         <text class="amount3">{{dai}}</text>
-        <view class="exchange-button3" bind:tap="charge1">详情</view>
+        <!-- <view class="exchange-button3" bind:tap="charge1">详情</view> -->
         <view class="vertical-line2">
-      </view>
-      <view class="dongjie">
-        <text class="label4">已释放券</text>
-        <text class="amount4">{{yi}}</text>
-        <view class="exchange-button4" bind:tap="charge">详情</view>
-      </view>
+        </view>
+        <view class="dongjie">
+          <text class="label4">已释放券</text>
+          <text class="amount4">{{yi}}</text>
+          <view class="exchange-button4" bind:tap="charge">详情</view>
+        </view>
       </view>
     </view>
   </block>
@@ -90,30 +90,40 @@
     </navigator>
   </block>
 
-  <block wx:if="{{leixing === 'VIP会员' || leixing === '股东'}}">
+  <!-- <block wx:if="{{leixing === 'VIP会员' || leixing === '股东'}}"> -->
+  <block wx:if="{{leixing !== '用户'}}">
     <navigator url="/subPackages/package/pages/anquan/anquan" class="anquan-box" style="position: absolute; left: 21rpx; top: 1920rpx; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx; ">
       <text class="ri">安全中心</text>
       <text class="qian1-id"></text>
       <text class="action-button7">详情 ></text>
     </navigator>
   </block>
-  <navigator bind:tap="handleNavigate4" class="ma-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1620rpx' : '1250rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
+
+  <navigator bind:tap="handleNavigate4" class="ma-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1620rpx' : '1070rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
     <text class="ri">会员充值</text>
     <text class="qian1-id"></text>
     <text class="action-button7">详情 ></text>
   </navigator>
-  <navigator bind:tap="handleNavigate2" class="ma-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1450rpx' : '907rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
-    <text class="ri">我的邀请码</text>
-    <text class="qian1-id"></text>
-    <text class="action-button7">详情 ></text>
-  </navigator>
-  <navigator bind:tap="handleNavigate3" class="fapiao-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1560rpx' : '847rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
+  <block wx:if="{{leixing !== '用户' || inviteCode !== ''}}">
+    <navigator bind:tap="handleNavigate2" class="ma-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1450rpx' : '1407rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
+      <text class="ri">我的邀请码</text>
+      <text class="qian1-id"></text>
+      <text class="action-button7">详情 ></text>
+    </navigator>
+  </block>
+  <navigator bind:tap="handleNavigate3" class="fapiao-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1560rpx' : '667rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
     <text class="ri">发票管理</text>
     <text class="qian1-id"></text>
     <text class="action-button7">详情 ></text>
   </navigator>
-  <navigator bind:tap="handleNavigate" class="fapiao-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1900rpx' : '1180rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
-    <text class="ri">账号切换</text>
+  <navigator bind:tap="handleNavigate" class="fapiao-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1900rpx' : '990rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
+    <text class="ri">子账号切换</text>
+    <text class="qian1-id"></text>
+    <text class="action-button7">详情 ></text>
+  </navigator>
+
+  <navigator wx:if="{{agent !=''}}" bind:tap="handleNavigate5" class="fapiao-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '2070rpx' : '1140rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
+    <text class="ri">代理奖励</text>
     <text class="qian1-id"></text>
     <text class="action-button7">详情 ></text>
   </navigator>

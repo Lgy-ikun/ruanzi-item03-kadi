@@ -13,10 +13,15 @@ Page({
     sum: 0,
     subCount: '',
     showContent: true, // 控制非分享内容的显示
-    percentage: 0 // 新增进度百分比
+    percentage: 0, // 新增进度百分比
+    newQRCODE: '' // 新二维码图片
   },
 
   onLoad: function (options) {
+    console.log(options);
+    this.setData({
+      newQRCODE: `${app.globalData.AUrl}/jy/kadi/kadi?userid=${wx.getStorageSync('userid')}`
+    })
     // 检查是否是分享进入的页面
     if (options.from === 'share') {
       this.setData({
@@ -27,7 +32,7 @@ Page({
 
       // 直接使用传入的userid生成二维码
       if (options.userid) {
-        this.drawQRCode(options.userid);
+        // this.drawQRCode(options.userid);
       }
     } else {
       // 原有正常流程
@@ -44,7 +49,7 @@ Page({
           .catch(err => {
             console.error('fetchData 失败', err);
           });
-      } 
+      }
       // else {
       //   wx.navigateTo({
       //     url: '/subPackages/user/pages/register/register'
@@ -100,7 +105,7 @@ Page({
             randomId: serverRandomId
           });
           wx.setStorageSync('randomId', serverRandomId);
-          that.drawQRCode(userid);
+          // that.drawQRCode(userid);
         } else {
           console.warn('[推荐码接口] 无有效推荐码，生成新码');
 
@@ -125,7 +130,7 @@ Page({
                   randomId: newRandomId
                 });
                 wx.setStorageSync('randomId', newRandomId);
-                that.drawQRCode(userid);
+                // that.drawQRCode(userid);
               } else {
                 console.error('[保存失败] 服务端返回异常:', saveRes.data);
                 wx.showToast({
@@ -167,10 +172,10 @@ Page({
           if (res.statusCode === 200 && res.data) {
             app.globalData.userid = res.data.userid;
             // 格式化电话号码，隐藏中间部分
-            const formattedName = this.formatPhoneNumber(res.data.name);
+            // const formattedName = this.formatPhoneNumber(res.data.name);
             this.setData({
               leixing: res.data.leixing || '普通用户',
-              name: formattedName // 使用格式化后的电话号码
+              name: res.data.name // 使用格式化后的电话号码
             });
             resolve(res.data.userid); // 返回 userid
           }
@@ -295,7 +300,9 @@ Page({
     });
   },
 
-  onReady() {},
+  onReady() {
+    // this.drawQRCode(wx.getStorageSync('userid'));
+  },
 
   onShow() {
     const itsid = wx.getStorageSync('itsid');
@@ -307,13 +314,13 @@ Page({
 
 
 
-  onHide() {},
+  onHide() { },
 
-  onUnload() {},
+  onUnload() { },
 
-  onPullDownRefresh() {},
+  onPullDownRefresh() { },
 
-  onReachBottom() {},
+  onReachBottom() { },
 
   onShareAppMessage() {
     return {

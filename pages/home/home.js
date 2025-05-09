@@ -30,8 +30,7 @@ Page({
       app.globalData.tupianUrl + '/new/bgimg3.png',
       app.globalData.tupianUrl + '/new/bgimg4.png',
     ],
-    newImgs: [
-      {
+    newImgs: [{
         url: app.globalData.tupianUrl + '/new/bgimg5.png',
         desc: '抹茶咖啡 醇香浓缩卡拉非也 4489咖啡'
       },
@@ -94,9 +93,13 @@ Page({
     const AUrl = app.globalData.AUrl;
     console.log('Options:', options);
     console.log('AUrl:', AUrl);
+    console.log('query 参数:', options);
     const itsid = wx.getStorageSync('itsid');
     const userid = wx.getStorageSync('inviteUserid'); // 从 Storage 获取 invite
     console.log('对方userid', userid);
+
+
+
     // const invite = wx.getStorageSync('invite');
     // console.log('从缓存中获取的 invite:', invite); // 新增此行，打印缓存中的 invite
     this.fetchData10603(itsid);
@@ -113,7 +116,7 @@ Page({
     wx.request({
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10618&userid=${userid}`,
       method: "GET",
-      success(res){
+      success(res) {
         console.log(res)
         duifangCode = res.data.result.list[0].invite
         that.setData({
@@ -130,7 +133,7 @@ Page({
     wx.request({
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10637&userid=${userid}`,
       method: "GET",
-      success(res){
+      success(res) {
         console.log(res)
         inviteCode = res.data.result.list[0].invite
         that.setData({
@@ -338,7 +341,7 @@ Page({
   },
 
   handleNavigate: function () {
-    if(!wx.getStorageSync('isLoginSuccess')) {
+    if (!wx.getStorageSync('isLoginSuccess')) {
       wx.navigateTo({
         url: '/subPackages/user/pages/register/register',
       })
@@ -376,7 +379,7 @@ Page({
     }, 500); // 延迟500ms确保接口返回结果
   },
   handleNavigate2() {
-    if(!wx.getStorageSync('isLoginSuccess')) {
+    if (!wx.getStorageSync('isLoginSuccess')) {
       wx.navigateTo({
         url: '/subPackages/user/pages/register/register',
       })
@@ -387,7 +390,7 @@ Page({
     })
   },
   handleNavigate3() {
-    if(!wx.getStorageSync('isLoginSuccess')) {
+    if (!wx.getStorageSync('isLoginSuccess')) {
       wx.navigateTo({
         url: '/subPackages/user/pages/register/register',
       })

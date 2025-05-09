@@ -30,16 +30,16 @@
     <scroll-view wx:for="{{categories}}" wx:for-index="cIndex" wx:key="label" class="section" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation show-scrollbar="{{false}}">
       <view class="title">{{item.text}}</view>
       <t-cell-group>
-        <view class="dishItem" wx:for="{{item.children}}" wx:for-item="dItem" wx:for-index="dIndex" wx:key="dIndex">
+        <view class="dishItem" wx:for="{{item.children}}" wx:for-item="dItem" wx:for-index="dIndex" wx:key="dIndex" bindtap="navigateToDianDan" data-dishId="{{dItem.id}}" data-img="{{dItem.image}}" data-index1="{{cIndex}}" data-index2="{{dIndex}}">
           <view class="left">
             <image class="image" src='{{AUrl}}/jy/wxUserImg/106/{{dItem.image}}' />
           </view>
           <view class="right">
-            <view class="name">{{dItem.name}}</view>
+            <view class="name" style="font-size: 32rpx;">{{dItem.name}}</view>
             <view class="desc">{{dItem.desc}}</view>
             <view class="price">¥{{dItem.price}}</view>
-            <view class="add-button" bindtap="navigateToDianDan" data-dishId="{{dItem.id}}" data-img="{{dItem.image}}" price data-index1="{{cIndex}}" data-index2="{{dIndex}}">
-              +
+            <view class="add-button" catchtap="navigateToDianDan" data-dishId="{{dItem.id}}" data-img="{{dItem.image}}" data-index1="{{cIndex}}" data-index2="{{dIndex}}">
+              <text>+</text>
             </view>
             <view wx:if="{{dItem.num > 0}}" class="number-box">
               <text class="number">{{dItem.num}}</text>

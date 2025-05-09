@@ -2,7 +2,7 @@
   /* 设置渐变背景 */
   background: linear-gradient(to bottom, #eeeeee, #ffffff);
   /* 确保页面有足够的高度来显示渐变 */
-  min-height: 105vh;
+  /* min-height: 105vh; */
   position: relative;
   /* 设置相对定位，以便图片可以绝对定位 */
   overflow: hidden;

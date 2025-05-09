@@ -24,6 +24,9 @@ Page({
     AUrl: app.globalData.AUrl,
     tupianUrl: app.globalData.tupianUrl,
     isShow: true,
+    userScore: 0, // 当前用户积分
+    requiredScore: 0, // 本次支付需要积分
+    pointsAvailable: false, // 新增：消费券是否可用
   },
   initiatePayment() {
     this.setData({
@@ -44,19 +47,21 @@ Page({
       // 现金支付无需验证交易码
       const itsid = wx.getStorageSync('itsid');
       const app = getApp();
-      // const unitId = this.data.selected === '自提' ? wx.getStorageSync('selectedStoreId') : '';
-      const unitId = this.data.unitId
+      const unitId = this.data.selected === '自提' ? wx.getStorageSync('selectedStoreId') : '';
+      // const unitId = this.data.unitId
       let totalAmount = parseFloat(this.data.totalprice);
-      if(this.data.selected === '自提' && !unitId){
+      if (this.data.selected === '自提' && !unitId) {
         wx.showToast({
           title: '请选择门店',
           duration: 2000
         })
+        console.log(111);
         return
       }
-      if (this.data.selected === '外送') {
-        totalAmount += this.data.delivery;
-      }
+      // if (this.data.selected === '外送') {
+      //   totalAmount += this.data.delivery;
+      // }
+      console.log('计算后的总金额（含配送费）:', totalAmount);
       let that = this
       wx.request({
         url: `${app.globalData.backUrl}phone.aspx?mbid=122&ituid=${app.globalData.ituid}&itsid=${itsid}`,
@@ -73,17 +78,29 @@ Page({
           AMT: totalAmount,
           // IMGS: JSON.stringify(this.data.items.map(item => item.img))
           XXSQ: 'SQB',
-          RURL: '/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult'
+          RURL: '/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult',
+          type: this.data.selected === '自提' ? 1 : 2,
+          username: this.data.username,
+          phone: this.data.phone,
+          address: this.data.address,
+          extra: JSON.stringify({in_lite_app: true})
         },
         method: 'POST',
         header: {
           'content-type': 'application/json'
         },
         success: (res) => {
-          if(!that.data.usePoints && !that.data.useCoupon){
-            console.log(res)
+          if (!that.data.usePoints && !that.data.useCoupon) {
+            console.log("返回订单数据：", res)
+
+            let packageNew = encodeURIComponent(res.data.yeepay.package)
+            let paySignNew = encodeURIComponent(res.data.yeepay.paySign)
+
+            console.log("packageNew:", packageNew);
+            console.log("paySignNew:", paySignNew);
+
             wx.navigateTo({
-              url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}`,
+              url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}&appId=${res.data.yeepay.appId}&nonceStr=${res.data.yeepay.nonceStr}&package=${packageNew}&paySign=${paySignNew}&signType=${res.data.yeepay.signType}&timeStamp=${res.data.yeepay.timeStamp}&SN=${res.data.SN}`,
             })
             wx.hideToast()
           }
@@ -269,7 +286,7 @@ Page({
           icon: 'none'
         });
         useCoupon = false; // 强制取消勾选状态
-      } 
+      }
       // else {
       //   this.fetchCoupons(); // 获取卡券列表
       // }
@@ -291,9 +308,20 @@ Page({
     }); // 更新最终状态
   },
 
+
   // 积分支付选择处理
   checkboxChange: function (e) {
     let usePoints = e.detail.value.includes('积分支付');
+
+    // 检查积分是否足够
+    if (usePoints) {
+      // 调用检查消费券可用性方法
+      this.fetchUserScores();
+    } else {
+      this.setData({
+        usePoints: false
+      });
+    }
 
     // 与卡券支付互斥
     if (usePoints && this.data.useCoupon) {
@@ -304,6 +332,118 @@ Page({
 
     this.setData({
       usePoints
+    });
+  },
+
+  // 新增：检查消费券可用性
+  fetchUserScores: function() {
+    const that = this;
+    const itsid = wx.getStorageSync('itsid');
+    const userid = wx.getStorageSync('userid');
+    
+    console.log('消费券查询参数:', {userid, itsid});
+    
+    // 恢复使用原始接口格式，使用itsid参数
+    wx.request({
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+      method: 'GET',
+      success: (res) => {
+        console.log('消费券接口返回:', res.data);
+        
+        // 检查返回的数据是否包含score字段
+        if (res.data && typeof res.data.score !== 'undefined') {
+          const score = parseInt(res.data.score || 0, 10);
+          const requiredScore = Math.ceil(that.data.totalprice * 1.6);
+          
+          console.log('消费券数据:', {score, requiredScore, isEnough: score >= requiredScore});
+          
+          that.setData({
+            userScore: score,
+            requiredScore: requiredScore,
+            pointsAvailable: score >= requiredScore
+          });
+          
+          // 检查是否有足够的消费券
+          if (score < requiredScore) {
+            wx.showToast({
+              title: '当前消费券不足',
+              icon: 'none',
+              duration: 2000
+            });
+            
+            // 强制取消勾选状态
+            that.setData({
+              usePoints: false
+            });
+          }
+        } else {
+          console.error('消费券接口返回数据格式异常:', res.data);
+          
+          // 尝试从getUserScore方法获取积分
+          that.getUserScoreForCheck();
+        }
+      },
+      fail: (err) => {
+        console.error('获取消费券信息失败:', err);
+        
+        // 尝试从getUserScore方法获取积分
+        that.getUserScoreForCheck();
+      }
+    });
+  },
+  
+  // 新增：备用获取积分方法
+  getUserScoreForCheck: function() {
+    const that = this;
+    const itsid = wx.getStorageSync('itsid');
+    
+    // 尝试使用onShow中相同的方法获取积分
+    wx.request({
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+      success(res) {
+        console.log('备用积分接口返回:', res.data);
+        
+        if (res.data && res.data.code === '1') {
+          const score = parseInt(res.data.score || 0, 10);
+          const requiredScore = Math.ceil(that.data.totalprice * 1.6);
+          
+          that.setData({
+            userScore: score,
+            requiredScore: requiredScore,
+            pointsAvailable: score >= requiredScore
+          });
+          
+          if (score < requiredScore) {
+            wx.showToast({
+              title: '当前消费券不足',
+              icon: 'none',
+              duration: 2000
+            });
+            that.setData({
+              usePoints: false
+            });
+          }
+        } else {
+          wx.showToast({
+            title: '当前无可用消费券',
+            icon: 'none',
+            duration: 2000
+          });
+          that.setData({
+            usePoints: false
+          });
+        }
+      },
+      fail() {
+        wx.showToast({
+          title: '当前无可用消费券',
+          icon: 'none',
+          duration: 2000
+        });
+        that.setData({
+          usePoints: false
+        });
+      }
     });
   },
   /**
@@ -429,7 +569,7 @@ Page({
 
     // 获取用户积分数据
     wx.request({
-      url: `${app.globalData. AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
       method: 'GET',
       success: (res) => {
         console.log('积分接口返回数据:', res.data);
@@ -489,7 +629,8 @@ Page({
             USERID: '0',
             NOTE: '积分支付',
             SCORE: requiredPoints, // 新增积分参数
-            AMT: 0
+            AMT: 0,
+            extra: JSON.stringify({in_lite_app: true})
             // IMGS: JSON.stringify(this.data.items.map(item => item.img))
           },
           header: {
@@ -512,6 +653,7 @@ Page({
             });
 
             // 更新存储和全局数据
+            wx.setStorageSync('updataArray', [])
             wx.setStorageSync('categories', categories);
             console.log('清空后的存储数据:', wx.getStorageSync('categories'));
             wx.setStorageSync('sum', 0);
@@ -537,7 +679,7 @@ Page({
             // --------------------------------------------------------------------------------------------------
             // 重新获取积分数据
             wx.request({
-              url: `${app.globalData. AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+              url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
               method: 'GET',
               success: (res) => {
                 const newScore = res.data.score ? res.data.score : 0;
@@ -549,11 +691,11 @@ Page({
                 let that = this
                 console.log(userid);
                 wx.request({
-                  url: `${app.globalData. AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10622&userid=${userid}`,
+                  url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10622&userid=${userid}`,
                   success(res) {
                     const orderid = res.data.result.list[0].orderid
                     wx.request({
-                      url: `${app.globalData. AUrl}/jy/go/phone.aspx?mbid=10617&ituid=106&itsid=${itsid}`,
+                      url: `${app.globalData.AUrl}/jy/go/phone.aspx?mbid=10617&ituid=106&itsid=${itsid}`,
                       method: 'POST',
                       data: {
                         orderid: String(orderid),
@@ -571,7 +713,7 @@ Page({
 
                         // 加载商品数据
                         wx.request({
-                          url: `${app.globalData. AUrl}/jy/go/we.aspx?ituid=106&itjid=5035&itcid=5035&id=01 `,
+                          url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=5035&itcid=5035&id=01 `,
                           method: 'GET',
                           success: function (res) {
                             if (res.data.code === '1' && res.data.result) {
@@ -637,14 +779,15 @@ Page({
   cashPayment() {
     const itsid = wx.getStorageSync('itsid');
     const app = getApp();
-    // const unitId = this.data.selected === '自提' ? wx.getStorageSync('selectedStoreId') : '';
-    const unitId = this.data.unitId
+    const unitId = this.data.selected === '自提' ? wx.getStorageSync('selectedStoreId') : '';
+    // const unitId = this.data.unitId
     let totalAmount = parseFloat(this.data.totalprice);
-    if(this.data.selected === '自提' && !unitId){
+    if (this.data.selected === '自提' && !unitId) {
       wx.showToast({
         title: '请选择门店',
         duration: 2000
       })
+      console.log(222);
       return
     }
     if (this.data.selected === '外送') {
@@ -666,7 +809,12 @@ Page({
         AMT: totalAmount,
         // IMGS: JSON.stringify(this.data.items.map(item => item.img))
         XXSQ: 'SQB',
-        RURL: '/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult'
+        RURL: '/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult',
+        type: this.data.selected === '自提' ? 1 : 2,
+        username: this.data.username,
+        phone: this.data.phone,
+        address: this.data.address,
+        extra: JSON.stringify({in_lite_app: true})
       },
       method: 'POST',
       header: {
@@ -674,7 +822,7 @@ Page({
       },
       success: (res) => {
         wx.hideToast()
-        if(!that.data.usePoints && !that.data.useCoupon){
+        if (!that.data.usePoints && !that.data.useCoupon) {
           console.log(res)
           wx.navigateTo({
             url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}`,
@@ -768,10 +916,12 @@ Page({
         NUM: '',
         USERID: userid,
         cardid: this.data.cardid, // 从data获取预存的卡券ID
-        AMT: 0
+        AMT: 0,
+        extra: JSON.stringify({in_lite_app: true})
       },
       success: (res) => {
         this.handlePaymentResult(res, 'coupon');
+        wx.setStorageSync('updataArray', [])
       }
     });
   },
@@ -844,7 +994,7 @@ Page({
         success: '支付成功',
         fail: '支付失败'
       }
-    } [type];
+    }[type];
 
     if (res.data.code === '1') {
       // 公共成功处理（不修改原有逻辑）
@@ -881,7 +1031,7 @@ Page({
    */
   onShow: function () {
     const selected = app.globalData.selected;
-    // 更新全局相关信息
+    // 更新全局相关信息onsho
     this.setData({
       isShow: true,
       selected: app.globalData.selected,
@@ -894,9 +1044,27 @@ Page({
     }, () => {
       // 直接调用 fetchItems，回调中会计算总价
       this.fetchItems();
+      // 获取用户积分
+      this.getUserScore();
     });
   },
-
+  // 获取用户积分方法
+  getUserScore() {
+    const that = this;
+    const itsid = wx.getStorageSync('itsid');
+    wx.request({
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+      success(res) {
+        if (res.data.code === '1') {
+          const score = parseInt(res.data.score || 0, 10);
+          that.setData({
+            userScore: score,
+            requiredScore: Math.ceil(that.data.totalprice * 1.6) // 计算所需积分
+          });
+        }
+      }
+    });
+  },
   // 计算总价（商品单价*数量，如外送再加配送费）
   calculateTotal: function () {
     let total = this.data.items.reduce((sum, item) => {

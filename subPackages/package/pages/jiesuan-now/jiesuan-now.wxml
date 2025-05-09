@@ -1,0 +1,86 @@
+<view class="container">
+  <view class="order-settlement">
+    <view class="shop-info">
+      <view class="info-detail">
+        <text class="item-adress" wx:if="{{selected === '外送'}}">{{address}}</text>
+        <text class="item-adress" wx:else>{{storeName}}</text>
+        <text class="user-id" wx:if="{{selected === '外送'}}">{{phone}} {{username}}</text>
+      </view>
+      <view class="pickup-delivery-group">
+        <navigator url="/subPackages/package/pages/ziti/ziti?type=jiesuan-now" class="pickup-button {{selected === '自提' ? 'active' : ''}}" bindtap="selectOption" data-option="自提">
+          <text>自提</text>
+        </navigator>
+        <navigator url="/subPackages/package/pages/chooseLocation/chooseLocation?type=jiesuan-now" class="delivery-button {{selected === '外送' ? 'active' : ''}}" bindtap="selectOption" data-option="外送">
+          <text>外送</text>
+        </navigator>
+      </view>
+    </view>
+    <view class="order-list">
+      <view class="order-item" wx:for="{{items}}" wx:key="id">
+        <view class="item">
+          <image class="item-image" src="{{item.image}}"></image>
+          <view class="item-details">
+            <text decode="true">{{item.name}}</text>
+            <text class="item-price">¥{{item.price}}</text>
+            <text class="item-quantity">数量: {{item.num}}</text>
+            <text class="item-customizations">定制选项：{{item.add}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    <view class="delivery-fee" style="position: relative;top: 20rpx;" wx:if="{{selected === '外送'}}">
+      <text class="peisong" style="margin-left: 30rpx;">配送费 ¥{{delivery}}</text>
+    </view>
+    <view class="total" style="position: relative;top: 30rpx; margin-bottom: 60rpx;">
+      <text class="dai" style="margin-left: 30rpx;">待支付 ¥{{totalPrice}}</text>
+    </view>
+    <!-- 消费券支付选项 -->
+    <view class="points-option">
+      <checkbox-group bindchange="checkboxChange">
+        <label class="checkbox-item">
+          <checkbox value="积分支付" checked="{{usePoints}}" />
+          消费券支付
+        </label>
+      </checkbox-group>
+    </view>
+
+    <!-- 卡券支付选项 -->
+    <view class="points-option">
+      <checkbox-group bindchange="couponCheckboxChange">
+        <label>
+          <checkbox value="卡券支付" checked="{{useCoupon}}" />使用卡券支付
+        </label>
+      </checkbox-group>
+      <view wx:if="{{!couponAvailable}}">
+      </view>
+    </view>
+  </view>
+  
+  <!-- 支付按钮 -->
+  <view class="zhifu">
+    <view wx:if="{{isShow}}" class="pay-button" bindtap="initiatePayment">去支付</view>
+    <view wx:else class="pay-button">去支付</view>
+  </view>
+</view>
+
+<!-- 交易码弹窗 -->
+<view wx:if="{{showCodeDialog}}" class="code-dialog-mask">
+  <view class="code-content">
+    <view class="img">
+      <image bindtap="closeDialog" src="{{tupianUrl}}/new/close.png" mode="" />
+    </view>
+    <view class="title1">请输入交易码</view>
+    <view class="input-container">
+      <block wx:for="{{inputBoxes}}" wx:key="index">
+        <view class="input-box">
+          <input id="input-{{index}}" focus="false" type="number" value="{{item}}" data-index="{{index}}" disabled="true" maxlength="1" />
+        </view>
+        <view class="overlay" bind:tap="handleGetFocus"></view>
+      </block>
+    </view>
+    <input class="ipt" value="{{codeValue}}" focus="{{testFocus}}" type="number" bindinput="handleTestInput" maxlength="6" bind:tap="handleNotFocus" />
+    <view class="dialog-buttons">
+      <view class="btn" bindtap="verifyCode">确定</view>
+    </view>
+  </view>
+</view>

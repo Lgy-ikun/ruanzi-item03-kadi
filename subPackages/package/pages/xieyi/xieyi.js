@@ -14,10 +14,24 @@ Page({
    */
   onLoad(options) {
     let that = this
+    let itjid = 0
+    if (options.agreement == 'user') {
+      itjid = 10600
+      wx.setNavigationBarTitle({
+        title: '卡狄咖啡用户服务协议',
+      })
+    }
+    else if (options.agreement == 'privacy') {
+      itjid = 10601
+      wx.setNavigationBarTitle({
+        title: '卡狄咖啡用户隐私使用协议',
+      })
+    }
+
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10600`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=${itjid}`,
       method: 'GET',
-      success(res){
+      success(res) {
         that.setData({
           content: res.data.content
         })

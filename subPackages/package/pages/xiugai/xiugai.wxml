@@ -1,6 +1,6 @@
 <view class="container">
   <view class="title" style="font-weight: bolder;">修改密码</view>
-  <text class="a" style="font-size: 28rpx;position: relative;top: -20rpx;">请输入交易码，以验证身份</text>
+  <text class="a" style="font-size: 28rpx;position: relative;top: -20rpx;">请输入原始交易码，以验证身份</text>
   <view class="input-container">
     <block wx:for="{{inputBoxes}}" wx:key="index">
       <view class="input-box">

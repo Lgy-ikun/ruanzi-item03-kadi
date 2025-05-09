@@ -14,25 +14,25 @@ Page({
     value: 0,
     value1: 0,
     buttons: [{
-        label: '普通会员',
-        value: 0
-        // content: '需要60%现金和40%积分，现金180+积分120'
-      },
-      {
-        label: 'VIP会员',
-        value: 1
-        // content: '需要60%现金和40%积分，现金5400+积分3600'
-      },
-      {
-        label: '铂金会员',
-        value: 2
-        // content: '需要60%现金和40%积分，现金16200+积分10800'
-      },
-      {
-        label: '钻石会员',
-        value: 3
-        // content: '需要60%现金和40%积分，现金16200+积分10800'
-      },
+      label: '普通会员',
+      value: 0
+      // content: '需要60%现金和40%积分，现金180+积分120'
+    },
+    {
+      label: 'VIP会员',
+      value: 1
+      // content: '需要60%现金和40%积分，现金5400+积分3600'
+    },
+    {
+      label: '铂金会员',
+      value: 2
+      // content: '需要60%现金和40%积分，现金16200+积分10800'
+    },
+    {
+      label: '钻石会员',
+      value: 3
+      // content: '需要60%现金和40%积分，现金16200+积分10800'
+    },
       // {
       //   label: '自定义',
       //   value: 3
@@ -41,8 +41,8 @@ Page({
     ],
     charge: '',
     selectedContent: '需要60%现金和40%积分，现金1800+积分1200', // 用于存储选中按钮对应的文字描述
-    cashAmount: '0', // 现金金额
-    pointsAmount: '120.00', // 积分金额
+    cashAmount: '600', // 现金金额
+    pointsAmount: '400.00', // 积分金额
   },
   // handleChange(e) {
   //   this.setData({
@@ -161,38 +161,38 @@ Page({
     // });
 
     this.getServerTransactionCode()
-      // .then(serverCode => {
-      //   // 安全对比（防止时序攻击）
-      //   const safeCompare = (a, b) => {
-      //     let mismatch = 0;
-      //     const length = Math.max(a.length, b.length);
-      //     for (let i = 0; i < length; ++i) {
-      //       mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
-      //     }
-      //     return mismatch === 0;
-      //   };
+    // .then(serverCode => {
+    //   // 安全对比（防止时序攻击）
+    //   const safeCompare = (a, b) => {
+    //     let mismatch = 0;
+    //     const length = Math.max(a.length, b.length);
+    //     for (let i = 0; i < length; ++i) {
+    //       mismatch |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    //     }
+    //     return mismatch === 0;
+    //   };
 
-      //   if (safeCompare(codeValue, serverCode)) {
-      //     that.closeDialog();
-      //     that.executeRecharge();
-      //   } else {
-      //     wx.showToast({
-      //       title: '交易码不匹配',
-      //       icon: 'none'
-      //     });
-      //   }
-      // })
-      // .catch(err => {
-      //   console.error('验证失败:', err);
-      //   wx.showToast({
-      //     title: err.message || '验证失败',
-      //     icon: 'none',
-      //     duration: 2000
-      //   });
-      // })
-      // .finally(() => {
-      //   wx.hideToast();
-      // });
+    //   if (safeCompare(codeValue, serverCode)) {
+    //     that.closeDialog();
+    //     that.executeRecharge();
+    //   } else {
+    //     wx.showToast({
+    //       title: '交易码不匹配',
+    //       icon: 'none'
+    //     });
+    //   }
+    // })
+    // .catch(err => {
+    //   console.error('验证失败:', err);
+    //   wx.showToast({
+    //     title: err.message || '验证失败',
+    //     icon: 'none',
+    //     duration: 2000
+    //   });
+    // })
+    // .finally(() => {
+    //   wx.hideToast();
+    // });
   },
 
   // 事件处理函数直接定义在这里
@@ -327,7 +327,7 @@ Page({
       });
     } else {
       if (Number(money) < Number(cashAmount)) {
-      // if (Number(money) < Number(cashAmount)) {
+        // if (Number(money) < Number(cashAmount)) {
         console.log("wwww", money);
         console.log(cashAmount);
         wx.showToast({
@@ -354,7 +354,7 @@ Page({
     let charge = '';
     switch (value1) {
       case 0: // 300
-        charge = 300;
+        charge = 1000;
         break;
       case 1: // 一份
         charge = 3000;
@@ -366,11 +366,11 @@ Page({
         charge = 27000;
         break;
       default:
-        charge = 300;
+        charge = 1000;
     }
     console.log(charge);
     this.setData({
-      fetchMoney: this.data.chongZhiMoneyList[value1].price,  // 发送请求的金额
+      fetchMoney: this.data.chongZhiMoneyList[value1].price, // 发送请求的金额
       value1: value1,
       charge: charge,
     });
@@ -451,15 +451,16 @@ Page({
       },
     });
   },
-  getChongZhiMoney(){
+  getChongZhiMoney() {
     let that = this
     wx.request({
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10639`,
       method: "GET",
-      success(res){
+      success(res) {
         console.log(res)
         that.setData({
           chongZhiMoneyList: res.data.result.list,
+
           fetchMoney: res.data.result.list[0].price,
           cashAmount: res.data.result.list[0].price,
         })
@@ -472,7 +473,7 @@ Page({
     wx.request({
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10637&userid=${userid}`,
       method: "GET",
-      success(res){
+      success(res) {
         console.log(res)
         that.setData({
           inviteCode: res.data.result.list[0].invite
@@ -499,22 +500,19 @@ Page({
 
   onRecharge: function () {
     let that = this;
-    // const invite1 = wx.getStorageSync('invite');
-    console.log('提交的推荐码:', this.data.inviteCode); // 调试日志
+    console.log('提交的推荐码:', this.data.inviteCode);
     const inviteCode = this.data.inviteCode
-    // console.log('邀请人ID:', invite1);
     const itsid = wx.getStorageSync('itsid');
-    const baseAmount = that.data.baseAmount; // 使用固定的单份基础金额
+    const baseAmount = that.data.baseAmount;
     const cashAmount = that.data.cashAmount;
     console.log(cashAmount);
-    const quantity = that.data.quantity; // 使用页面数据中的 quantity
-    const amt = baseAmount * quantity; // 总充值金额
-    const content = that.data.content || 0; // 获取当前用户的积分
-    const pointsAmount = parseFloat(that.data.pointsAmount); // 需要的积分金额
+    const quantity = that.data.quantity;
+    const amt = baseAmount * quantity;
+    const content = that.data.content || 0;
+    const pointsAmount = parseFloat(that.data.pointsAmount);
     let value1 = that.data.value1;
     const fetchMoney = that.data.fetchMoney
 
-    // 移除积分判断，直接执行充值逻辑
     // 根据 quantity 选择对应的 MCODE
     let MCODE;
     switch (value1) {
@@ -531,20 +529,19 @@ Page({
         MCODE = 903;
         break;
       default:
-        MCODE = ''; // 默认值，可根据需求调整
+        MCODE = '';
         break;
     }
     console.log(app.globalData.backUrl);
     wx.request({
       url: `${app.globalData.backUrl}phone.aspx?mbid=10601&ituid=${app.globalData.ituid}&itsid=${itsid}`,
       data: {
-        MCODE: MCODE, // 动态设置MCODE
+        MCODE: MCODE,
         OPID: '1206',
         UNITID: '1',
         NUM: quantity,
         USERID: '0',
         NOTE: ' ',
-        // AMT: cashAmount,
         AMT: fetchMoney,
         invite: inviteCode,
         RURL: '/subPackages/package/pages/shareholder-payResult/shareholder-payResult'
@@ -554,14 +551,75 @@ Page({
         'content-type': 'application/json'
       },
       success: (res) => {
-        console.log(res)
-        wx.navigateTo({
-          url: `/subPackages/package/pages/shareholder-pay/shareholder-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}`,
-        })
+        try {
+          console.log("接口返回数据:", res.data);
+          
+          // 处理返回数据可能是字符串的情况
+          let responseData = res.data;
+          if (typeof responseData === 'string') {
+            try {
+              // 尝试解析JSON字符串
+              responseData = JSON.parse(responseData);
+            } catch (e) {
+              console.error("JSON解析失败，尝试手动提取yburl", e);
+              
+              // 手动提取yburl
+              const ybUrlMatch = responseData.match(/\"yburl\":(https:\/\/[^,\}]+)/);
+              if (ybUrlMatch && ybUrlMatch[1]) {
+                // 找到了yburl，直接跳转
+                const yburl = ybUrlMatch[1].trim();
+                console.log("提取到yburl:", yburl);
+                wx.navigateTo({
+                  url: `/subPackages/package/pages/web-view/web-view?url=${encodeURIComponent(yburl)}`
+                });
+                return;
+              }
+            }
+          }
+          
+          // 检查返回数据中是否包含yburl
+          if (responseData && responseData.yburl) {
+            // 如果存在yburl，则直接跳转到易宝支付页面
+            console.log("跳转到易宝支付页面:", responseData.yburl);
+            wx.navigateTo({
+              url: `/subPackages/package/pages/web-view/web-view?url=${encodeURIComponent(responseData.yburl)}`
+            });
+          } else if (responseData && responseData.yeepay) {
+            // 如果不存在yburl但存在yeepay，则按原来的逻辑处理
+            let packageNew = encodeURIComponent(responseData.yeepay.package);
+            let paySignNew = encodeURIComponent(responseData.yeepay.paySign);
+
+            console.log("packageNew:", packageNew);
+            console.log("paySignNew:", paySignNew);
+
+            wx.navigateTo({
+              url: `/subPackages/package/pages/shareholder-pay/shareholder-pay?return_url=${responseData.rurl}&orderid=${responseData.orderid}&terminal=${responseData.terminal_sn}&amt=${responseData.AMT}&sign=${responseData.sign}&appId=${responseData.yeepay.appId}&nonceStr=${responseData.yeepay.nonceStr}&package=${packageNew}&paySign=${paySignNew}&signType=${responseData.yeepay.signType}&timeStamp=${responseData.yeepay.timeStamp}&SN=${responseData.SN}`,
+            });
+          } else {
+            // 处理不符合预期的响应
+            wx.showToast({
+              title: '支付接口返回格式异常',
+              icon: 'none',
+              duration: 2000
+            });
+            console.error("接口返回数据格式异常:", responseData);
+          }
+        } catch (error) {
+          console.error("处理响应数据时出错:", error);
+          wx.showToast({
+            title: '处理支付数据失败',
+            icon: 'none',
+            duration: 2000
+          });
+        }
+      },
+      fail: (err) => {
+        console.error("请求失败:", err);
+        wx.showToast({
+          title: '请求失败，请稍后再试',
+          icon: 'none'
+        });
       }
     });
-    // console.log(itsid);
-    // that.fetchData(itsid);
-
   }
 });

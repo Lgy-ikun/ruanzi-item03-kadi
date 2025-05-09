@@ -5,7 +5,8 @@
     "pages/order/order",
     "pages/orders/orders",
     "pages/my/my",
-    "pages/logs/logs"
+    "pages/logs/logs",
+    "pages/dev-clear/dev-clear"
   ],
   "window": {
     "navigationBarBackgroundColor": "#fff",
@@ -104,7 +105,13 @@
         "pages/recharge-pay/recharge-pay",
         "pages/recharge-payResult/recharge-payResult",
         "pages/pingjia/pingjia",
-        "pages/qiehuan/qiehuan"
+        "pages/qiehuan/qiehuan",
+        "pages/huiyuanrenshu/huiyuanrenshu",
+        "pages/jiatingchengyuan/jiatingchengyuan",
+        "pages/orderDetail/orderDetail",
+        "pages/web-view/web-view",
+        "pages/jiesuan-now/jiesuan-now",
+        "pages/agentRewards/agentRewards"
       ]
     }
   ],
@@ -117,10 +124,6 @@
     "captcha": {
       "version": "2.1.0",
       "provider": "wx1fe8d9a3cb067a75"
-    },
-    "sqb-pay": {
-      "version": "1.3.1",
-      "provider": "wx55540b288c5ce319"
     }
   },
   "componentFramework": "glass-easel",

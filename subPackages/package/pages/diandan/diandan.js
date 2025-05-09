@@ -111,7 +111,7 @@ Page({
     const index1 = parseInt(options.index1, 10);
     const index2 = parseInt(options.index2, 10);
     const itsid = wx.getStorageSync('itsid') || 'default_itsid';
-
+    const userid = wx.getStorageSync('userid');
 
     // 确保索引是有效的数字
     if (isNaN(index1) || isNaN(index2)) {
@@ -151,8 +151,10 @@ Page({
       displaySweetness: savedSelections.selectedSweetness || '不另外加糖',
       isFavorited: isFavorited
     });
+
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10638&itcid=10638&keyvalue=${dishId}&itsid=${itsid}`,
+      // url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10638&itcid=10638&keyvalue=${dishId}&itsid=${itsid}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10638&itcid=10638&userid=${userid}&keyvalue=${dishId}`,
       method: 'GET',
       success: (res) => {
         const {
@@ -216,6 +218,8 @@ Page({
                 selectedSpecs: savedSpecs
               });
               this.matchSku();
+              // 加载收藏状态
+              this.loadFavoriteStatus();
             });
           } else {
             this.matchSku();
@@ -316,7 +320,51 @@ Page({
       wx.setStorageSync(`currentPrice_${this.data.dishId}`, this.data.currentPrice);
       wx.setStorageSync(`oldPrice_${this.data.dishId}`, this.data.oldPrice);
       this.forceUpdateSpecs();
+      // 更新收藏状态
+      this.updateFavoriteStatus();
     });
+  },
+  // 更新收藏状态
+  updateFavoriteStatus() {
+    const {
+      dishId,
+      selectedSpecs
+    } = this.data;
+    const savedSpecs = wx.getStorageSync(`savedSpecs_${dishId}`) || {};
+
+    // 检查当前选中的规格是否与收藏的规格一致
+    const isSameSpecs = Object.entries(selectedSpecs).every(([key, value]) => savedSpecs[key] === value);
+
+    if (isSameSpecs) {
+      // 如果当前选中的规格与收藏的规格一致，更新为收藏状态
+      this.setData({
+        isFavorited: true
+      });
+    } else {
+      // 否则更新为未收藏状态
+      this.setData({
+        isFavorited: false
+      });
+    }
+  },
+
+  // 加载收藏状态
+  loadFavoriteStatus() {
+    const {
+      dishId,
+      selectedSpecs
+    } = this.data;
+    const savedSpecs = wx.getStorageSync(`savedSpecs_${dishId}`) || {};
+
+    // 检查当前选中的规格是否与收藏的规格一致
+    const isSameSpecs = Object.entries(selectedSpecs).every(([key, value]) => savedSpecs[key] === value);
+
+    if (isSameSpecs) {
+      // 如果一致，设置为收藏状态
+      this.setData({
+        isFavorited: true
+      });
+    }
   },
   forceUpdateSpecs() {
     const tempSpecs = {
@@ -348,7 +396,7 @@ Page({
       currentPrice: matchedSku?.price / 100 || 0,
       inventory: matchedSku?.stock || 0,
       currentImage: matchedSku?.image || this.data.mainPictures[0],
-      targetSkuCode: matchedSku.skuCode // 发送请求的目标skuCode
+      targetSkuCode: matchedSku.skuCode // 发送请求的目标skuCode
     });
     if (matchedSku) {
       wx.setStorageSync(`currentPrice_${this.data.dishId}`, matchedSku.price / 100);
@@ -394,30 +442,138 @@ Page({
     savedSelections.selectedSweetness = selectedSweetness;
     wx.setStorageSync(`savedSelections_${dishId}`, savedSelections);
   },
+  // onFavorite: function () {
+  //   const dishId = this.data.dishId;
+  //   const isFavorited = !this.data.isFavorited;
+  //   const itsid = wx.getStorageSync('itsid') || 'default_itsid'; // 获取itsid
+  //   const app = getApp(); // 获取全局对象
+  //   const userid = wx.getStorageSync('userid');
+  //   const backUrl = app.globalData.backUrl;
+  //   if (isFavorited) {
+  //     // 保存当前规格组合
+  //     wx.setStorageSync(`savedSpecs_${dishId}`, this.data.selectedSpecs);
+  //     wx.setStorageSync(`isFavorited_${dishId}`, true);
+  //     wx.showToast({
+  //       title: '收藏成功',
+  //       icon: 'success'
+  //     });
+
+  //     // 发送 POST 请求到接口 10636
+
+
+  //     // keyid等于dishId
+  //     wx.request({
+  //       url: `${backUrl}phone.aspx?mbid=10636&ituid=${app.globalData.ituid}&itsid=${itsid}`,
+  //       method: 'POST',
+  //       data: {
+  //         value: this.data.dishId,
+  //         userid: userid,
+  //         macode: this.data.targetSkuCode
+  //       },
+  //       header: {
+  //         'content-type': 'application/json' // 默认值
+  //       },
+  //       success: (res) => {
+  //         console.log('收藏接口成功:', res.data);
+  //         // 可以在这里处理接口返回的数据
+  //       },
+  //       fail: (err) => {
+  //         console.error('收藏接口失败:', err);
+  //         // 处理接口请求失败的情况
+  //       }
+  //     });
+  //   } else {
+  //     wx.removeStorageSync(`savedSpecs_${dishId}`);
+  //     wx.setStorageSync(`isFavorited_${dishId}`, false);
+  //     wx.showToast({
+  //       title: '取消收藏',
+  //       icon: 'none'
+  //     });
+
+  //     // 如果需要在取消收藏时发送请求，可以在这里添加相应的逻辑
+  //   }
+
+  //   this.setData({
+  //     isFavorited
+  //   });
+  // },
+
   onFavorite: function () {
-    const dishId = this.data.dishId;
-    const isFavorited = !this.data.isFavorited;
+    const {
+      dishId,
+      isFavorited,
+      targetSkuCode
+    } = this.data;
+    const userid = wx.getStorageSync('userid');
+    const backUrl = app.globalData.backUrl;
+    const itsid = wx.getStorageSync('itsid') || 'default_itsid';
 
     if (isFavorited) {
-      // 保存当前规格组合
-      wx.setStorageSync(`savedSpecs_${dishId}`, this.data.selectedSpecs);
-      wx.setStorageSync(`isFavorited_${dishId}`, true);
-      wx.showToast({
-        title: '收藏成功',
-        icon: 'success'
+      // 取消收藏时调用接口 10637
+      wx.request({
+        url: `${backUrl}phone.aspx?mbid=10637&ituid=${app.globalData.ituid}&itsid=${itsid}`,
+        method: 'POST',
+        data: {
+          value: dishId,
+
+        },
+        success: (res) => {
+          if (res.statusCode === 200) {
+            wx.showToast({
+              title: "取消收藏",
+              icon: 'none'
+            });
+            this.setData({
+              isFavorited: false
+            });
+            wx.setStorageSync(`isFavorited_${dishId}`, false);
+            wx.removeStorageSync(`savedSpecs_${dishId}`);
+          } else {
+            wx.showToast({
+              title: '取消收藏失败',
+              icon: 'none'
+            });
+          }
+        },
+        fail: () => wx.showToast({
+          title: '网络错误',
+          icon: 'none'
+        })
       });
     } else {
-      wx.removeStorageSync(`savedSpecs_${dishId}`);
-      wx.setStorageSync(`isFavorited_${dishId}`, false);
-      wx.showToast({
-        title: '取消收藏',
-        icon: 'none'
+      // 收藏时调用接口 10636
+      wx.request({
+        url: `${backUrl}phone.aspx?mbid=10636&ituid=${app.globalData.ituid}&itsid=${itsid}`,
+        method: 'POST',
+        data: {
+          value: dishId,
+          userid,
+          macode: targetSkuCode
+        },
+        success: (res) => {
+          if (res.statusCode === 200) {
+            wx.showToast({
+              title: "收藏成功",
+              icon: 'none'
+            });
+            this.setData({
+              isFavorited: true
+            });
+            wx.setStorageSync(`isFavorited_${dishId}`, true);
+            wx.setStorageSync(`savedSpecs_${dishId}`, this.data.selectedSpecs);
+          } else {
+            wx.showToast({
+              title: '收藏失败',
+              icon: 'none'
+            });
+          }
+        },
+        fail: () => wx.showToast({
+          title: '网络错误',
+          icon: 'none'
+        })
       });
     }
-
-    this.setData({
-      isFavorited
-    });
   },
 
   // 遍历categories计算出总杯数算法
@@ -531,6 +687,38 @@ Page({
 
     return true;
   },
+  
+  // 立即购买功能
+  goToJiesuanNow: function() {
+    const skuCode = this.data.targetSkuCode;
+    const {selectedSpecs, specList} = this.data;
+    
+    // 生成规格描述（根据接口返回的规格顺序）
+    const displaySettings = specList.map(spec =>
+      `${spec.name}:${selectedSpecs[spec.name]}`
+    ).join('; ');
+    
+    // 创建一个专门用于立即购买的商品对象
+    const currentItem = {
+      id: this.data.dishId,
+      name: this.data.dishName,
+      image: this.data.currentImage,
+      price: this.data.currentPrice,
+      oldPrice: this.data.oldPrice,
+      skuCode: skuCode,
+      add: displaySettings,
+      num: this.data.quantity  // 当前选择的数量
+    };
+    
+    // 保存到本地缓存，用于结算页面读取
+    wx.setStorageSync('buyNowItems', [currentItem]);
+    
+    // 跳转到立即购买结算页面
+    wx.navigateTo({
+      url: '/subPackages/package/pages/jiesuan-now/jiesuan-now'
+    });
+  },
+  
   onShow: function () {
     // 确保每次页面显示时，都从缓存中获取最新的数据
     const categories = wx.getStorageSync('categories') || [];
@@ -552,6 +740,5 @@ Page({
       selectedDishName: selectedDishName
     });
   }
-
 
 });

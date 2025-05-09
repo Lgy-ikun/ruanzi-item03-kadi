@@ -1,7 +1,9 @@
 // subPackages/package/pages/search/search.js
+const app = getApp();
 Page({
   data: {
     searchValue: '', // 搜索框的值
+    AUrl: app.globalData.AUrl,
     searchResults: [] // 搜索结果
   },
   onSearchInput(e) {
@@ -22,7 +24,7 @@ Page({
   },
   fetchSearchResults(keyword) {
     const that = this;
-    const url = `${app.globalData. AUrl}/jy/go/we.aspx?ituid=106&itjid=5035&itcid=5035&id=01`;
+    const url = `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=5035&itcid=5035&id=01`;
     wx.request({
       url: url,
       method: 'GET',

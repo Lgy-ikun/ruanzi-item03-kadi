@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "立即购买",
+  "usingComponents": {
+    "sqb-pay": "plugin://sqb-pay/sqb-pay"
+  }
+} 

@@ -27,9 +27,9 @@
 <!-- 注册方式切换 -->
 <view class="register-switch">
   <text wx:if="{{RegWay === 'shouji'}}" bindtap="toggleRegisterType" class="phone-tip {{isPhoneRegister ? 'phone-tip-active' : ''}}" data-type="phone">手机号登录</text>
-  <text wx:if="{{RegWay === 'shouji'}}" bindtap="toggleRegisterType" class="phone-tip {{isEmailRegister ? 'phone-tip-active' : ''}}" data-type="email">邮箱登录</text>
+  <!-- <text wx:if="{{RegWay === 'shouji'}}" bindtap="toggleRegisterType" class="phone-tip {{isEmailRegister ? 'phone-tip-active' : ''}}" data-type="email">邮箱登录</text> -->
   <!-- <text class="switch-item" bindtap="toggleRegisterType" data-type="phone" wx:if="{{!isPhoneRegister && !isPhoneRegister}}">手机号注册</text> -->
-  <text wx:if="{{RegWay === 'youxiang'}}" class="phone-tip" data-type="email">邮箱注册</text>
+  <text wx:if="{{RegWay === 'youxiang'}}" class="phone-tip" data-type="email">子账号注册</text>
   <!-- <text class="switch-item" bindtap="toggleRegisterType" data-type="back" wx:if="{{isPhoneRegister || isEmailRegister}}">返回微信注册</text> -->
 </view>
 
@@ -38,9 +38,11 @@
   <!-- <view class="phone-tip">手机号注册</view> -->
   <block wx:if="{{isPhoneRegister}}">
     <view class="agreement-fixed">
-      <checkbox checked="{{agreed}}" bindtap="toggleAgreement"/>
+      <checkbox checked="{{agreed}}" bindtap="toggleAgreement" />
       <text>我已阅读并同意《</text>
       <text class="link" bindtap="goToAgreement">用户协议</text>
+      <text>》《</text>
+      <text class="link" bindtap="goToPrivacy">隐私协议</text>
       <text>》</text>
     </view>
     <button wx:if="{{agreed}}" id="getPhoneBtn" class="phone-btn" open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">
@@ -59,9 +61,11 @@
         <input class="email-input" placeholder="请输入密码" value="{{password}}" bindinput="onPasswordInput" />
       </view> -->
       <view class="agreement-fixed">
-        <checkbox checked="{{agreed}}" bindtap="toggleAgreement"/>
+        <checkbox checked="{{agreed}}" bindtap="toggleAgreement" />
         <text>我已阅读并同意《</text>
         <text class="link" bindtap="goToAgreement">用户协议</text>
+        <text>》《</text>
+        <text class="link" bindtap="goToPrivacy">隐私协议</text>
         <text>》</text>
       </view>
       <button class="phone-btn" bind:tap="handleEmailLogin">
@@ -75,7 +79,7 @@
 <view class="phone-register">
   <view wx:if="{{RegWay === 'youxiang'}}" class="email-register">
     <view class="form-item">
-      <input class="email-input" placeholder="请输入邮箱" value="{{email}}" bindinput="onEmailInput" />
+      <input class="email-input" placeholder="请输入帐号名" value="{{email}}" bindinput="onEmailInput" />
     </view>
     <!-- <view class="form-item code-item">
       <input class="code-input" placeholder="请输入验证码" value="{{code}}" bindinput="onCodeInput" />
@@ -84,9 +88,11 @@
       </button>
     </view> -->
     <view class="agreement-fixed">
-      <checkbox checked="{{agreed}}" bindtap="toggleAgreement"/>
+      <checkbox checked="{{agreed}}" bindtap="toggleAgreement" />
       <text>我已阅读并同意《</text>
       <text class="link" bindtap="goToAgreement">用户协议</text>
+      <text>》《</text>
+      <text class="link" bindtap="goToPrivacy">隐私协议</text>
       <text>》</text>
     </view>
   </view>
@@ -95,6 +101,3 @@
     <view class="shengqin_botton1" hover-class="shengqin_botton2" bindtap="submit">提交</view>
   </view>
 </view>
-
-<!-- 邀请人ID -->
-<text class="invite-id" wx:if="{{RegWay === 'shouji'}}">邀请人id：{{userid2}}</text>

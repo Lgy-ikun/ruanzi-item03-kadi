@@ -6,6 +6,10 @@ App({
     logs.unshift(Date.now())
     wx.setStorageSync('logs', logs)
     wx.removeStorageSync('hasShownRecommendationPopup');
+    
+    // 检查是否首次使用应用（用于隐私协议）
+    this.checkPrivacyAgreement();
+    
     const userid = wx.getStorageSync('userid');
     const itsid = wx.getStorageSync('itsid');
     const categories = wx.getStorageSync('categories') || [];
@@ -50,7 +54,7 @@ App({
     selectedItemPrice: '',
     selectedItemitemId: '',
     selectedStoreNamegd: '',
-    // appId: 'wxe1d69cebee046787', // 小程序的appId
+    appId: 'wxe1d69cebee046787', // 小程序的appId
     score: '',
     content: '',
     invite: null,
@@ -60,6 +64,7 @@ App({
     totalprice: 0,
     selectedStoreId: '',
     categories: [],
+    hasAgreedPrivacy: false, // 用户是否已同意隐私协议
   },
   setSelected: function (selected) {
     console.log('Setting selected to:', selected);
@@ -113,5 +118,39 @@ App({
         fail: (err) => reject(err)
       });
     });
+  },
+  
+  // 检查隐私协议同意状态
+  checkPrivacyAgreement: function() {
+    try {
+      //强制清除隐私协议状态（测试用，正式发布时注释）
+      //this.clearPrivacyAgreement();
+      
+      // 在应用启动时检查是否首次进入
+      const hasAgreedPrivacy = wx.getStorageSync('hasAgreedPrivacy');
+      const privacyAgreedTime = wx.getStorageSync('privacyAgreedTime');
+      
+      console.log('[App] 是否已同意隐私协议:', hasAgreedPrivacy);
+      console.log('[App] 同意隐私协议的时间:', privacyAgreedTime);
+      
+      // 将隐私协议状态保存到全局变量
+      this.globalData.hasAgreedPrivacy = hasAgreedPrivacy && privacyAgreedTime;
+      
+    } catch (error) {
+      console.error('[App] 检查隐私协议状态失败:', error);
+      this.globalData.hasAgreedPrivacy = false;
+    }
+  },
+  
+  // 清除隐私协议同意状态（用于测试）
+  clearPrivacyAgreement: function() {
+    try {
+      console.log('[App] 清除隐私协议同意状态');
+      wx.removeStorageSync('hasAgreedPrivacy');
+      wx.removeStorageSync('privacyAgreedTime');
+      this.globalData.hasAgreedPrivacy = false;
+    } catch (error) {
+      console.error('[App] 清除隐私协议状态失败:', error);
+    }
   }
 });

@@ -1,7 +1,8 @@
 /* pages/home/home.wxss */
 
 .navigator-hover {
-  background-color: transparent !important; /* 移除背景色 */
+  background-color: transparent !important;
+  /* 移除背景色 */
 }
 
 .swiper-list {
@@ -31,7 +32,7 @@
 
 .user-info {
   position: absolute;
-  top: 453rpx;
+  top: 723rpx;
   left: 50%;
   transform: translateX(-50%);
   width: 95%;
@@ -54,28 +55,33 @@
       width: 50%;
       display: flex;
       align-items: center;
+
       .avatar {
         width: 60rpx;
         height: 60rpx;
         border-radius: 50%;
         overflow: hidden;
         margin-left: 20rpx;
+
         image {
           width: 100%;
           height: 100%;
         }
       }
+
       text {
         margin-left: 20rpx;
         color: white;
         font-size: 28rpx;
       }
     }
-    .right{
+
+    .right {
       display: flex;
       justify-content: flex-end;
       width: 50%;
-      .btn{
+
+      .btn {
         display: flex;
         justify-content: center;
         align-items: center;
@@ -103,12 +109,15 @@
       display: flex;
       // flex-direction: column;
       align-items: center;
-      .text{
+
+      .text {
         margin-left: 10rpx;
+
         .title {
           font-size: 30rpx;
           margin-bottom: 20rpx;
         }
+
         .desc {
           font-size: 24rpx;
           color: gray;
@@ -147,7 +156,7 @@
 // 更多功能 会员中心 成为股东 积分商城 余额充值
 .tools {
   position: absolute;
-  top: 1000rpx;
+  top: 1270rpx;
   left: 50%;
   transform: translateX(-50%);
   width: 95%;
@@ -436,33 +445,38 @@
 // }
 
 // 新版-图片展示区
-.story-new{
+.story-new {
   position: absolute;
-  top: 1250rpx;
+  top: 1520rpx;
   left: 50%;
   transform: translateX(-50%);
   width: 95%;
+  height: 1380rpx;
   // height: 100%;
   // margin-bottom: 100rpx;
   box-shadow: 0 0 8px rgba(233, 229, 229, 0.2);
   background-color: white;
   border-radius: 20rpx;
-  .item{
+
+  .item {
     margin: 40rpx;
     display: flex;
     flex-direction: column;
     align-items: center;
-    .img{
+
+    .img {
       width: 640rpx;
       height: 320rpx;
     }
-    .txt{
+
+    .txt {
       display: flex;
       align-items: center;
       width: 640rpx;
       height: 90rpx;
       box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-      text{
+
+      text {
         margin-left: 30rpx;
         font-size: 26rpx;
         color: gray;

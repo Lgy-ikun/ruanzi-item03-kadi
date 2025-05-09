@@ -82,6 +82,9 @@
       <view class="iconfont icon-gouwuche"></view>
       <text>加入购物车</text>
     </view>
+    <view bind:tap="goToJiesuanNow" class="jiesuan-button">
+      <text>立即购买</text>
+    </view>
   </view>
 
 </view>

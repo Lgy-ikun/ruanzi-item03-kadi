@@ -104,6 +104,7 @@ Page({
     const app = getApp();
     const updataArray = wx.getStorageSync('updataArray') || [];
     const unitId = this.data.selected === '自提' ? wx.getStorageSync('selectedStoreId') : '';
+    // const unitId = this.data.
     const backUrl = app.globalData.backUrl;
 
     // 筛选出购物车中数量大于 0 的商品
@@ -117,7 +118,7 @@ Page({
       });
       return;
     }
-    if(this.data.storeName === ''){
+    if (this.data.storeName === '') {
       wx.showToast({
         title: '请选择门店',
         icon: 'none',
@@ -125,37 +126,55 @@ Page({
       });
       return;
     }
+
     wx.request({
-      url: `${backUrl}phone.aspx?mbid=10627&ituid=${app.globalData.ituid}&itsid=${wx.getStorageSync('itsid')}`,
-      method: "POST",
+      url: `${backUrl}phone.aspx?mbid=10639&ituid=106&keyvalue=${unitId}`,
+      success(res) {
+        console.log("是否营业：", res);
+        if (res.data.code == '0') {
+          wx.request({
+            url: `${backUrl}phone.aspx?mbid=10627&ituid=${app.globalData.ituid}&itsid=${wx.getStorageSync('itsid')}`,
+            method: "POST",
+          })
+
+          // 遍历购物车中的商品并发送到接口
+          const requests = cartItems.map(item => {
+            return new Promise((resolve, reject) => {
+              wx.request({
+                url: `${backUrl}phone.aspx?mbid=10604&ituid=${app.globalData.ituid}&itsid=${wx.getStorageSync('itsid')}`,
+                method: "POST",
+                data: {
+                  MCODE: item.skuCode, // 商品的 SKU 代码
+                  NUM: item.num, // 商品数量
+                  UNITID: unitId, // 门店 ID（如果选择自提）
+                  add: item.add || '', // 地址信息（如果选择外送）
+                  img: item.image || '' // 商品图片
+                },
+                success(res) {
+                  resolve(res);
+                },
+                fail(err) {
+                  reject(err);
+                }
+              });
+            });
+          });
+          // wx.setStorageSync('updataArray', [])
+          wx.navigateTo({
+            url: '/subPackages/package/pages/jiesuan/jiesuan',
+          })
+        }
+        else {
+          wx.showToast({
+            title: res.data.desc,
+            icon: 'error',
+            mask: true
+          })
+        }
+      }
     })
 
-    // 遍历购物车中的商品并发送到接口
-    const requests = cartItems.map(item => {
-      return new Promise((resolve, reject) => {
-        wx.request({
-          url: `${backUrl}phone.aspx?mbid=10604&ituid=${app.globalData.ituid}&itsid=${wx.getStorageSync('itsid')}`,
-          method: "POST",
-          data: {
-            MCODE: item.skuCode, // 商品的 SKU 代码
-            NUM: item.num, // 商品数量
-            UNITID: unitId, // 门店 ID（如果选择自提）
-            add: item.add || '', // 地址信息（如果选择外送）
-            img: item.image || '' // 商品图片
-          },
-          success(res) {
-            resolve(res);
-          },
-          fail(err) {
-            reject(err);
-          }
-        });
-      });
-    });
-    wx.setStorageSync('updataArray', [])
-    wx.navigateTo({
-      url: '/subPackages/package/pages/jiesuan/jiesuan',
-    })
+
   },
 
   onLoad: function (options) {
@@ -291,7 +310,7 @@ Page({
   // },
 
   navigateToDianDan: function (e) {
-    if(!wx.getStorageSync('isLoginSuccess')) {
+    if (!wx.getStorageSync('isLoginSuccess')) {
       wx.navigateTo({
         url: '/subPackages/user/pages/register/register',
       })
@@ -337,7 +356,7 @@ Page({
 
 
 
-  onReady() {},
+  onReady() { },
 
   onShow: function () {
     const categories = wx.getStorageSync('categories') || [];
@@ -537,7 +556,7 @@ Page({
     const itsid = wx.getStorageSync('itsid'); // 从本地存储获取 itsid
 
     wx.request({
-      url: `${app.globalData. AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10626&itsid= ${itsid}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10626&itsid= ${itsid}`,
       method: 'GET',
       data: {
         latitude: latitude,
@@ -547,12 +566,15 @@ Page({
         if (res.data.code === '1' && res.data.result) {
           const stores = res.data.result.list; // 获取接口返回的门店数据
           const nearestStore = that.findNearestStore(latitude, longitude, stores); // 找到最近的门店
-
+          console.log(nearestStore);
           // 设置推荐的门店并显示弹窗
           that.setData({
+            storeName: nearestStore.name,
             recommendedStore: nearestStore, // 设置推荐的门店
             showRecommendationPopup: true // 显示弹窗
           });
+          app.globalData.selectedStoreName = nearestStore.name
+          wx.setStorageSync('selectedStoreId', nearestStore.id)
           console.log("最近的门店数据：", nearestStore); // 调试信息
         } else {
           wx.showToast({
@@ -644,6 +666,36 @@ Page({
     console.info('距离是', s);
     console.info('距离是', distance_str);
     return s;
+  },
+  navigateToStore: function () {
+    const {
+      recommendedStore
+    } = this.data;
+    if (!recommendedStore) {
+      wx.showToast({
+        title: '未找到推荐门店',
+        icon: 'none'
+      });
+      return;
+    }
+
+    // 调起微信导航
+    wx.openLocation({
+      latitude: parseFloat(recommendedStore.longitude),
+      longitude: parseFloat(recommendedStore.latitude),
+      name: recommendedStore.name,
+      address: recommendedStore.add,
+      success: function () {
+        console.log('导航成功');
+      },
+      fail: function (err) {
+        console.error('导航失败:', err);
+        wx.showToast({
+          title: '导航失败',
+          icon: 'none'
+        });
+      }
+    });
   },
 
 
@@ -826,13 +878,13 @@ Page({
   //     url: `/subPackages/package/pages/diandan/diandan?dishId=${id}&image=${encodeURIComponent( fullImageURL)}&selectedSize=${selectedSize}&selectedTemperature=${selectedTemperature}&selectedSweetness=${selectedSweetness}&index1=${index1}&index2=${index2}`
   //   });
   // },
-  onHide() {},
+  onHide() { },
 
-  onUnload() {},
+  onUnload() { },
 
-  onPullDownRefresh() {},
+  onPullDownRefresh() { },
 
-  onReachBottom() {},
+  onReachBottom() { },
 
-  onShareAppMessage() {}
+  onShareAppMessage() { }
 });

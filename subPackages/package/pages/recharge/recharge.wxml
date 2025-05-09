@@ -75,12 +75,11 @@
 </view> -->
 
 
-
 <!-- 新版交易码弹窗 -->
 <view wx:if="{{showCodeDialog}}" class="code-dialog-mask">
   <view class="code-content">
     <view class="img">
-      <image bindtap="closeDialog" src="{{tupianUrl}}/new/close.png" mode=""/>
+      <image bindtap="closeDialog" src="{{tupianUrl}}/new/close.png" mode="" />
     </view>
     <view class="title1">请输入交易码</view>
     <view class="input-container">
@@ -104,15 +103,22 @@
 <!-- 新版“申请股东” -->
 <view class="view-comtainer">
   <view class="account">
-    <image src="{{tupianUrl}}/new/gd-bgimg.png" mode=""/>
-    <view class="content">
-      <view class="money">{{money || 0}}</view>
-      <view class="txt">账户余额（元）</view>
+    <image src="{{tupianUrl}}/new/gd-bgimg.png" mode="" />
+    <view class="amount-content">
+      <view class="content">
+        <view class="money">{{money || 0}}</view>
+        <view class="txt">账户余额(元)</view>
+      </view>
+      <view class="content">
+        <view class="money">{{score || 0}}</view>
+        <view class="txt">消费券余额</view>
+      </view>
     </view>
+
   </view>
 </view>
 <!-- 新版“充值福利” -->
-<view class="chongzhi">
+<!-- <view class="chongzhi">
   <view class="title">充值福利</view>
   <view class="content">
     <view class="item">
@@ -134,7 +140,7 @@
       <view class="txt">兑换消费券</view>
     </view>
   </view>
-</view>
+</view> -->
 <!-- 新版“立即充值” -->
 <view class="lijichongzhi">
   <view class="title">立即充值</view>
@@ -147,15 +153,24 @@
       <text class="quantity-text">{{quantity}}</text>
       <button class="increase" data-quantity="{{quantity}}" bindtap="onIncrease">+</button> -->
       <view class="img" bindtap="onDecrease">
-        <image src="{{tupianUrl}}/new/gd-decrease.png" mode=""/>
+        <image src="{{tupianUrl}}/new/gd-decrease.png" mode="" />
       </view>
       <text>{{quantity}}</text>
       <view class="img" bindtap="onIncrease">
-        <image src="{{tupianUrl}}/new/gd-increase.png" mode=""/>
+        <image src="{{tupianUrl}}/new/gd-increase.png" mode="" />
       </view>
     </view>
   </view>
-  <view class="btn" bindtap="onRecharge">
-    <text>确定</text>
+  <view class="desc">
+    <text>需要60%现金和40%消费券</text>
+    <text>金额：<text style="font-weight: 600;">{{showMoney}}</text> 消费券：<text style="font-weight: 600;">{{showQuan}}</text></text>
   </view>
+  <!-- <view class="btn" bindtap="onRecharge">
+    <text>确定</text>
+  </view> -->
+  <view style="display: flex;justify-content: space-around; position: absolute; bottom: 150rpx;left: 50%; transform: translateX(-50%);">
+    <view class="recharge-button" bindtap="confirmChange">立即充值</view>
+    <view class="gocharge-button" bindtap="onRecharge">立即升级</view>
+  </view>
+  <view class="useless"></view>
 </view>

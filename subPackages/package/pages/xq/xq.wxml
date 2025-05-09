@@ -7,11 +7,11 @@
     <text class="leixing">{{leixing}}</text>
 
     <view class="kapian">
-      <text class="chengyuan" style="position: relative;top: 20rpx;left: 20rpx;">分享会员 {{sum}}</text>
-      <text class="chengyuan" style="position: relative;top: 30rpx;left: 20rpx;">团队成员 {{subCount}}</text>
+      <navigator url="/subPackages/package/pages/huiyuanrenshu/huiyuanrenshu" class="chengyuan" style="position: relative;top: 20rpx;left: 20rpx;">卡狄会员分享 {{sum}} ></navigator>
+      <navigator url="/subPackages/package/pages/jiatingchengyuan/jiatingchengyuan" class="chengyuan" style="position: relative;top: 30rpx;left: 20rpx;">卡狄家庭成员 {{subCount}} ></navigator>
     </view>
     <view class="jifen">
-      <text class="li" style="position: relative;top: 40rpx;">积分加速</text>
+      <text class="li" style="position: relative;top: 40rpx;">消费券加速</text>
       <t-progress wx:if="{{!skylineRender}}" theme="circle" percentage="{{percentage}}" style="position: relative;top: -40rpx; left: 200rpx;" />
     </view>
   </block>

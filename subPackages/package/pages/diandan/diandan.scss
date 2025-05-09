@@ -326,7 +326,7 @@
 
 .cart-button {
   font-size: 30rpx;
-  width: 90%;
+  width: 45%;
   height: 80rpx;
   border-radius: 50rpx;
   color: rgb(255, 255, 255);
@@ -340,7 +340,26 @@
   position: relative;
   top: 0rpx;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-102%);
+}
+
+.jiesuan-button {
+  font-size: 30rpx;
+  width: 45%;
+  height: 80rpx;
+  border-radius: 50rpx;
+  color: rgb(255, 255, 255);
+  background-color: #9b59b6;
+  /* 默认底色 */
+  border: 2px solid rgb(255, 255, 255);
+  /* 默认边框颜色 */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  top: 0rpx;
+  left: 50%;
+  transform: translateX(-97%);
 }
 
 .qq {

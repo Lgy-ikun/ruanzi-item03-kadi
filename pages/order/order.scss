@@ -1,10 +1,10 @@
-
-page{
+page {
   --td-button-primary-border-color: rgb(205, 174, 242);
   --td-button-primary-bg-color: rgb(205, 174, 242);
   --td-button-primary-active-bg-color: rgb(182, 134, 241);
   --td-button-primary-active-border-color: rgb(182, 134, 241);
   --td-side-bar-active-color: rgb(205, 174, 242);
+  --td-side-bar-font-size: 26rpx;
 }
 
 .order-confirm {
@@ -131,7 +131,6 @@ page .round-image {
 .side-bar-wrapper .image {
   width: 96rpx;
   height: 96rpx;
-  border: 2rpx solid #e7e7e7;
 }
 
 
@@ -147,6 +146,8 @@ page .round-image {
     image {
       width: 150rpx;
       height: 150rpx;
+      border-radius: 8rpx;
+      border: none;
     }
   }
 
@@ -180,31 +181,23 @@ page .round-image {
     .add-button {
       position: absolute;
       right: 20rpx;
-      /* 距离右侧20rpx */
       top: 100rpx;
-      /* 距离顶部20rpx */
       width: 50rpx;
-      /* 按钮宽度 */
       height: 50rpx;
-      /* 按钮高度 */
-      // line-height: 50rpx;
-      /* 行高与按钮高度相同，使文字垂直居中 */
-      display: flex;
-      /* 使用Flex布局 */
-      justify-content: center;
-      /* 水平居中 */
-      align-items: center;
-      /* 垂直居中 */
       border-radius: 50%;
-      /* 圆形 */
-      // background-color: #be5907;
       background-color: rgb(205, 174, 242);
-      /* 背景颜色 */
-      color: white;
-      /* 文字颜色 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 0;
+      margin: 0;
+    }
+
+    .add-button text {
       font-size: 36rpx;
-      /* 文字大小 */
-      // font-weight: bolder;
+      font-weight: bold;
+      color: white;
+      line-height: 1;
     }
 
     .number-box {

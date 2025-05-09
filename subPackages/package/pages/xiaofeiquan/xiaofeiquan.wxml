@@ -16,6 +16,7 @@
       <text class="popup-title">转赠消费券</text>
       <input class="popup-input" type="text" placeholder="请输入对方邀请码" bindinput="onTransferPhoneInput" />
       <input class="popup-input" type="number" placeholder="请输入转赠消费券数量" bindinput="onTransferScoreInput" />
+      <input class="popup-input" type="text" placeholder="请输入对方账号" bindinput="onPhoneNumber" />
       <view class="button-group">
         <button class="cancel-button" bindtap="onCancelTransfer">取消</button>
         <button class="confirm-button" bindtap="onConfirmTransfer">确认转赠</button>
@@ -86,7 +87,7 @@
 <view wx:if="{{showCodeDialog}}" class="code-dialog-mask">
   <view class="code-content">
     <view class="img">
-      <image bindtap="closeDialog" src="{{tupianUrl}}/new/close.png" mode=""/>
+      <image bindtap="closeDialog" src="{{tupianUrl}}/new/close.png" mode="" />
     </view>
     <view class="title1">请输入交易码</view>
     <view class="input-container">

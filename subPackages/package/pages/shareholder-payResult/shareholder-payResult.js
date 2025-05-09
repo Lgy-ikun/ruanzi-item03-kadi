@@ -23,28 +23,28 @@ Page({
       result: options.result,
       is_success,
     });
-    if(is_success) {
-      wx.request({
-        url: `${that.data.AUrl}/jy/go/phone.aspx?mbid=10628&ituid=106&itsid=${itsid}`,
-        method: "POST",
-        data: {
-          ORDERID: ORDERID,
-          ZFID: ZFID
-        },
-        success(res){
-          console.log(res)
-          console.log('已调用', ORDERID, ZFID)
-        }
-      })
+    if (is_success) {
+      // wx.request({
+      //   url: `${that.data.AUrl}/jy/go/phone.aspx?mbid=10628&ituid=106&itsid=${itsid}`,
+      //   method: "POST",
+      //   data: {
+      //     ORDERID: ORDERID,
+      //     ZFID: ZFID
+      //   },
+      //   success(res){
+      //     console.log(res)
+      //     console.log('已调用', ORDERID, ZFID)
+      //   }
+      // })
     }
   },
 
-  goBackHome(){
+  goBackHome() {
     wx.switchTab({
       url: '/pages/home/home',
     })
   },
-  goBackShareholder(){
+  goBackShareholder() {
     wx.navigateTo({
       url: '/subPackages/package/pages/shareholder/shareholder',
     })

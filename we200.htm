@@ -1,0 +1,18 @@
+<div id="commentContainer" class="comment" style="display: none;">
+  <div class="txt">您的充值已完成！</div>
+  <button class="btn" onclick="goBackOrders()">返回</button>
+</div>
+
+<script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+
+<script>
+// 控制显示的逻辑
+let is_success = true; // 示例值
+document.getElementById('commentContainer').style.display = is_success ? 'block' : 'none';
+
+// 点击事件处理函数
+function goBackOrders() {
+  // 在普通网页中无法直接使用wx对象，改用URL scheme方式跳转
+  window.location.href = 'weixin://dl/business/?appid=wxe1d69cebee046787&path=pages/home/home&env_version=release';
+}
+</script>

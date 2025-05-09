@@ -1,394 +1,243 @@
-// const app = getApp();
-// Page({
-//   data: {
-//     tupianUrl: app.globalData.tupianUrl,
-//     seconds: 3, // 初始倒计时秒数
-//     button: false
-//   },
-
-//   onLoad: function () {
-//     console.log('准备跳转...');
-//     const that = this;
-//     that.checkRegistered();
-//     const interval = setInterval(() => {
-//       that.setData({
-//         seconds: that.data.seconds - 1
-//       });
-//       console.log(`倒计时: ${that.data.seconds}秒`); // 打印当前倒计时
-
-//       if (that.data.seconds <= 0) {
-//         clearInterval(interval);
-//         console.log('跳转执行。');
-
-//         let that = this;
-//         // wx.login({
-//         //   success: (res) => {
-//         //     wx.request({
-//         //       url: `${app.globalData.backUrl}phone.aspx?mbid=129&ituid=106`,
-//         //       data: {
-//         //         code: res.code
-//         //       },
-//         //       success(res) {
-//         //         let itsid_exist = res.data.value
-
-//         //         app.globalData.itsid = res.data.value.itsid
-//         //         console.log("login的itsid:", app.globalData.itsid);
-//         //         wx.setStorageSync('itsid', app.globalData.itsid);
-//         //         if (itsid_exist.itsid == '0') {
-//         //           wx.showModal({
-//         //             content: '没有账号，请注册',
-//         //             complete: (res) => {
-//         //               if (res.cancel) {}
-//         //               if (res.confirm) {
-//         //                 wx.navigateTo({
-//         //                   url: '/subPackages/user/pages/login/login',
-//         //                 })
-//         //               }
-//         //             }
-//         //           })
-//         //         } else {
-//         //           wx.switchTab({
-//         //             url: "/pages/home/home",
-//         //             success: function () {
-//         //               console.log('跳转成功');
-//         //             },
-//         //             fail: function (err) {
-//         //               console.error('跳转失败', err);
-//         //             }
-//         //           });
-//         //         }
-//         //       }
-
-
-//         //     })
-//         //   },
-//         //   complete() {
-//         //     wx.hideLoading()
-//         //   }
-//         // });
-
-
-//         // if (app.globalData.userid || wx.getStorageInfoSync('userid')) {
-//         //   // 跳转到首页
-//         //   wx.switchTab({
-//         //     url: "/pages/home/home",
-//         //     success: function () {
-//         //       console.log('跳转成功');
-//         //     },
-//         //     fail: function (err) {
-//         //       console.error('跳转失败', err);
-//         //     }
-//         //   });
-//         // } else {
-//         //   // 跳转到登录
-//         //   wx.navigateTo({
-//         //     url: "/subPackages/user/pages/login/login",
-//         //     success: function () {
-//         //       console.log('跳转成功');
-//         //     },
-//         //     fail: function (err) {
-//         //       console.error('跳转失败', err);
-//         //     }
-//         //   });
-//         // }
-//       }
-//     }, 1000); // 每秒更新一次
-//   },
-//   // 获取用户信息
-//   checkRegistered() {
-//     let that = this;
-
-//     wx.login({
-//       success(res) {
-//         if (res.code) {
-//           console.log(res.code);
-//           // 发起网络请求
-//           wx.request({
-//             url: `${app.globalData.backUrl}phone.aspx?ituid=${app.globalData.ituid}&mbid=120&code=${res.code}`,
-//             success(result) {
-//               console.log(result);
-//               app.globalData.openid = result.data.value.openid;
-
-//               wx.request({
-//                 method: 'POST',
-//                 url: `${app.globalData.backUrl}phone.aspx?ituid=${app.globalData.ituid}&mbid=5002`,
-//                 data: {
-//                   openid: result.data.value.openid
-//                 },
-//                 success(res) {
-//                   console.log("res:", res);
-//                   console.log("是否已注册:", res.data.value);
-
-//                   if (res.data.value) { // 已注册
-//                     that.setData({
-//                       Registered: true
-//                     });
-
-//                     // 获取itpnid
-//                     wx.request({
-//                       method: 'POST',
-//                       url: `${app.globalData.backUrl}phone.aspx?ituid=${app.globalData.ituid}&mbid=9903`,
-//                       data: {
-//                         openid: app.globalData.openid
-//                       },
-//                       success(res) {
-//                         console.log(res);
-//                         app.globalData.itpnId = res.data.value.itpnId;
-//                         console.log("itpnId:" + app.globalData.itpnId);
-//                       }
-//                     });
-
-//                     // 获取当前用户的在ituser表中UserID
-//                     wx.login({
-//                       success: (res) => {
-//                         wx.request({
-//                           url: `${app.globalData.backUrl}phone.aspx?mbid=129&ituid=${app.globalData.ituid}`,
-//                           data: {
-//                             code: res.code
-//                           },
-//                           success(res3) {
-//                             console.log("res3是：", res3);
-//                             app.globalData.userid = res3.data.value.userid;
-//                             console.log("userid是:" + app.globalData.userid);
-//                             // 更新动态itsid
-//                             let userinfo = wx.getStorageSync(app.globalData.projectName);
-//                             let itsid_exist = res3.data.value;
-//                             if (userinfo.itsid) {
-//                               userinfo.itsid = itsid_exist.itsid;
-//                             } else {
-//                               userinfo = {
-//                                 itsid: itsid_exist.itsid
-//                               };
-//                             }
-//                             wx.setStorageSync(app.globalData.projectName, userinfo);
-//                             const itsid = res3.data.value.itsid;
-//                             console.log('存储 itsid:', res3.data.value.itsid);
-//                             wx.setStorageSync('itsid', itsid);
-//                             app.globalData.itsid = itsid;
-//                             wx.switchTab({
-//                               url: '/pages/home/home',
-//                             });
-//                           } // 关闭 success(res3)
-//                         }); // 关闭 wx.request
-//                       } // 关闭 wx.login 的 success
-//                     }); // 关闭 wx.login
-//                   } else { // 未注册
-//                     console.log("22");
-//                     that.setData({
-//                       Registered: false,
-//                       button: true
-//                     });
-
-//                     wx.showModal({
-//                       title: '提示',
-//                       content: '未注册为新用户，请点击授权登录',
-//                     });
-//                   } // 关闭 else
-//                 } // 关闭 success(res)
-//               }); // 关闭 wx.request (mbid=5002)
-//             } // 关闭 success(result)
-//           }); // 关闭 wx.request (mbid=120)
-//         } else {
-//           console.log('获取注册状态失败', res.errMsg);
-//         } // 关闭 else
-//       } // 关闭 wx.login 的 success
-//     }); // 关闭 wx.login
-//   }, // 关闭 checkRegistered 方法
-//   getPhoneNumber(e) {
-
-//     console.log(e.detail);
-//     console.log(e.detail.code) // 动态令牌
-//     console.log(e.detail.errMsg) // 回调信息（成功失败都会返回）
-//     console.log(e.detail.errno) // 错误码（失败时返回）
-//     if (e.detail.errMsg === 'getPhoneNumber:ok') {
-//       // 用户同意授权，发送加密数据到服务器
-//       const {
-//         encryptedData,
-//         iv
-//       } = e.detail;
-//       wx.login({
-//         success: (res) => {
-//           const code = res.code; // 获取临时登录凭证
-//           // 将 code、encryptedData、iv 发送到后端
-//           wx.request({
-//             url: `${app.globalData.backUrl}phone.aspx?mbid=60&ituid=106`,
-//             method: 'POST',
-//             data: {
-//               code: e.detail.code,
-//               js_code: code
-//             },
-//             success: (res) => {
-//               console.log(res);
-//               console.log("aaaaSSSSSDASDADWRQEW");
-//               // 登录成功，保存 token 或其他登录态
-//               wx.setStorageSync('token', res.data.token);
-//               wx.request({
-//                 url: `${app.globalData.backUrl}phone.aspx?mbid=10620&ituid=106`,
-//                 method: 'POST',
-//                 data: {
-//                   openid: res.data.openid,
-//                   phone: res.data.phone_info,
-//                   invite: 0
-//                 }
-//               })
-//               //获取当前用户的在ituser表中UserID
-//               wx.login({
-//                 success: (res) => {
-//                   wx.request({
-//                     url: `${app.globalData.backUrl}phone.aspx?mbid=129&ituid=${app.globalData.ituid}`,
-//                     data: {
-//                       code: res.code
-//                     },
-//                     success(res3) {
-//                       console.log("res3是：", res3)
-//                       app.globalData.userid = res3.data.value.userid
-//                       console.log("userid是:" + app.globalData.userid);
-//                       // 更新动态itsid
-//                       let userinfo = wx.getStorageSync(app.globalData.projectName);
-//                       let itsid_exist = res3.data.value
-//                       if (userinfo.itsid) {
-//                         userinfo.itsid = itsid_exist.itsid
-//                       } else {
-//                         userinfo = {
-//                           itsid: itsid_exist.itsid
-//                         }
-//                       }
-//                       wx.setStorageSync(app.globalData.projectName, userinfo)
-//                       wx.setStorageSync('itsid', res3.data.value.itsid);
-//                     }
-//                   })
-//                 }
-//               })
-//               wx.switchTab({
-//                 url: '/pages/home/home',
-//               })
-//               // wx.showToast({
-//               //   title: '登录成功'
-//               // });
-//             }
-//           });
-
-//         }
-//       });
-//     } else {
-//       // 用户拒绝授权
-//       wx.showToast({
-//         title: '需要手机号才能登录',
-//         icon: 'none'
-//       });
-//     }
-
-//   },
-// });
-
-
-
-
-
-
-
 const app = getApp();
 Page({
   data: {
     tupianUrl: app.globalData.tupianUrl,
-    seconds: 5 // 初始倒计时秒数
+    seconds: 3, // 初始倒计时秒数
+    showPrivacy: false, // 默认显示隐私弹窗
+    privacyAgreed: false, // 用户是否同意隐私协议
+    forceUpdateFlag: 0 // 用于强制更新视图的标志
   },
 
   onLoad: function () {
-    console.log('准备跳转...');
-    const that = this;
+    console.log('加载页面...');
+
+    // 清除先前可能存在的定时器
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+
+    // 初始状态设置为显示隐私弹窗
+    this.setData({
+      showPrivacy: false
+    });
+
+    // 使用setTimeout确保UI先渲染出隐私弹窗，再检查是否需要显示
+    setTimeout(() => {
+      this.checkPrivacyAgreement();
+    }, 500);
+  },
+
+  // 清除隐私协议同意状态（用于测试，正式使用时可删除）
+  clearPrivacyAgreement: function () {
+    try {
+      console.log('清除隐私协议同意状态');
+      wx.removeStorageSync('hasAgreedPrivacy');
+      wx.removeStorageSync('privacyAgreedTime');
+    } catch (error) {
+      console.error('清除隐私协议状态失败:', error);
+    }
+  },
+
+  // 单独抽取检查隐私协议同意状态的逻辑
+  checkPrivacyAgreement: function () {
+    try {
+      const app = getApp();
+
+      // 首先检查app全局变量
+      let hasAgreedFromApp = app.globalData.hasAgreedPrivacy;
+      console.log('App全局变量中的隐私协议状态:', hasAgreedFromApp);
+
+      // 然后检查本地存储
+      const hasAgreedPrivacy = wx.getStorageSync('hasAgreedPrivacy');
+      const privacyAgreedTime = wx.getStorageSync('privacyAgreedTime');
+
+      console.log('是否已同意隐私协议:', hasAgreedPrivacy);
+      console.log('同意隐私协议的时间:', privacyAgreedTime);
+
+      // 如果全局变量或本地存储中有一个表示同意，则认为用户已同意
+      const hasAgreed = hasAgreedFromApp || ((hasAgreedPrivacy === true || hasAgreedPrivacy === 'true') && privacyAgreedTime);
+
+      if (hasAgreed) {
+        // 已同意隐私协议，直接启动倒计时
+        console.log('用户已同意隐私协议，直接进入');
+        this.setData({
+          showPrivacy: false,
+          seconds: 3
+        });
+        this.startCountDown();
+      } else {
+        console.log('用户未同意隐私协议，显示弹窗');
+        // 确保显示隐私弹窗
+        this.setData({
+          showPrivacy: true
+        });
+
+        // 为确保在真机上显示，尝试强制更新视图
+        this.forceUpdate();
+      }
+    } catch (error) {
+      console.error('检查隐私协议状态出错:', error);
+      // 出错时默认显示隐私弹窗
+      this.setData({
+        showPrivacy: true
+      });
+
+      // 为确保在真机上显示，尝试强制更新视图
+      this.forceUpdate();
+    }
+  },
+
+  // 强制更新视图的方法
+  forceUpdate: function () {
+    // 尝试通过修改其他数据项来触发视图更新
+    this.setData({
+      forceUpdateFlag: Math.random()
+    });
+  },
+
+  // 同意隐私协议
+  agreePrivacy: function () {
+    console.log('用户点击同意');
+    try {
+      // 设置已同意隐私协议标志
+      wx.setStorageSync('hasAgreedPrivacy', true);
+      // 保存同意时间
+      wx.setStorageSync('privacyAgreedTime', new Date().getTime());
+
+      this.setData({
+        showPrivacy: false,
+        privacyAgreed: true,
+        seconds: 3
+      });
+
+      // 同意后开始倒计时
+      this.startCountDown();
+    } catch (error) {
+      console.error('保存隐私协议同意状态失败:', error);
+      // 即使保存失败也继续
+      this.setData({
+        showPrivacy: false
+      });
+      this.startCountDown();
+    }
+  },
+
+  // 拒绝隐私协议 - 直接退出小程序
+  rejectPrivacy: function () {
+    console.log('用户点击不同意');
+    try {
+      // 确保未设置同意标志
+      wx.removeStorageSync('hasAgreedPrivacy');
+
+      // 调用微信的退出小程序API
+      wx.exitMiniProgram({
+        success: () => {
+          console.log('成功退出小程序');
+        },
+        fail: (err) => {
+          console.error('退出小程序失败:', err);
+          // 开发者工具可能不支持退出，显示提示
+          wx.showModal({
+            title: '提示',
+            content: '您已拒绝隐私协议，将退出小程序',
+            showCancel: false,
+            success: () => {
+              console.log('用户确认退出提示');
+            }
+          });
+        }
+      });
+    } catch (error) {
+      console.error('退出小程序出错:', error);
+      // 显示提示
+      wx.showModal({
+        title: '提示',
+        content: '您已拒绝隐私协议，请退出小程序',
+        showCancel: false
+      });
+    }
+  },
+
+  // 查看隐私协议详情
+  viewPrivacyDetail: function () {
+    wx.navigateTo({
+      url: '/subPackages/package/pages/xieyi/xieyi?agreement=privacy'
+    });
+  },
+
+  // 查看用户协议详情
+  viewUserAgreement: function () {
+    wx.navigateTo({
+      url: '/subPackages/package/pages/xieyi/xieyi?agreement=user'
+    });
+  },
+
+  // 开始倒计时
+  startCountDown: function () {
+    console.log('开始倒计时');
+    // 清除之前的定时器
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+
     // 将interval存储到this中，以便其他方法访问
     this.interval = setInterval(() => {
-      that.setData({
-        seconds: that.data.seconds - 1
+      this.setData({
+        seconds: this.data.seconds - 1
       });
-      console.log(`倒计时: ${that.data.seconds}秒`);
+      console.log(`倒计时: ${this.data.seconds}秒`);
 
-      if (that.data.seconds <= 0) {
-        clearInterval(that.interval);
-        that.executeJump(); // 提取跳转逻辑到单独方法
+      if (this.data.seconds <= 0) {
+        clearInterval(this.interval);
+        this.executeJump(); // 提取跳转逻辑到单独方法
       }
     }, 1000);
   },
-    
+
   // 提取跳转逻辑到单独方法
-  executeJump: function() {
-    console.log('跳转执行。');
-    let that = this;
-    wx.switchTab({
-      url: '/pages/home/home',
-    })
-    // wx.showToast({
-    //   title: '加载中',
-    //   icon: 'loading',
-    //   duration: 2000,
-    //   mask: true,
-    // })
-    if(wx.getStorageSync('itsid')){
-      wx.setStorageSync('isLoginSuccess', true)
+  executeJump: function () {
+    console.log('跳转执行...');
+
+    if (wx.getStorageSync('itsid')) {
+      wx.setStorageSync('isLoginSuccess', true);
       wx.switchTab({
         url: '/pages/home/home',
-      })
-    }
-    else {
-      wx.setStorageSync('isLoginSuccess', false)
+      });
+    } else {
+      wx.setStorageSync('isLoginSuccess', false);
       wx.switchTab({
         url: '/pages/home/home',
-      })
+      });
     }
-    // wx.login({
-    //   success: (res) => {
-    //     wx.request({
-    //       url: `${app.globalData.backUrl}phone.aspx?mbid=129&ituid=106`,
-    //       data: {
-    //         code: res.code
-    //       },
-    //       success(res) {
-    //         let itsid_exist = res.data.value
-    //         // app.globalData.itsid = res.data.value.itsid
-    //         // console.log("login的itsid:", app.globalData.itsid);
-    //         // wx.setStorageSync('itsid', app.globalData.itsid);
-    //         console.log(res)
-    //         wx.hideToast()
-    //         if (itsid_exist.itsid == '0') {
-    //           wx.setStorageSync('isLoginSuccess', false)
-    //           wx.switchTab({
-    //             url: '/pages/home/home',
-    //           })
-    //           // wx.showModal({
-    //           //   content: '没有账号，请注册',
-    //           //   complete: (res) => {
-    //           //     if (res.cancel) {}
-    //           //     if (res.confirm) {
-    //           //       wx.navigateTo({
-    //           //         url: '/subPackages/user/pages/register/register',
-    //           //       })
-    //           //     }
-    //           //   }
-    //           // })
-    //         } else {
-    //           wx.setStorageSync('isLoginSuccess', true)
-    //           wx.switchTab({
-    //             url: "/pages/home/home",
-    //             success: function () {
-    //               console.log('跳转成功');
-    //             },
-    //             fail: function (err) {
-    //               console.error('跳转失败', err);
-    //             }
-    //           });
-    //         }
-    //       }
-    //     })
-    //   },
-    // });
   },
 
   passCountDown() {
-    // 清除定时器
     clearInterval(this.interval);
-    // 直接执行跳转逻辑
     this.executeJump();
-  }
+  },
 
+  onShow: function () {
+    // 页面显示时再次检查隐私协议状态
+    // 这对于从协议详情页返回很有用
+    const hasAgreedPrivacy = wx.getStorageSync('hasAgreedPrivacy');
+    if (!hasAgreedPrivacy) {
+      this.setData({
+        showPrivacy: true
+      });
+    }
+  },
+
+  onHide: function () {
+    // 页面隐藏时清除定时器
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+  },
+
+  onUnload: function () {
+    // 页面卸载时清除定时器
+    if (this.interval) {
+      clearInterval(this.interval);
+    }
+  }
 });

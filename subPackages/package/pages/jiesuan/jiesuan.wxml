@@ -36,14 +36,16 @@
     <view class=" total" style="position: relative;top: 30rpx; margin-bottom: 60rpx;">
       <text class="dai" style="margin-left: 30rpx;">待支付 ¥{{totalprice}}</text>
     </view>
-    <!-- 新增：积分支付选项 -->
+    <!-- 新增：消费券支付选项 -->
     <view class="points-option">
       <checkbox-group bindchange="checkboxChange">
-        <label>
-          <checkbox value="积分支付" checked="{{usePoints}}" />使用积分支付
+        <label class="checkbox-item">
+          <checkbox value="积分支付" checked="{{usePoints}}" />
+          消费券支付
         </label>
       </checkbox-group>
     </view>
+
 
     <view class="points-option">
       <checkbox-group bindchange="couponCheckboxChange">
@@ -90,7 +92,7 @@
 <view wx:if="{{showCodeDialog}}" class="code-dialog-mask">
   <view class="code-content">
     <view class="img">
-      <image bindtap="closeDialog" src="{{tupianUrl}}/new/close.png" mode=""/>
+      <image bindtap="closeDialog" src="{{tupianUrl}}/new/close.png" mode="" />
     </view>
     <view class="title1">请输入交易码</view>
     <view class="input-container">

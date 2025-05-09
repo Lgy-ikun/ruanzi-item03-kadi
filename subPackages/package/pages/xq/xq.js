@@ -18,39 +18,40 @@ Page({
   },
 
   onLoad: function (options) {
-    // 检查是否是分享进入的页面
-    if (options.from === 'share') {
-      this.setData({
-        isSharePage: true,
-        showContent: false,
-        randomId: options.randomId || ''
-      });
+    // // 检查是否是分享进入的页面
+    // if (options.from === 'share') {
+    //   this.setData({
+    //     isSharePage: true,
+    //     showContent: false,
+    //     randomId: options.randomId || ''
+    //   });
 
-      // 直接使用传入的userid生成二维码
-      if (options.userid) {
-        this.drawQRCode(options.userid);
-      }
-    } else {
-      // 原有正常流程
-      const itsid = wx.getStorageSync('itsid');
-      const userid = wx.getStorageSync('userid');
-      if (itsid) {
-        this.fetchData(itsid)
-          .then(userid => {
-            this.checkRandomId(userid, itsid);
-            this.fetchSumData(userid);
-            this.fetchSubCountData(userid);
-            this.fetchAccelerationRate(userid);
-          })
-          .catch(err => {
-            console.error('fetchData 失败', err);
-          });
-      } else {
-        wx.navigateTo({
-          url: '/subPackages/user/pages/login/login'
-        });
-      }
-    }
+    //   // 直接使用传入的userid生成二维码
+    //   if (options.userid) {
+    //     this.drawQRCode(options.userid);
+    //   }
+    // } else {
+    // 原有正常流程
+    const itsid = wx.getStorageSync('itsid');
+    const userid = wx.getStorageSync('userid');
+    // if (itsid) {
+    //   this.fetchData(itsid)
+    //     .then(userid => {
+    // this.checkRandomId(userid, itsid);
+    this.fetchData(itsid);
+    this.fetchSumData(userid);
+    this.fetchSubCountData(userid);
+    this.fetchAccelerationRate(userid);
+    //       })
+    //       .catch(err => {
+    //         console.error('fetchData 失败', err);
+    //       });
+    //   } else {
+    //     wx.navigateTo({
+    //       url: '/subPackages/user/pages/login/login'
+    //     });
+    //   }
+    // }
   },
 
   // 新增获取加速率方法
@@ -78,81 +79,81 @@ Page({
     });
   },
   // 检查或生成 randomId
-  checkRandomId(userid, itsid) {
-    let that = this;
+  // checkRandomId(userid, itsid) {
+  //   let that = this;
 
-    wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10618&userid=${userid}`,
-      method: 'GET',
-      success(res) {
-        console.log('[推荐码接口] 原始响应:', res.data);
+  //   wx.request({
+  //     url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10618&userid=${userid}`,
+  //     method: 'GET',
+  //     success(res) {
+  //       console.log('[推荐码接口] 原始响应:', res.data);
 
-        // 强化数据验证
-        if (res.statusCode === 200 &&
-          res.data?.code === "1" &&
-          res.data?.result?.list?.length > 0 &&
-          res.data.result.list[0].randomId
-        ) {
-          const serverRandomId = res.data.result.list[0].randomId;
-          console.log('[推荐码接口] 有效推荐码:', serverRandomId);
+  //       // 强化数据验证
+  //       if (res.statusCode === 200 &&
+  //         res.data?.code === "1" &&
+  //         res.data?.result?.list?.length > 0 &&
+  //         res.data.result.list[0].randomId
+  //       ) {
+  //         const serverRandomId = res.data.result.list[0].randomId;
+  //         console.log('[推荐码接口] 有效推荐码:', serverRandomId);
 
-          that.setData({
-            randomId: serverRandomId
-          });
-          wx.setStorageSync('randomId', serverRandomId);
-          that.drawQRCode(userid);
-        } else {
-          console.warn('[推荐码接口] 无有效推荐码，生成新码');
+  //         that.setData({
+  //           randomId: serverRandomId
+  //         });
+  //         wx.setStorageSync('randomId', serverRandomId);
+  //         that.drawQRCode(userid);
+  //       } else {
+  //         console.warn('[推荐码接口] 无有效推荐码，生成新码');
 
-          // 生成新推荐码
-          const newRandomId = generateRandomId();
-          console.log('[新推荐码] 生成:', newRandomId);
+  //         // 生成新推荐码
+  //         const newRandomId = generateRandomId();
+  //         console.log('[新推荐码] 生成:', newRandomId);
 
-          // 保存到服务器
-          wx.request({
-            url: `${app.globalData.backUrl}/phone.aspx?mbid=10610&ituid=${app.globalData.ituid}&itsid=${itsid}`,
-            method: 'POST',
-            data: {
-              userid: userid,
-              randomId: newRandomId,
-              itsid: itsid
-            },
-            success(saveRes) {
-              console.log('[保存接口] 响应:', saveRes.data);
+  //         // 保存到服务器
+  //         wx.request({
+  //           url: `${app.globalData.backUrl}/phone.aspx?mbid=10610&ituid=${app.globalData.ituid}&itsid=${itsid}`,
+  //           method: 'POST',
+  //           data: {
+  //             userid: userid,
+  //             randomId: newRandomId,
+  //             itsid: itsid
+  //           },
+  //           success(saveRes) {
+  //             console.log('[保存接口] 响应:', saveRes.data);
 
-              if (saveRes.data?.code === "1") {
-                that.setData({
-                  randomId: newRandomId
-                });
-                wx.setStorageSync('randomId', newRandomId);
-                that.drawQRCode(userid);
-              } else {
-                console.error('[保存失败] 服务端返回异常:', saveRes.data);
-                wx.showToast({
+  //             if (saveRes.data?.code === "1") {
+  //               that.setData({
+  //                 randomId: newRandomId
+  //               });
+  //               wx.setStorageSync('randomId', newRandomId);
+  //               that.drawQRCode(userid);
+  //             } else {
+  //               console.error('[保存失败] 服务端返回异常:', saveRes.data);
+  //               wx.showToast({
 
-                });
-              }
-            },
-            fail(saveErr) {
-              console.error('[保存失败] 网络异常:', saveErr);
-              wx.showToast({
-                title: '网络异常，请稍后重试',
-                icon: 'none'
-              });
-            }
-          });
-        }
-      },
-      fail(err) {
-        console.error('[接口错误] 推荐码请求失败:', err);
-        wx.showToast({
-          title: '网络连接异常，请检查网络设置',
-          icon: 'none',
-          duration: 3000
-        });
-      }
-    });
-  },
+  //               });
+  //             }
+  //           },
+  //           fail(saveErr) {
+  //             console.error('[保存失败] 网络异常:', saveErr);
+  //             wx.showToast({
+  //               title: '网络异常，请稍后重试',
+  //               icon: 'none'
+  //             });
+  //           }
+  //         });
+  //       }
+  //     },
+  //     fail(err) {
+  //       console.error('[接口错误] 推荐码请求失败:', err);
+  //       wx.showToast({
+  //         title: '网络连接异常，请检查网络设置',
+  //         icon: 'none',
+  //         duration: 3000
+  //       });
+  //     }
+  //   });
+  // },
   // 生成随机 ID
   generateRandomId() {
     return generateRandomId(); // 调用工具函数生成随机 ID
@@ -170,7 +171,7 @@ Page({
             // 格式化电话号码，隐藏中间部分
             const formattedName = this.formatPhoneNumber(res.data.name);
             this.setData({
-              leixing: res.data.leixing || '普通用户',
+              leixing: res.data.leixing || '用户',
               name: formattedName // 使用格式化后的电话号码
             });
             resolve(res.data.userid); // 返回 userid
@@ -201,7 +202,7 @@ Page({
       success(res) {
         if (res.statusCode === 200 && res.data) {
           that.setData({
-            sum: res.data.sum || '0',
+            sum: res.data.result.list[0].sum || '0',
           });
         }
       },
@@ -301,9 +302,9 @@ Page({
   onShow() {
     const itsid = wx.getStorageSync('itsid');
     const userid = wx.getStorageSync('userid');
-    if (itsid) {
-      this.checkRandomId(userid, itsid);
-    }
+    // if (itsid) {
+    //   this.checkRandomId(userid, itsid);
+    // }
   },
 
 

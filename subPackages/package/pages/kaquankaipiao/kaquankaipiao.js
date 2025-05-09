@@ -12,7 +12,8 @@ Page({
     const userid = wx.getStorageSync('userid');
     let that = this;
     wx.request({
-      url: `${app.globalData.backUrl}we.aspx?ituid=${app.globalData.ituid}&itjid=0107&itcid=10628&userid=${userid}`,
+      // url: `${app.globalData.backUrl}we.aspx?ituid=${app.globalData.ituid}&itjid=0107&itcid=10628&userid=${userid}`,
+      url: `${app.globalData.backUrl}we.aspx?ituid=${app.globalData.ituid}&itjid=0107&itcid=10650&userid=${userid}`,
       success(res) {
         console.log(res);
         console.log(res.data.result);
@@ -135,11 +136,11 @@ Page({
     });
   },
   // 页面生命周期方法
-  onReady() {},
-  onShow() {},
-  onHide() {},
-  onUnload() {},
-  onPullDownRefresh() {},
-  onReachBottom() {},
-  onShareAppMessage() {},
+  onReady() { },
+  onShow() { },
+  onHide() { },
+  onUnload() { },
+  onPullDownRefresh() { },
+  onReachBottom() { },
+  onShareAppMessage() { },
 });

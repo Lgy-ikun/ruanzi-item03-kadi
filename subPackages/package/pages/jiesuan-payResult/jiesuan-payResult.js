@@ -23,19 +23,20 @@ Page({
       result: options.result,
       is_success,
     });
-    if(is_success) {
-      wx.request({
-        url: `${that.data.AUrl}/jy/go/phone.aspx?mbid=114&ituid=106&itsid=${itsid}`,
-        method: "POST",
-        data: {
-          ORDERID: ORDERID,
-          ZFID: ZFID
-        },
-        success(res){
-          console.log(res)
-          console.log('已调用', ORDERID, ZFID)
-        }
-      })
+    if (is_success) {
+      // wx.request({
+      //   url: `${that.data.AUrl}/jy/go/phone.aspx?mbid=114&ituid=106&itsid=${itsid}`,
+      //   method: "POST",
+      //   data: {
+      //     ORDERID: ORDERID,
+      //     ZFID: ZFID
+      //   },
+      //   success(res) {
+      //     wx.setStorageSync('updataArray', [])
+      //     console.log(res)
+      //     console.log('已调用', ORDERID, ZFID)
+      //   }
+      // })
     }
   },
 
@@ -62,7 +63,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
-
+    wx.hideHomeButton();
   },
 
   /**

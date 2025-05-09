@@ -27,13 +27,13 @@ Page({
     genderText: '男',
     genderValue: [],
     genders: [{
-        label: '男',
-        value: '男'
-      },
-      {
-        label: '女',
-        value: '女'
-      },
+      label: '男',
+      value: '男'
+    },
+    {
+      label: '女',
+      value: '女'
+    },
     ],
     from: 0,
     agreed: false,
@@ -41,13 +41,22 @@ Page({
   },
 
   toggleAgreement() {
-    this.setData({ agreed: !this.data.agreed });
+    this.setData({
+      agreed: !this.data.agreed
+    });
   },
 
   // 协议页面路径
   goToAgreement() {
     wx.navigateTo({
-      url: '/subPackages/package/pages/xieyi/xieyi'
+      url: '/subPackages/package/pages/xieyi/xieyi?agreement=user'
+    });
+  },
+
+  // 协议页面路径
+  goToPrivacy() {
+    wx.navigateTo({
+      url: '/subPackages/package/pages/xieyi/xieyi?agreement=privacy'
     });
   },
 
@@ -145,10 +154,10 @@ Page({
         wx.setStorageSync('itsid', res.data.itsid)
         wx.setStorageSync('userid', res.data.userid)
         app.globalData.itsid = res.data.itsid;
-        app.globalData.userid = res.data.userid; 
+        app.globalData.userid = res.data.userid;
         wx.switchTab({
           url: '/pages/home/home',
-        }) 
+        })
       }
     })
   },
@@ -172,7 +181,10 @@ Page({
       return;
     }
     if (!this.data.agreed) {
-      wx.showToast({ title: '请先同意协议', icon: 'none' });
+      wx.showToast({
+        title: '请先同意协议',
+        icon: 'none'
+      });
       return;
     }
 
@@ -349,10 +361,11 @@ Page({
       code,
       agreed
     } = this.data;
-    const emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
-    if (!emailReg.test(email)) {
+    // const emailReg = /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/;
+    // if (!emailReg.test(email)) {
+    if (email.length < 5) {
       wx.showToast({
-        title: '邮箱格式错误',
+        title: '帐号不少于五位',
         icon: 'none',
         duration: 2000
       });
@@ -360,7 +373,7 @@ Page({
     }
     if (!email) {
       wx.showToast({
-        title: '请填写邮箱信息',
+        title: '请填写帐号名称',
         icon: 'none',
         duration: 2000
       });
@@ -452,17 +465,30 @@ Page({
           },
           success(res) {
             console.log(res)
-            wx.showToast({
-              title: '注册成功',
-              icon: 'success',
-              duration: 2000,
-              mask: true,
-            });
-            setTimeout(() => {
-              wx.navigateBack({
-                delta: -1
+
+            if (res.data.code == '0') {
+              wx.showToast({
+                title: res.data.desc,
+                icon: 'success',
+                duration: 2000,
+                mask: true,
               });
-            }, 2000);
+
+              setTimeout(() => {
+                wx.navigateBack({
+                  delta: -1
+                });
+              }, 2000);
+            }
+            else {
+              wx.showToast({
+                title: res.data.desc,
+                icon: 'error',
+                duration: 2000,
+                mask: true,
+              });
+            }
+
           }
         })
       },
@@ -641,13 +667,13 @@ Page({
    */
   onLoad(options) {
     let that = this; // 确保定义了 that
-    if (options?.regway){
+    if (options?.regway) {
       this.setData({
         RegWay: options.regway
       })
-      if(options.regway === 'youxiang'){
+      if (options.regway === 'youxiang') {
         wx.setNavigationBarTitle({
-          title: '邮箱注册',
+          title: '子账号注册',
         })
       }
     }
@@ -790,14 +816,20 @@ Page({
   // 拦截未勾选协议
   handleGetPhone() {
     if (!this.data.agreed) {
-      wx.showToast({ title: '请先同意协议', icon: 'none' });
+      wx.showToast({
+        title: '请先同意协议',
+        icon: 'none'
+      });
       return;
     }
   },
   //手机号登录
   getPhoneNumber(e) {
     if (!this.data.agreed) {
-      wx.showToast({ title: '请先同意协议', icon: 'none' });
+      wx.showToast({
+        title: '请先同意协议',
+        icon: 'none'
+      });
       return;
     }
     wx.showToast({

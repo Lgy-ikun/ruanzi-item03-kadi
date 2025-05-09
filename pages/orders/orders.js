@@ -26,7 +26,7 @@ Page({
       statusindex: 1,
       image_url: 'https://img2.baidu.com/it/u=74791221,1571543144&fm=253&fmt=auto&app=120&f=PNG?w=500&h=500',
       desc: '奶香浓郁',
-    }, ],
+    },],
     diashouhuo: [{
       order_id: '202305130001',
       date: '2023-05-10',
@@ -38,7 +38,7 @@ Page({
       statusindex: 2,
       image_url: 'https://ms.bdimg.com/pacific/0/pic/-232675334_-1095429706.jpg?x=0&y=0&h=200&w=300&vh=200.00&vw=300.00&oh=200.00&ow=300.00',
       desc: '全等深微曲屏',
-    }, ],
+    },],
     daipingjia: [{
       order_id: '202305130001',
       date: '2023-05-10',
@@ -50,12 +50,25 @@ Page({
       statusindex: 3,
       image_url: 'https://ms.bdimg.com/pacific/0/pic/507692281_1496750964.jpg?x=0&y=0&h=150&w=225&vh=150.00&vw=225.00&oh=150.00&ow=225.00',
       desc: '丝滑浓香',
-    }, ],
+    },],
     shouhuo: [],
   },
+
+  gotoDetail(e) {
+    console.log(e);
+    console.log(e.currentTarget.dataset.id);
+
+    wx.navigateTo({
+      url: `/subPackages/package/pages/orderDetail/orderDetail?id=${e.currentTarget.dataset.id}&channel=1`,
+      success: (result) => { },
+      fail: (res) => { },
+      complete: (res) => { },
+    })
+  },
+
   getStatusText(status) {
     const statusMap = {
-      '1': '待制作',
+      '1': '待付款',
       '4': '待制作',
       '9': '制作完成',
       '99': '已取餐'
@@ -191,7 +204,7 @@ Page({
             waimaiList: processedData.filter(item => item.order_type === '2')
           });
         }
-    wx.hideToast()
+        wx.hideToast()
 
       },
       fail(err) {

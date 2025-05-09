@@ -8,6 +8,7 @@ Page({
     tupianUrl: app.globalData.tupianUrl,
     isTransferPopupShow: false,
     transferPhone: '',
+    phone: '',//对方手机号
     showCodeDialog: false, // 控制弹窗显示
     inputBoxes: ["", "", "", "", "", ""], // 六个输入框
     codeValue: '', // 完整交易码
@@ -15,13 +16,13 @@ Page({
     content: '',
     result: [],
     earningsList: [{
-        date: '6月24日',
-        amount: 0.01
-      },
-      {
-        date: '6月23日',
-        amount: 0.01
-      },
+      date: '6月24日',
+      amount: 0.01
+    },
+    {
+      date: '6月23日',
+      amount: 0.01
+    },
       // 更多数据...
     ]
 
@@ -29,13 +30,13 @@ Page({
   getEarningsData: function () {
     // 从服务器获取数据
     const earningsList = [{
-        date: '6月24日',
-        amount: 0.01
-      },
-      {
-        date: '6月23日',
-        amount: 0.01
-      },
+      date: '6月24日',
+      amount: 0.01
+    },
+    {
+      date: '6月23日',
+      amount: 0.01
+    },
       // 更多数据...
     ];
     this.setData({
@@ -183,7 +184,7 @@ Page({
     this.getJiluList()
 
   },
-  
+
   getJiluList() {
     let that = this
     wx.request({
@@ -229,7 +230,7 @@ Page({
   },
   onConfirmTransfer: function () {
     let that = this
-    if (!this.data.transferPhone || !this.data.transferScore) {
+    if (!this.data.transferPhone || !this.data.transferScore || !this.data.phone) {
       wx.showToast({
         title: '请填写完整信息',
         icon: 'none'
@@ -242,7 +243,7 @@ Page({
         content: '一旦转赠无法返还，是否继续？',
         success: (res) => {
           if (res.confirm) {
-            if(Number(that.data.transferScore <= 0)){
+            if (Number(that.data.transferScore <= 0)) {
               wx.showToast({
                 title: '数量不能<=0',
                 icon: 'none',
@@ -250,7 +251,7 @@ Page({
               });
               return
             }
-            if(Number(that.data.content) < Number(that.data.transferScore)) {
+            if (Number(that.data.content) < Number(that.data.transferScore)) {
               wx.showToast({
                 title: '消费券不足',
                 icon: 'none',
@@ -275,7 +276,8 @@ Page({
     const itsid = wx.getStorageSync('itsid');
     const {
       transferPhone,
-      transferScore
+      transferScore,
+      phone
     } = this.data;
     const userid = app.globalData.userid;
     let that = this
@@ -285,7 +287,8 @@ Page({
       data: {
         userid: userid,
         randomId: transferPhone,
-        content: transferScore
+        content: transferScore,
+        phone: phone
       },
       success: (res) => {
         console.log('转赠完整响应：', res);
@@ -295,10 +298,12 @@ Page({
             icon: 'success',
             duration: 2000
           });
+          //转赠完成---->清空输入
           that.setData({
             isTransferPopupShow: false,
             transferPhone: '',
             transferScore: '',
+            phone: '',
             isTransferConfirmed: false
           });
           that.getcontentData()
@@ -361,6 +366,13 @@ Page({
   onTransferPhoneInput: function (e) {
     this.setData({
       transferPhone: e.detail.value
+    });
+  },
+
+  // 输入对方电话号事件处理
+  onPhoneNumber: function (e) {
+    this.setData({
+      phone: e.detail.value
     });
   },
 

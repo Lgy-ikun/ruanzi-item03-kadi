@@ -3,7 +3,8 @@
     <view class="qrcode-wrapper">
       <!-- <canvas wx:if="{{!qrcodeSrc}}" canvas-id="myQrcode" class="qrcode-canvas"></canvas> -->
       <!-- <image class="qrcode-image" show-menu-by-longpress="{{true}}" src="{{qrcodeSrc}}" mode="aspectFit"></image> -->
-      <canvas canvas-id="myQrcode" class="qrcode-canvas"></canvas>
+      <!-- <canvas canvas-id="myQrcode" class="qrcode-canvas"></canvas> -->
+      <image src="{{'https://api.kuleu.com/api/qrcode?frame=1&e=L&text=' + newQRCODE + '&size=200'}}" style="width: 200px; height: 200px;" mode="" />
     </view>
 
     <view class="info-container">

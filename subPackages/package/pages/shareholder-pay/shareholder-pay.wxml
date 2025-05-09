@@ -1,7 +1,7 @@
 <!--subPackages/package/pages/shareholder-pay/shareholder-pay.wxml-->
 <view class="header">
   <view class="img">
-    <image src="/images/收银台.png" mode=""/>
+    <image src="/images/收银台.png" mode="" />
   </view>
 </view>
 <view class="body">
@@ -12,7 +12,7 @@
   </view>
 </view>
 
-<sqb-pay 
+<!-- <sqb-pay 
   return_url="{{return_url}}"
   total_amount="{{amt}}"
   terminal_sn="{{terminal}}"
@@ -22,4 +22,6 @@
   bindnavigateTo="navigateTo"
 >
   <button class="btn">去支付</button>
-</sqb-pay>
+</sqb-pay> -->
+
+<button class="btn" bind:tap="pay">去支付</button>
