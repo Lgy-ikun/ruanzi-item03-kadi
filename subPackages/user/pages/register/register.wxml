@@ -51,6 +51,7 @@
     <button wx:else class="phone-btn" bind:tap="handleGetPhone">
       手机号一键注册登录
     </button>
+    <text class="rejectGetPhone" bind:tap="rejectGetPhone">不同意就退出</text>
   </block>
   <block wx:else>
     <view class="email-register">

@@ -31,7 +31,7 @@
         <text>您有权拒绝我们使用您的信息，但这会导致您无法使用我们的部分服务功能。</text>
       </view>
       <view class="privacy-buttons">
-        <button class="reject-btn" bindtap="rejectPrivacy">不同意</button>
+        <button class="reject-btn" bindtap="rejectPrivacy">不同意并退出</button>
         <button class="agree-btn" bindtap="agreePrivacy">同意</button>
       </view>
     </view>

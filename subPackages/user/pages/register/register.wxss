@@ -76,6 +76,15 @@
   border-radius: 50rpx;
 }
 
+.rejectGetPhone{
+  font-size: 28rpx;
+  color:#666;
+  margin-top: 30rpx;
+  text-align: center;
+  text-decoration: underline;
+  display: inline-block;
+}
+
 /* 邮箱注册样式 */
 .email-register {
   margin: 40rpx 30rpx;

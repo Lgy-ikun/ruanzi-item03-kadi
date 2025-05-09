@@ -953,6 +953,48 @@ Page({
     }
 
   },
+
+   // 拒绝隐私协议 - 直接退出小程序
+   rejectGetPhone: function () {
+    console.log('用户点击不同意手机号登录注册');
+    try {
+      // 确保未设置同意标志
+      wx.removeStorageSync('hasHandleGetPhone');
+
+      // 先显示提示
+      wx.showModal({
+        title: '提示',
+        content: '您已拒绝手机号一键注册登录，将退出小程序',
+        showCancel: false,
+        success: () => {
+          // 用户点击确认后，调用微信的退出小程序API
+          wx.exitMiniProgram({
+            success: () => {
+              console.log('成功退出小程序');
+            },
+            fail: (err) => {
+              console.error('退出小程序失败:', err);
+              // 开发者工具可能不支持退出，显示附加提示
+              wx.showToast({
+                title: '请手动退出小程序',
+                icon: 'none',
+                duration: 2000
+              });
+            }
+          });
+        }
+      });
+    } catch (error) {
+      console.error('退出小程序出错:', error);
+      // 显示提示
+      wx.showModal({
+        title: '提示',
+        content: '您已拒绝手机号一键注册登录，请退出小程序',
+        showCancel: false
+      });
+    }
+  },
+
   /**
    * 生命周期函数--监听页面初次渲染完成
    */
