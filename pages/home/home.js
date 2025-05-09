@@ -1,4 +1,5 @@
 const app = getApp();
+
 // pages/home/home.js
 
 // const imageCdn = 'https://tdesign.gtimg.com/mobile/demos';
@@ -31,17 +32,17 @@ Page({
       app.globalData.tupianUrl + '/new/bgimg4.png',
     ],
     newImgs: [{
-        url: app.globalData.tupianUrl + '/new/bgimg5.png',
-        desc: '抹茶咖啡 醇香浓缩卡拉非也 4489咖啡'
-      },
-      {
-        url: app.globalData.tupianUrl + '/new/bgimg6.png',
-        desc: '抹茶咖啡 醇香浓缩卡拉非也'
-      },
-      {
-        url: app.globalData.tupianUrl + '/new/bgimg7.png',
-        desc: '抹茶咖啡 醇香浓缩卡拉非也'
-      },
+      url: app.globalData.tupianUrl + '/new/bgimg5.png',
+      desc: '抹茶咖啡 醇香浓缩卡拉非也 4489咖啡'
+    },
+    {
+      url: app.globalData.tupianUrl + '/new/bgimg6.png',
+      desc: '抹茶咖啡 醇香浓缩卡拉非也'
+    },
+    {
+      url: app.globalData.tupianUrl + '/new/bgimg7.png',
+      desc: '抹茶咖啡 醇香浓缩卡拉非也'
+    },
     ]
   },
   // onLoad: function() {
