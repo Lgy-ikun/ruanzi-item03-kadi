@@ -76,8 +76,16 @@
   border-radius: 50rpx;
 }
 
+.user-btn {
+  width: 88%;
+  background: rgb(18, 231, 71);
+  color: white;
+  border-radius: 50rpx;
+  margin-top: 20rpx;
+}
+
 .rejectGetPhone{
-  font-size: 28rpx;
+  font-size: 35rpx;
   color:#666;
   margin-top: 30rpx;
   text-align: center;

@@ -138,7 +138,7 @@ Page({
       });
       return;
     }
-    this.fetchEmailLogin(email, password)
+    this.fetchEmailLogin(email, password);
   },
 
   fetchEmailLogin(email, password) {
@@ -814,6 +814,17 @@ Page({
   },
 
   // 拦截未勾选协议
+  handleGetUser() {
+    if (!this.data.agreed) {
+      wx.showToast({
+        title: '请先同意协议',
+        icon: 'none'
+      });
+      return;
+    }
+  },
+
+  // 拦截未勾选协议 - 手机号
   handleGetPhone() {
     if (!this.data.agreed) {
       wx.showToast({
@@ -823,6 +834,7 @@ Page({
       return;
     }
   },
+  
   //手机号登录
   getPhoneNumber(e) {
     if (!this.data.agreed) {
@@ -835,7 +847,7 @@ Page({
     wx.showToast({
       title: '登录中',
       icon: 'loading'
-    })
+    });
     const that = this;
     if (e.detail.errMsg === 'getPhoneNumber:ok') {
       const {
@@ -866,7 +878,7 @@ Page({
                   wx.login({
                     success: (newLoginRes) => {
                       wx.request({
-                        url: `${app.globalData.backUrl}phone.aspx?mbid=129&ituid=${app.globalData.ituid}`,
+                        url: `${app.globalData.backUrl}phone.aspx?mbid=129&ituid=106`,
                         data: {
                           code: newLoginRes.code
                         },
@@ -880,7 +892,7 @@ Page({
                             // 更新全局变量
                             app.globalData.itsid = itsid;
                             app.globalData.userid = userid;
-                            wx.setStorageSync('isLoginSuccess', true)
+                            wx.setStorageSync('isLoginSuccess', true);
                             wx.setStorageSync('inviteUserid', that.data.userid2); // 存储到缓存，键名为invite
                             wx.setStorageSync('itsid', itsid);
                             wx.setStorageSync('userid', userid);
@@ -893,7 +905,7 @@ Page({
                               icon: 'none'
                             });
                           }
-                          wx.hideToast()
+                          wx.hideToast();
                         },
                         fail: (err) => {
                           console.error('获取用户信息失败:', err);
@@ -901,7 +913,7 @@ Page({
                             title: '获取信息失败',
                             icon: 'none'
                           });
-                          wx.hideToast()
+                          wx.hideToast();
                         }
                       });
                     },
@@ -911,7 +923,7 @@ Page({
                         title: '登录失败',
                         icon: 'none'
                       });
-                      wx.hideToast()
+                      wx.hideToast();
                     }
                   });
                 },
@@ -921,7 +933,7 @@ Page({
                     title: '注册失败',
                     icon: 'none'
                   });
-                  wx.hideToast()
+                  wx.hideToast();
                 }
               });
             },
@@ -931,7 +943,7 @@ Page({
                 title: '登录失败',
                 icon: 'none'
               });
-              wx.hideToast()
+              wx.hideToast();
             }
           });
         },
@@ -941,7 +953,7 @@ Page({
             title: '登录失败',
             icon: 'none'
           });
-          wx.hideToast()
+          wx.hideToast();
         }
       });
     } else {
@@ -949,13 +961,12 @@ Page({
         title: '需要手机号授权',
         icon: 'none'
       });
-      wx.hideToast()
+      wx.hideToast();
     }
-
   },
 
-   // 拒绝隐私协议 - 直接退出小程序
-   rejectGetPhone: function () {
+  // 拒绝隐私协议 - 返回首页
+  rejectGetPhone: function () {
     console.log('用户点击不同意手机号登录注册');
     try {
       // 确保未设置同意标志
@@ -964,19 +975,19 @@ Page({
       // 先显示提示
       wx.showModal({
         title: '提示',
-        content: '您已拒绝手机号一键注册登录，将退出小程序',
+        content: '您已拒绝手机号一键注册登录，将返回首页',
         showCancel: false,
         success: () => {
-          // 用户点击确认后，调用微信的退出小程序API
-          wx.exitMiniProgram({
+          // 用户点击确认后，返回首页
+          wx.switchTab({
+            url: '/pages/home/home',
             success: () => {
-              console.log('成功退出小程序');
+              console.log('成功返回首页');
             },
             fail: (err) => {
-              console.error('退出小程序失败:', err);
-              // 开发者工具可能不支持退出，显示附加提示
+              console.error('返回首页失败:', err);
               wx.showToast({
-                title: '请手动退出小程序',
+                title: '返回首页失败',
                 icon: 'none',
                 duration: 2000
               });
@@ -985,11 +996,11 @@ Page({
         }
       });
     } catch (error) {
-      console.error('退出小程序出错:', error);
+      console.error('返回首页出错:', error);
       // 显示提示
       wx.showModal({
         title: '提示',
-        content: '您已拒绝手机号一键注册登录，请退出小程序',
+        content: '返回首页失败，请手动退出',
         showCancel: false
       });
     }
@@ -1042,5 +1053,157 @@ Page({
    */
   onShareAppMessage() {
 
-  }
+  },
+
+  //账户注册登录-微信号登录注册
+  getUserNumber(e) {
+    if (!this.data.agreed) {
+      wx.showToast({
+        title: '请先同意协议',
+        icon: 'none'
+      });
+      return;
+    }
+    wx.showToast({
+      title: '登录中',
+      icon: 'loading'
+    });
+    const that = this;
+    if (e.detail.errMsg === 'getUserNumber:ok') {
+      const {
+        encryptedData,
+        iv
+      } = e.detail;
+      wx.login({
+        success: (loginRes) => {
+          // 发送注册请求 - 使用微信登录而不是手机号
+          wx.request({
+            url: `${app.globalData.backUrl}phone.aspx?mbid=10640&ituid=106`,
+            method: 'POST',
+            data: {
+              code: loginRes.code,
+              invite: that.data.userid2
+            },
+            success: (registerRes) => {
+              // 注册成功，获取用户信息
+              wx.login({
+                success: (newLoginRes) => {
+                  wx.request({
+                    url: `${app.globalData.backUrl}phone.aspx?mbid=129&ituid=106`,
+                    data: {
+                      code: newLoginRes.code
+                    },
+                    success: (userInfoRes) => {
+                      // 确保数据解析正确
+                      if (userInfoRes.data && userInfoRes.data.value) {
+                        const {
+                          itsid,
+                          userid
+                        } = userInfoRes.data.value;
+                        // 更新全局变量
+                        app.globalData.itsid = itsid;
+                        app.globalData.userid = userid;
+                        wx.setStorageSync('isLoginSuccess', true);
+                        wx.setStorageSync('inviteUserid', that.data.userid2); // 存储到缓存，键名为invite
+                        wx.setStorageSync('itsid', itsid);
+                        wx.setStorageSync('userid', userid);
+                        wx.switchTab({
+                          url: '/pages/home/home'
+                        });
+                      } else {
+                        wx.showToast({
+                          title: '获取用户信息失败',
+                          icon: 'none'
+                        });
+                      }
+                      wx.hideToast();
+                    },
+                    fail: (err) => {
+                      console.error('获取用户信息失败:', err);
+                      wx.showToast({
+                        title: '获取信息失败',
+                        icon: 'none'
+                      });
+                      wx.hideToast();
+                    }
+                  });
+                },
+                fail: (err) => {
+                  console.error('重新登录失败:', err);
+                  wx.showToast({
+                    title: '登录失败',
+                    icon: 'none'
+                  });
+                  wx.hideToast();
+                }
+              });
+            },
+            fail: (err) => {
+              console.error('账号注册请求失败:', err);
+              wx.showToast({
+                title: '注册失败',
+                icon: 'none'
+              });
+              wx.hideToast();
+            }
+          });
+        },
+        fail: (err) => {
+          console.error('获取登录code失败:', err);
+          wx.showToast({
+            title: '登录失败',
+            icon: 'none'
+          });
+          wx.hideToast();
+        }
+      });
+    } else {
+      wx.showToast({
+        title: '需要微信账号授权',
+        icon: 'none'
+      });
+      wx.hideToast();
+    }
+  },
+
+  // 拒绝隐私协议 - 返回首页
+  rejectGetUser: function () {
+    console.log('用户点击不同意微信登录注册');
+    try {
+      // 确保未设置同意标志
+      wx.removeStorageSync('hasHandleGetUser');
+
+      // 先显示提示
+      wx.showModal({
+        title: '提示',
+        content: '您已拒绝微信登录注册，将返回首页',
+        showCancel: false,
+        success: () => {
+          // 用户点击确认后，返回首页
+          wx.switchTab({
+            url: '/pages/home/home',
+            success: () => {
+              console.log('成功返回首页');
+            },
+            fail: (err) => {
+              console.error('返回首页失败:', err);
+              wx.showToast({
+                title: '返回首页失败',
+                icon: 'none',
+                duration: 2000
+              });
+            }
+          });
+        }
+      });
+    } catch (error) {
+      console.error('返回首页出错:', error);
+      // 显示提示
+      wx.showModal({
+        title: '提示',
+        content: '返回首页失败，请手动退出',
+        showCancel: false
+      });
+    }
+  },
 })

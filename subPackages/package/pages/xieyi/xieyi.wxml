@@ -1,2 +1,3 @@
 <!--subPackages/package/pages/xieyi/xieyi.wxml-->
-<text style="white-space: pre-line;">{{content}}</text>
+<!-- <text style="white-space: pre-line;">{{content}}</text> -->
+<rich-text nodes="{{content}}"/>

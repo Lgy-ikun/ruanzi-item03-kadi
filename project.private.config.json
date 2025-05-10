@@ -19,6 +19,18 @@
     "ignoreDevUnusedFiles": true,
     "bigPackageSizeSupport": false
   },
-  "condition": {},
+  "condition": {
+    "miniprogram": {
+      "list": [
+        {
+          "name": "subPackages/user/pages/register/register",
+          "pathName": "subPackages/user/pages/register/register",
+          "query": "",
+          "launchMode": "default",
+          "scene": null
+        }
+      ]
+    }
+  },
   "libVersion": "3.8.3"
 }
