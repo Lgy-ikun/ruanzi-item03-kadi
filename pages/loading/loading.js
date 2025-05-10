@@ -27,6 +27,22 @@ Page({
     }, 500);
   },
 
+  // 同意协议
+  agree(e) {
+    let that = this
+    console.log("用户同意隐私授权, 接下来可以调用隐私协议中声明的隐私接口")
+
+    that.agreePrivacy()
+  },
+
+  // 拒绝协议
+  disagree(e) {
+    let that = this
+    console.log("用户拒绝隐私授权, 未同意过的隐私协议中的接口将不能调用")
+
+    that.rejectPrivacy()
+  },
+
   // 清除隐私协议同意状态（用于测试，正式使用时可删除）
   clearPrivacyAgreement: function () {
     try {

@@ -1,5 +1,6 @@
 <!--pages/login/login.wxml-->
 <!-- <text>pages/login/login.wxml</text> -->
+<privacy-popup bind:agree="agree" bind:disagree="disagree"></privacy-popup>
 <view>
   <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
     <image class="avatar" src="{{avatarUrl}}"></image>

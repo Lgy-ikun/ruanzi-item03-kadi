@@ -1,7 +1,8 @@
 {
-    "navigationBarTitleText": "登录",
-    "component": true,
-    "usingComponents": {
-        "t-input": "tdesign-miniprogram/input/input"
-    }
+  "navigationBarTitleText": "登录",
+  "component": true,
+  "usingComponents": {
+    "privacy-popup": "/component/privacyPopup/privacyPopup",
+    "t-input": "tdesign-miniprogram/input/input"
+  }
 }

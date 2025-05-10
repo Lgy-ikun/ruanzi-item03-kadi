@@ -1,5 +1,7 @@
 {
-  "usingComponents": {},
+  "usingComponents": {
+    "privacy-popup": "/component/privacyPopup/privacyPopup"
+  },
   "navigationBarTitleText": "",
   "navigationStyle": "custom"
 }

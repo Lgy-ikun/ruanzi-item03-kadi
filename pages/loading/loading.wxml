@@ -12,7 +12,9 @@
   </view>
 
   <!-- 隐私声明弹窗 -->
-  <view class="privacy-modal" wx:if="{{showPrivacy}}">
+  <privacy-popup bind:agree="agree" bind:disagree="disagree"></privacy-popup>
+  <view wx:if="{{showPrivacy}}">
+    <!-- <view class="privacy-modal">
     <view class="privacy-content">
       <view class="privacy-title">隐私保护指引</view>
       <view class="privacy-text">
@@ -35,5 +37,7 @@
         <button class="agree-btn" bindtap="agreePrivacy">同意</button>
       </view>
     </view>
+  </view> -->
   </view>
+
 </view>

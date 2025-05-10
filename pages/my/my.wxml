@@ -106,7 +106,7 @@
   </navigator>
   <block wx:if="{{leixing !== '用户' || inviteCode !== ''}}">
     <navigator bind:tap="handleNavigate2" class="ma-box" style="position: absolute; left: 21rpx; top: {{leixing !== '用户' ? '1450rpx' : '1407rpx'}}; width: 710rpx; display: block; box-sizing: border-box; height: 147rpx">
-      <text class="ri">我的邀请码</text>
+      <text class="ri">我的推荐码</text>
       <text class="qian1-id"></text>
       <text class="action-button7">详情 ></text>
     </navigator>

@@ -1,3 +1,4 @@
+<privacy-popup bind:agree="agree" bind:disagree="disagree"></privacy-popup>
 <!-- <view> -->
 <!-- 头像上传部分 -->
 <!-- <view class="avatar-section">

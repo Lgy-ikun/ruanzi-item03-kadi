@@ -55,9 +55,18 @@ Page({
 
   // 协议页面路径
   goToPrivacy() {
-    wx.navigateTo({
-      url: '/subPackages/package/pages/xieyi/xieyi?agreement=privacy'
-    });
+    // wx.navigateTo({
+    //   url: '/subPackages/package/pages/xieyi/xieyi?agreement=privacy'
+    // });
+
+    wx.openPrivacyContract({
+      success: res => {
+        console.log('openPrivacyContract success')
+      },
+      fail: res => {
+        console.error('openPrivacyContract fail', res)
+      }
+    })
   },
 
   // 新增方法 - 切换注册方式
@@ -834,7 +843,7 @@ Page({
       return;
     }
   },
-  
+
   //手机号登录
   getPhoneNumber(e) {
     if (!this.data.agreed) {
