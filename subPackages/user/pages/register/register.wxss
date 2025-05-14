@@ -84,13 +84,20 @@
   margin-top: 20rpx;
 }
 
-.rejectGetPhone{
+/* .rejectGetPhone{
   font-size: 35rpx;
   color:#666;
   margin-top: 30rpx;
   text-align: center;
   text-decoration: underline;
   display: inline-block;
+} */
+.rejectGetPhone {
+  width: 88%;
+  background: rgb(205, 174, 242);
+  color: white;
+  border-radius: 50rpx;
+  margin-top: 10px;
 }
 
 /* 邮箱注册样式 */

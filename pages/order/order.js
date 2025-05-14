@@ -311,10 +311,11 @@ Page({
 
   navigateToDianDan: function (e) {
     if (!wx.getStorageSync('isLoginSuccess')) {
-      wx.navigateTo({
-        url: '/subPackages/user/pages/register/register',
-      })
-      return
+      // wx.navigateTo({
+      //   url: '/subPackages/user/pages/register/register',
+      // })
+      //return
+     // wx.setStorageSync('itsid','[WXA]abc');
     }
     console.log(e);
     const dishId = e.currentTarget.dataset.dishid;

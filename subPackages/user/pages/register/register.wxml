@@ -54,13 +54,16 @@
       手机号一键注册登录
     </button>
 
+    <!-- <text class="rejectGetPhone" bind:tap="rejectGetPhone">不同意就返回</text> -->
+    <button class="rejectGetPhone" bind:tap="rejectGetPhone">放弃，暂不注册</button>
+
     <!-- <button wx:if="{{agreed}}" id="getUserBtn" class="user-btn" open-type="getUserInfo" bindgetuserinfo="getUserNumber">
       账号注册登录
     </button>
     <button wx:else class="user-btn" bind:tap="handleGetUser">
       账号注册登录
     </button> -->
-    <text class="rejectGetPhone" bind:tap="rejectGetPhone">不同意就返回</text>
+
   </block>
   <block wx:else>
     <view class="email-register">

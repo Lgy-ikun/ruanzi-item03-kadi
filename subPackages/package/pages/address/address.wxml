@@ -13,7 +13,7 @@
     <t-button style="width: 94%; top: 30rpx; margin-bottom: 30rpx;" theme="primary" size="large" variant="outline" block bind:tap="chooseAddress">选择地址></t-button>
   </view>
 
-  <t-input label="门牌号" placeholder="请输入详细地址" value="{{door}}" />
+  <t-input label="门牌号" placeholder="请输入详细地址" value="{{door}}" bind:change="onDoorInput" />
   <t-input label="联系人" placeholder="请输入联系人" value="{{username}}" bind:change="onUsernameInput">
     <t-radio-group slot="suffix" value="{{gender}}" borderless t-class="box" bind:change="changeGender">
       <t-radio block="{{false}}" label="先生" value="0" />

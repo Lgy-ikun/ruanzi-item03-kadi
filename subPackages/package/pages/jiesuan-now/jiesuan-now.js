@@ -52,7 +52,7 @@ Page({
     } else {
       // 现金支付无需验证交易码
       this.cashPayment();
-    }
+      }
   },
 
   // 显示交易码弹窗
@@ -570,8 +570,15 @@ Page({
     const itsid = wx.getStorageSync('itsid');
     let totalAmount = parseFloat(this.data.totalPrice) || 0;
     const usePoints = this.data.usePoints;
-    const unitId = this.data.selected === '自提' ?
-      wx.getStorageSync('selectedStoreId') : '';
+    
+    // 修改：统一unitId的获取逻辑
+    let unitId;
+    if (this.data.selected === '自提') {
+      unitId = wx.getStorageSync('selectedStoreId');
+    } else {
+      // 外送时，优先使用存储中的deliveryUnitId，如果没有则使用app.globalData中的，如果也没有则使用默认值
+      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
+    }
 
     // 如果是外送，总金额加上配送费
     if (this.data.selected === '外送') {
@@ -610,11 +617,15 @@ Page({
             NOTE: '积分支付 - 立即购买',
             SCORE: requiredPoints,
             AMT: 0,
+            ASK: item.ask,
             type: this.data.selected === '自提' ? 1 : 2,
             username: this.data.username,
             phone: this.data.phone,
             address: this.data.address,
-            extra: JSON.stringify({ in_lite_app: true })
+            extra: JSON.stringify({ 
+              in_lite_app: true,
+              specs: this.data.selectedSpecs
+            })
           },
           header: {
             'content-type': 'application/json'
@@ -686,7 +697,17 @@ Page({
   cashPayment() {
     // TODO: 实现立即购买的现金支付处理
     const itsid = wx.getStorageSync('itsid');
-    const unitId = this.data.selected === '自提' ? wx.getStorageSync('selectedStoreId') : '';
+    const app = getApp();
+    
+    // 修改：统一获取unitId的逻辑，并添加默认外送门店ID
+    let unitId;
+    if (this.data.selected === '自提') {
+      unitId = wx.getStorageSync('selectedStoreId');
+    } else {
+      // 外送时，优先使用存储中的deliveryUnitId，如果没有则使用app.globalData中的，如果也没有则使用默认值
+      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
+    }
+    
     let totalAmount = parseFloat(this.data.totalPrice);
 
     if (this.data.selected === '自提' && !unitId) {
@@ -700,6 +721,8 @@ Page({
     if (this.data.selected === '外送') {
       totalAmount += this.data.delivery;
     }
+    
+    console.log('使用的门店ID:', unitId);
 
     // 获取商品信息，用于提交MCODE和NUM
     const item = this.data.items[0]; // 假设立即购买只有一个商品
@@ -711,20 +734,24 @@ Page({
       url: `${app.globalData.backUrl}phone.aspx?mbid=10642&ituid=${app.globalData.ituid}&itsid=${itsid}`,
       method: 'POST',
       data: {
-        MCODE: mcode,//商品编码
-        OPID: '1200',
-        UNITID: unitId,
-        NUM: num,
-        USERID: '0',
-        NOTE: '立即购买',
-        AMT: totalAmount,
-        XXSQ: 'SQB',
-        RURL: '/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult',
-        type: this.data.selected === '自提' ? 1 : 2,
-        username: this.data.username,
-        phone: this.data.phone,
-        address: this.data.address,
-        extra: JSON.stringify({ in_lite_app: true })
+          MCODE: mcode,//商品编码
+          OPID: '1200',
+          UNITID: unitId,
+          NUM: num,
+          USERID: '0',
+          NOTE: '立即购买现金',
+          ASK: item.ask, // 添加规格数据
+          AMT: totalAmount,
+          XXSQ: 'SQB',
+          RURL: '/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult',
+          type: this.data.selected === '自提' ? 1 : 2,
+          username: this.data.username,
+          phone: this.data.phone,
+          address: this.data.address,
+          extra: JSON.stringify({ 
+            in_lite_app: true,
+            specs: this.data.selectedSpecs
+          })
       },
       header: {
         'content-type': 'application/json'
@@ -765,14 +792,24 @@ Page({
     const userid = wx.getStorageSync('userid');
     const total = parseFloat(this.data.totalPrice) +
       (this.data.selected === '外送' ? this.data.delivery : 0);
-    const unitId = this.data.selected === '自提' ?
-      wx.getStorageSync('selectedStoreId') : '';
+    
+    // 修改：统一unitId的获取逻辑
+    let unitId;
+    if (this.data.selected === '自提') {
+      unitId = wx.getStorageSync('selectedStoreId');
+    } else {
+      // 外送时，优先使用存储中的deliveryUnitId，如果没有则使用app.globalData中的，如果也没有则使用默认值
+      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
+    }
+    
+    console.log('使用的门店ID:', unitId);
 
     // 获取商品信息，用于提交MCODE和NUM
     const item = this.data.items[0]; // 假设立即购买只有一个商品
     const mcode = item.skuCode || ''; // 商品编码
     const num = item.num || 1; // 商品数量
 
+    //卡券支付
     wx.request({
       url: `${app.globalData.backUrl}phone.aspx?mbid=10644&ituid=${app.globalData.ituid}&itsid=${itsid}`,
       method: 'POST',
@@ -785,11 +822,15 @@ Page({
         USERID: userid,
         cardid: this.data.cardid,
         AMT: 0,
+        ASK: item.ask,
         type: this.data.selected === '自提' ? 1 : 2,
         username: this.data.username,
         phone: this.data.phone,
         address: this.data.address,
-        extra: JSON.stringify({ in_lite_app: true })
+        extra: JSON.stringify({ 
+          in_lite_app: true,
+          specs: this.data.selectedSpecs
+        })
       },
       success: (res) => {
         this.handlePaymentResult(res, 'coupon');

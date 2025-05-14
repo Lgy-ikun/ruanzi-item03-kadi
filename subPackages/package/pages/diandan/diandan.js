@@ -110,8 +110,7 @@ Page({
     const dishId = options.dishId;
     const index1 = parseInt(options.index1, 10);
     const index2 = parseInt(options.index2, 10);
-    const itsid = wx.getStorageSync('itsid') || 'default_itsid';
-    const userid = wx.getStorageSync('userid');
+    const userid = 0;
 
     // 确保索引是有效的数字
     if (isNaN(index1) || isNaN(index2)) {
@@ -152,14 +151,14 @@ Page({
       isFavorited: isFavorited
     });
 
-    wx.request({
-      // url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10638&itcid=10638&keyvalue=${dishId}&itsid=${itsid}`,
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10638&itcid=10638&userid=${userid}&keyvalue=${dishId}`,
+          wx.request({
+        // url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10638&itcid=10638&keyvalue=${dishId}&itsid=${itsid}`,
+        url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10638&itcid=10638&userid=${userid}&keyvalue=${dishId}`,
       method: 'GET',
       success: (res) => {
         const {
-          mainPictures,
-          specs,
+          mainPictures,//图片
+          specs,//规格
           skus,
           price,
           oldPrice,
@@ -613,12 +612,30 @@ Page({
 
   // 加入购物车
   goBackOrder() {
+    // 检查用户是否已登录
+    const userid = wx.getStorageSync('userid');
+    if (!userid) {
+      // 保存当前商品参数，用于登录后回跳
+      const currentPage = getCurrentPages();
+      const currentRoute = currentPage[currentPage.length-1].route;
+      const options = {
+        dishId: this.data.dishId,
+        index1: this.data.index1,
+        index2: this.data.index2,
+        action: 'addToCart' // 标记用户操作为加入购物车
+      };
+      
+      // 将参数编码为URL参数
+      const urlParams = Object.keys(options).map(key => `${key}=${options[key]}`).join('&');
+      
+      // 跳转到登录页面，并传递回调参数
+      wx.navigateTo({
+        url: `/subPackages/user/pages/register/register?callback=/${currentRoute}&${urlParams}`
+      });
+      return;
+    }
+    
     const skuCode = this.data.targetSkuCode;
-    // const displaySize = this.data.displaySize;
-    // const displayTemperature = this.data.displayTemperature;
-    // const displaySweetness = this.data.displaySweetness;
-    // const displaySettings = displaySize + ',' + displayTemperature + ',' + displaySweetness;
-    // console.log(displaySettings);
     const {
       selectedSpecs,
       specList
@@ -628,6 +645,7 @@ Page({
     const displaySettings = specList.map(spec =>
       `${spec.name}:${selectedSpecs[spec.name]}`
     ).join('; ');
+    
     const tempCategories = this.data.categories;
     const currentQuantity = Number(this.data.quantity);
     // 获取当前选中的商品对象
@@ -671,11 +689,17 @@ Page({
     wx.setStorageSync('sum', totalSum);
     wx.setStorageSync('total', totalPrice);
 
-    wx.navigateBack({
-      delta: 1 // 返回前一个页面
+    // 返回商品点单页面
+    wx.switchTab({
+      url: '/pages/order/order'
     });
 
+    // //返回上一页
+    // wx.navigateBack({
+    //   delta:1
+    //    });
   },
+
 
   compareSpecs(specs1, specs2) {
     if (!specs1 || !specs2) return false;
@@ -690,6 +714,29 @@ Page({
   
   // 立即购买功能
   goToJiesuanNow: function() {
+    // 检查用户是否已登录
+    const userid = wx.getStorageSync('userid');
+    if (!userid) {
+      // 保存当前商品参数，用于登录后回跳
+      const currentPage = getCurrentPages();
+      const currentRoute = currentPage[currentPage.length-1].route;
+      const options = {
+        dishId: this.data.dishId,
+        index1: this.data.index1,
+        index2: this.data.index2,
+        action: 'buyNow' // 标记用户操作为立即购买
+      };
+      
+      // 将参数编码为URL参数
+      const urlParams = Object.keys(options).map(key => `${key}=${options[key]}`).join('&');
+      
+      // 跳转到登录页面，并传递回调参数
+      wx.navigateTo({
+        url: `/subPackages/user/pages/register/register?callback=/${currentRoute}&${urlParams}`
+      });
+      return;
+    }
+    
     const skuCode = this.data.targetSkuCode;
     const {selectedSpecs, specList} = this.data;
     
@@ -707,7 +754,9 @@ Page({
       oldPrice: this.data.oldPrice,
       skuCode: skuCode,
       add: displaySettings,
-      num: this.data.quantity  // 当前选择的数量
+      num: this.data.quantity,  // 当前选择的数量
+      specs: {...selectedSpecs}, // 添加完整规格对象
+      ask: displaySettings
     };
     
     // 保存到本地缓存，用于结算页面读取

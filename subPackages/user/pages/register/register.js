@@ -676,6 +676,18 @@ Page({
    */
   onLoad(options) {
     let that = this; // 确保定义了 that
+    
+    // 保存回调信息，用于登录成功后跳转回商品详情页
+    if (options?.callback) {
+      this.setData({
+        callback: options.callback,
+        dishId: options.dishId,
+        index1: options.index1,
+        index2: options.index2,
+        action: options.action
+      });
+    }
+    
     if (options?.regway) {
       this.setData({
         RegWay: options.regway
@@ -905,9 +917,25 @@ Page({
                             wx.setStorageSync('inviteUserid', that.data.userid2); // 存储到缓存，键名为invite
                             wx.setStorageSync('itsid', itsid);
                             wx.setStorageSync('userid', userid);
+                            
+                            // 检查是否有回调页面，有则跳回之前的商品页面
+                            if (that.data.callback && that.data.dishId) {
+                              const params = {
+                                dishId: that.data.dishId,
+                                index1: that.data.index1 || 0,
+                                index2: that.data.index2 || 0
+                              };
+                              const urlParams = Object.keys(params).map(key => `${key}=${params[key]}`).join('&');
+                              // 跳转回商品详情页
+                              wx.redirectTo({
+                                url: `${that.data.callback}?${urlParams}`
+                              });
+                            } else {
+                              // 无回调页面，正常跳转首页
                             wx.switchTab({
                               url: '/pages/home/home'
                             });
+                            }
                           } else {
                             wx.showToast({
                               title: '获取用户信息失败',

@@ -47,8 +47,15 @@ Page({
       // 现金支付无需验证交易码
       const itsid = wx.getStorageSync('itsid');
       const app = getApp();
-      const unitId = this.data.selected === '自提' ? wx.getStorageSync('selectedStoreId') : '';
-      // const unitId = this.data.unitId
+      // 修改：统一unitId的获取逻辑，并添加默认外送门店ID
+      let unitId;
+      if (this.data.selected === '自提') {
+        unitId = wx.getStorageSync('selectedStoreId');
+      } else {
+        // 外送时，优先使用存储中的deliveryUnitId，如果没有则使用app.globalData中的，如果也没有则使用默认值
+        unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
+      }
+      
       let totalAmount = parseFloat(this.data.totalprice);
       if (this.data.selected === '自提' && !unitId) {
         wx.showToast({
@@ -62,6 +69,7 @@ Page({
       //   totalAmount += this.data.delivery;
       // }
       console.log('计算后的总金额（含配送费）:', totalAmount);
+      console.log('使用的门店ID:', unitId);
       let that = this
       wx.request({
         url: `${app.globalData.backUrl}phone.aspx?mbid=122&ituid=${app.globalData.ituid}&itsid=${itsid}`,
@@ -593,9 +601,16 @@ Page({
     const app = getApp(); // 获取全局 App 实例
     let totalAmount = parseFloat(this.data.totalprice) || 0;
     const usePoints = this.data.usePoints; // 是否使用积分支付
-    const unitId = this.data.selected === '自提' ?
-      wx.getStorageSync('selectedStoreId') :
-      '';
+    
+    // 修改：统一unitId的获取逻辑
+    let unitId;
+    if (this.data.selected === '自提') {
+      unitId = wx.getStorageSync('selectedStoreId');
+    } else {
+      // 外送时，优先使用存储中的deliveryUnitId，如果没有则使用app.globalData中的，如果也没有则使用默认值
+      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
+    }
+    
     console.log('Total Price:', this.data.totalprice);
     console.log('Use Points:', usePoints);
     // 如果是外送，总金额加上 delivery
@@ -779,8 +794,16 @@ Page({
   cashPayment() {
     const itsid = wx.getStorageSync('itsid');
     const app = getApp();
-    const unitId = this.data.selected === '自提' ? wx.getStorageSync('selectedStoreId') : '';
-    // const unitId = this.data.unitId
+    
+    // 修改：与initiatePayment保持一致的unitId获取逻辑
+    let unitId;
+    if (this.data.selected === '自提') {
+      unitId = wx.getStorageSync('selectedStoreId');
+    } else {
+      // 外送时，优先使用存储中的deliveryUnitId，如果没有则使用app.globalData中的，如果也没有则使用默认值
+      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
+    }
+    
     let totalAmount = parseFloat(this.data.totalprice);
     if (this.data.selected === '自提' && !unitId) {
       wx.showToast({
@@ -793,6 +816,8 @@ Page({
     if (this.data.selected === '外送') {
       totalAmount += this.data.delivery;
     }
+    
+    console.log('使用的门店ID:', unitId);
     let that = this
     wx.request({
       url: `${app.globalData.backUrl}phone.aspx?mbid=122&ituid=${app.globalData.ituid}&itsid=${itsid}`,
@@ -903,8 +928,18 @@ Page({
     const userid = wx.getStorageSync('userid');
     const total = parseFloat(this.data.totalprice) +
       (this.data.selected === '外送' ? this.data.delivery : 0);
-    const unitId = this.data.selected === '自提' ?
-      wx.getStorageSync('selectedStoreId') : '';
+    
+    // 修改：统一unitId的获取逻辑
+    let unitId;
+    if (this.data.selected === '自提') {
+      unitId = wx.getStorageSync('selectedStoreId');
+    } else {
+      // 外送时，优先使用存储中的deliveryUnitId，如果没有则使用app.globalData中的，如果也没有则使用默认值
+      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
+    }
+    
+    console.log('使用的门店ID:', unitId);
+    
     wx.request({
       url: `${app.globalData.backUrl}phone.aspx?mbid=125&ituid=${app.globalData.ituid}&itsid=${itsid}`, // 使用125
       method: 'POST',

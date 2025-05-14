@@ -21,7 +21,7 @@ Page({
       product_name: '卡布奇诺',
       price: 999,
       quantity: 1,
-      total: 999,
+      total: 9999.00,
       status: '待收货',
       statusindex: 1,
       image_url: 'https://img2.baidu.com/it/u=74791221,1571543144&fm=253&fmt=auto&app=120&f=PNG?w=500&h=500',
@@ -33,7 +33,7 @@ Page({
       product_name: '焦糖拿铁',
       price: 999,
       quantity: 1,
-      total: 999,
+      total: 9999.00,
       status: '待收货',
       statusindex: 2,
       image_url: 'https://ms.bdimg.com/pacific/0/pic/-232675334_-1095429706.jpg?x=0&y=0&h=200&w=300&vh=200.00&vw=300.00&oh=200.00&ow=300.00',
@@ -45,13 +45,18 @@ Page({
       product_name: '卡卡部落',
       price: 999,
       quantity: 1,
-      total: 999,
+      total: 9999.00,
       status: '待评价',
       statusindex: 3,
       image_url: 'https://ms.bdimg.com/pacific/0/pic/507692281_1496750964.jpg?x=0&y=0&h=150&w=225&vh=150.00&vw=225.00&oh=150.00&ow=225.00',
       desc: '丝滑浓香',
     },],
     shouhuo: [],
+  },
+
+  // 格式化价格为两位小数
+  formatPrice(price) {
+    return parseFloat(price).toFixed(2);
   },
 
   gotoDetail(e) {
@@ -133,15 +138,19 @@ Page({
           productName: item.productName,
           // add: that.extractValues(item.add),
           add: item.add,
-          price: price,
+          price: this.formatPrice(price),
           quantity: quantity,
-          total: total,
+          total: this.formatPrice(total),
           image_url: item.imageUrl ? `${that.data.AUrl}/jy/wxUserImg/106/${item.imageUrl}` : '/images/咖啡.png'
         };
 
         order.products.push(product);
         order.total += total;
+        
       });
+
+      // 将订单总价格式化为两位小数
+      order.total = this.formatPrice(order.total);
 
       ordersMap.set(orderId, order);
     });
