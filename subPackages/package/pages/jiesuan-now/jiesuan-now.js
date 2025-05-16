@@ -192,6 +192,12 @@ Page({
     app.globalData.selected = option;
     if (option === '自提') {
       app.globalData.address = app.globalData.storeName;
+    } else if (option === '外送') {
+      // 根据地址设置对应的外送门店ID
+      // 这里默认使用恒明店号6，可根据实际地址判断使用6还是8
+      const deliveryUnitId = '6'; // 默认恒明店号
+      wx.setStorageSync('deliveryUnitId', deliveryUnitId);
+      app.globalData.deliveryUnitId = deliveryUnitId;
     }
     this.setData({
       selected: option,
@@ -722,7 +728,9 @@ Page({
       totalAmount += this.data.delivery;
     }
     
+    console.log('支付模式:', this.data.selected);
     console.log('使用的门店ID:', unitId);
+    console.log('计算后的总金额（含配送费）:', totalAmount);
 
     // 获取商品信息，用于提交MCODE和NUM
     const item = this.data.items[0]; // 假设立即购买只有一个商品
@@ -802,7 +810,9 @@ Page({
       unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
     }
     
+    console.log('支付模式:', this.data.selected);
     console.log('使用的门店ID:', unitId);
+    console.log('计算后的总金额（含配送费）:', total);
 
     // 获取商品信息，用于提交MCODE和NUM
     const item = this.data.items[0]; // 假设立即购买只有一个商品

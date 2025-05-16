@@ -28,11 +28,25 @@
 
 <!-- 注册方式切换 -->
 <view class="register-switch">
-  <text wx:if="{{RegWay === 'shouji'}}" bindtap="toggleRegisterType" class="phone-tip {{isPhoneRegister ? 'phone-tip-active' : ''}}" data-type="phone">手机号登录</text>
+  <text wx:if="{{RegWay === 'shouji'}}" bindtap="toggleRegisterType" class="phone-tip {{isPhoneRegister ? 'phone-tip-active' : ''}}" data-type="phone"></text>
   <!-- <text wx:if="{{RegWay === 'shouji'}}" bindtap="toggleRegisterType" class="phone-tip {{isEmailRegister ? 'phone-tip-active' : ''}}" data-type="email">邮箱登录</text> -->
   <!-- <text class="switch-item" bindtap="toggleRegisterType" data-type="phone" wx:if="{{!isPhoneRegister && !isPhoneRegister}}">手机号注册</text> -->
   <text wx:if="{{RegWay === 'youxiang'}}" class="phone-tip" data-type="email">子账号注册</text>
   <!-- <text class="switch-item" bindtap="toggleRegisterType" data-type="back" wx:if="{{isPhoneRegister || isEmailRegister}}">返回微信注册</text> -->
+</view>
+
+<view class="kd-title">
+  <view class="kd-imgCon">
+    <image class="kd-img" src="../../../../images/caldi logo紫色透明.gif"></image>
+  </view>
+
+  <text class="kd-head">滴萃卡狄 慢享生活</text>
+
+  <view class="kd-textarea">
+    <text class="kd-text">感谢您选择卡狄咖啡CALDI COFFEE,我们热忱欢迎您成为其中的一员，以享受更多权益，包括并不限于获取更多优惠信息，参与卡狄咖啡的更多活动等。</text>
+    <text class="kd-text">让我们一起用一杯咖啡的温度，点燃青春梦想的星辰大海！</text>
+  </view>
+
 </view>
 
 <!-- 手机注册部分 -->
@@ -48,14 +62,14 @@
       <text>》</text>
     </view>
     <button wx:if="{{agreed}}" id="getPhoneBtn" class="phone-btn" open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">
-      手机号一键注册登录
+      手机号快捷注册登录
     </button>
     <button wx:else class="phone-btn" bind:tap="handleGetPhone">
-      手机号一键注册登录
+      手机号快捷注册登录
     </button>
 
     <!-- <text class="rejectGetPhone" bind:tap="rejectGetPhone">不同意就返回</text> -->
-    <button class="rejectGetPhone" bind:tap="rejectGetPhone">放弃，暂不注册</button>
+    <button class="rejectGetPhone" bind:tap="rejectGetPhone">放弃权益，暂不注册</button>
 
     <!-- <button wx:if="{{agreed}}" id="getUserBtn" class="user-btn" open-type="getUserInfo" bindgetuserinfo="getUserNumber">
       账号注册登录

@@ -65,11 +65,11 @@ Page({
         console.log(111);
         return
       }
-      // if (this.data.selected === '外送') {
-      //   totalAmount += this.data.delivery;
-      // }
-      console.log('计算后的总金额（含配送费）:', totalAmount);
+      
+      console.log('支付模式:', this.data.selected);
       console.log('使用的门店ID:', unitId);
+      console.log('计算后的总金额（含配送费）:', totalAmount);
+      
       let that = this
       wx.request({
         url: `${app.globalData.backUrl}phone.aspx?mbid=122&ituid=${app.globalData.ituid}&itsid=${itsid}`,
@@ -77,7 +77,6 @@ Page({
         data: {
           MCODE: '',
           OPID: '1200',
-          // UNITID: this.data.selected === '自提' ? unitId : '',
           UNITID: unitId,
           NUM: '',
           USERID: '0',
@@ -98,8 +97,9 @@ Page({
           'content-type': 'application/json'
         },
         success: (res) => {
+          wx.hideToast()
           if (!that.data.usePoints && !that.data.useCoupon) {
-            console.log("返回订单数据：", res)
+            console.log("返回订单数据:", res);
 
             let packageNew = encodeURIComponent(res.data.yeepay.package)
             let paySignNew = encodeURIComponent(res.data.yeepay.paySign)
@@ -110,7 +110,6 @@ Page({
             wx.navigateTo({
               url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}&appId=${res.data.yeepay.appId}&nonceStr=${res.data.yeepay.nonceStr}&package=${packageNew}&paySign=${paySignNew}&signType=${res.data.yeepay.signType}&timeStamp=${res.data.yeepay.timeStamp}&SN=${res.data.SN}`,
             })
-            wx.hideToast()
           }
         }
       });
@@ -246,6 +245,12 @@ Page({
     app.globalData.selected = option;
     if (option === '自提') {
       app.globalData.address = app.globalData.storeName;
+    } else if (option === '外送') {
+      // 根据地址设置对应的外送门店ID
+      // 这里默认使用恒明店号6，可根据实际地址判断使用6还是8
+      const deliveryUnitId = '6'; // 默认恒明店号
+      wx.setStorageSync('deliveryUnitId', deliveryUnitId);
+      app.globalData.deliveryUnitId = deliveryUnitId;
     }
     this.setData({
       selected: option,
@@ -848,9 +853,16 @@ Page({
       success: (res) => {
         wx.hideToast()
         if (!that.data.usePoints && !that.data.useCoupon) {
-          console.log(res)
+          console.log("返回订单数据:", res);
+
+          let packageNew = encodeURIComponent(res.data.yeepay.package)
+          let paySignNew = encodeURIComponent(res.data.yeepay.paySign)
+
+          console.log("packageNew:", packageNew);
+          console.log("paySignNew:", paySignNew);
+
           wx.navigateTo({
-            url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}`,
+            url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}&appId=${res.data.yeepay.appId}&nonceStr=${res.data.yeepay.nonceStr}&package=${packageNew}&paySign=${paySignNew}&signType=${res.data.yeepay.signType}&timeStamp=${res.data.yeepay.timeStamp}&SN=${res.data.SN}`,
           })
         }
         // wx.requestPayment({
@@ -938,7 +950,9 @@ Page({
       unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
     }
     
+    console.log('支付模式:', this.data.selected);
     console.log('使用的门店ID:', unitId);
+    console.log('计算后的总金额（含配送费）:', total);
     
     wx.request({
       url: `${app.globalData.backUrl}phone.aspx?mbid=125&ituid=${app.globalData.ituid}&itsid=${itsid}`, // 使用125

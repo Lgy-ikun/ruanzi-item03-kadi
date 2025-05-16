@@ -37,7 +37,6 @@ Page({
     const addressDesc = e.currentTarget.dataset.addressdesc;
     const phone = e.currentTarget.dataset.phone;
     const username = e.currentTarget.dataset.username; // 新增姓名
-
     const selected = e.currentTarget.dataset.selected;
 
     if (!addressDesc) {
@@ -45,6 +44,20 @@ Page({
       return;
     }
 
+    // 根据地址判断使用哪个店铺ID
+    // 这里使用简单地址字符串匹配，根据实际需求可以更精确地判断
+    let deliveryUnitId = '6'; // 默认使用恒明店号6
+    
+    // 如果地址中包含"万科"，则使用万科店号8
+    if (addressDesc.includes('万科') || addressDesc.includes('万科城')) {
+      deliveryUnitId = '8';
+    }
+    
+    // 保存外送店铺ID
+    wx.setStorageSync('deliveryUnitId', deliveryUnitId);
+    app.globalData.deliveryUnitId = deliveryUnitId;
+    
+    // 设置其他全局数据
     app.globalData.addressDesc = addressDesc;
     app.globalData.phone = phone;
     app.globalData.username = username; // 存储到全局
@@ -52,6 +65,7 @@ Page({
     app.globalData.delivery = 5;
 
     console.log('Setting globalData:', app.globalData);
+    console.log('设置的外送店铺ID:', deliveryUnitId);
 
     if (this.data.type === 'exchangeResult') {
       wx.navigateBack();
@@ -62,6 +76,10 @@ Page({
     } else if (this.data.type === 'jiesuan') {
       wx.navigateBack({
         url: '/subPackages/package/pages/jiesuan/jiesuan',
+      });
+    } else if (this.data.type === 'jiesuan-now') {
+      wx.navigateBack({
+        url: '/subPackages/package/pages/jiesuan-now/jiesuan-now',
       });
     }
   },
