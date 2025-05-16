@@ -34,7 +34,8 @@
       <text class="peisong" style="margin-left: 30rpx;">配送费 ¥5</text>
     </view>
     <view class=" total" style="position: relative;top: 30rpx; margin-bottom: 60rpx;">
-      <text class="dai" style="margin-left: 30rpx;">待支付 ¥{{totalprice}}</text>
+      <text class="dai" style="margin-left: 30rpx;" wx:if="{{selected === '自提'}}">待支付 ¥{{totalprice}}</text>
+      <text class="dai" style="margin-left: 30rpx;" wx:else>待支付 ¥{{totalprice*1 + delivery*1}}</text>
     </view>
     <!-- 新增：消费券支付选项 -->
     <view class="points-option">

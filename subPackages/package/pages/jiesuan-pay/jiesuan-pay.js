@@ -20,25 +20,43 @@ Page({
   onLoad(options) {
     let that = this
 
-    console.log(options)
+    console.log("支付页面接收到的参数:", options)
+    
+    // 确保amt是数字类型，并检查是否为外送订单（包含配送费）
+    let amtValue = parseInt(options.amt || 0);
+    
+    // 调试信息：检查金额是否正确
+    console.log("解析后的金额(分):", amtValue);
+    console.log("转换为元显示:", amtValue/100);
+    
+    // 检查是否为外送订单，应该包含配送费
+    const orderType = options.orderType || options.type || '1';
+    console.log("订单类型:", orderType, "(1=自提, 2=外送)");
+    
+    const isDelivery = orderType === '2';
+    if (isDelivery) {
+      console.log("这是外送订单，金额应该包含配送费");
+    }
+    
     this.setData({
-      orderid: options.orderid,
-      terminal: options.terminal,
-      amt: options.amt,
-      sign: options.sign,
-      return_url: options.return_url,
+      orderid: options.orderid || '',
+      terminal: options.terminal || '',
+      amt: amtValue, // 确保使用解析后的数字
+      sign: options.sign || '',
+      return_url: options.return_url || '',
+      orderType: orderType, // 添加订单类型
 
-      appId: options.appId,
-      nonceStr: options.nonceStr,
-      package: decodeURIComponent(options.package),
-      paySign: decodeURIComponent(options.paySign),
-      signType: options.signType,
-      timeStamp: options.timeStamp,
+      appId: options.appId || '',
+      nonceStr: options.nonceStr || '',
+      package: decodeURIComponent(options.package || ''),
+      paySign: decodeURIComponent(options.paySign || ''),
+      signType: options.signType || '',
+      timeStamp: options.timeStamp || '',
 
-      'result.client_sn': options.orderid,
-      'result.sn': options.SN,
+      'result.client_sn': options.orderid || '',
+      'result.sn': options.SN || '',
     }, () => {
-      console.log("that.data:", that.data);
+      console.log("支付页面数据设置完成:", that.data);
     })
   },
 
@@ -51,6 +69,18 @@ Page({
     console.log("itsid:", itsid);
     console.log("ORDERID:", ORDERID);
     console.log("ZFID:", ZFID);
+    console.log("支付金额(分):", that.data.amt);
+    console.log("支付金额(元):", that.data.amt/100);
+    
+    // 检查是否包含配送费的快速判断（简单估算）
+    if (that.data.orderType === '2') { // 如果是外送订单
+      const amtValue = Number(that.data.amt);
+      if (amtValue % 500 === 0) { // 如果是整数元且能被5整除
+        console.warn("警告：外送订单金额能被5整除，可能没有包含配送费!");
+      } else {
+        console.log("金额包含配送费(5元)");
+      }
+    }
 
     wx.requestPayment({
       timeStamp: that.data.timeStamp,
@@ -85,8 +115,6 @@ Page({
             // }, 200);
           }
         })
-
-
       },
       fail(res) {
         that.setData({

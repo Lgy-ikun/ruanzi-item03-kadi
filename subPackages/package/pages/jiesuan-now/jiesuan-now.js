@@ -30,6 +30,11 @@ Page({
     totalPrice: 0, // 总价格
     totalCount: 0, // 商品总数量
     remark: '', // 备注
+    
+    // 新增字段
+    orderType: 1, // 订单类型：1=自提，2=外送，默认自提
+    basePrice: 0, // 商品基础价格（不含配送费）
+    finalDeliveryFee: 0, // 最终配送费
   },
 
   // 启动支付流程
@@ -190,6 +195,9 @@ Page({
   selectOption: function (e) {
     const option = e.currentTarget.dataset.option;
     app.globalData.selected = option;
+    
+    console.log('选择配送方式:', option);
+    
     if (option === '自提') {
       app.globalData.address = app.globalData.storeName;
     } else if (option === '外送') {
@@ -198,13 +206,28 @@ Page({
       const deliveryUnitId = '6'; // 默认恒明店号
       wx.setStorageSync('deliveryUnitId', deliveryUnitId);
       app.globalData.deliveryUnitId = deliveryUnitId;
+      
+      console.log('设置外送门店ID:', deliveryUnitId);
     }
+    
     this.setData({
       selected: option,
-      address: app.globalData.address
+      address: app.globalData.address,
+      // 确保订单类型被明确记录
+      orderType: option === '自提' ? 1 : 2
     }, () => {
       // 重新计算总价
-      this.calculateTotal();
+      const newTotal = this.calculateTotal();
+      console.log(`配送方式更改为: ${option}, 重新计算总价: ${newTotal}`);
+      
+      // 如果使用积分支付，重新计算所需积分
+      if (this.data.usePoints) {
+        const requiredScore = Math.ceil(newTotal * 1.6);
+        this.setData({
+          requiredScore: requiredScore
+        });
+        console.log('更新所需积分:', requiredScore);
+      }
     });
   },
 
@@ -459,20 +482,42 @@ Page({
 
   // 计算总价
   calculateTotal: function () {
-    let total = this.data.items.reduce((sum, item) => {
+    // 计算商品价格总和
+    const itemsTotal = this.data.items.reduce((sum, item) => {
       const quantity = Number(item.num) || 0;
       const price = Number(item.price) || 0;
       return sum + (quantity * price);
     }, 0);
+    
+    // 记录基础商品价格
+    console.log('商品基础价格:', itemsTotal.toFixed(2));
 
     // 如果选择外送，则加上配送费
-    if (this.data.selected === '外送') {
-      total += Number(this.data.delivery);
-    }
+    const deliveryFee = this.data.selected === '外送' ? Number(this.data.delivery) : 0;
+    const total = itemsTotal + deliveryFee;
+    
+    console.log('计算总价详情:', {
+      '商品总价': itemsTotal.toFixed(2),
+      '配送费': deliveryFee.toFixed(2),
+      '最终总价': total.toFixed(2),
+      '配送模式': this.data.selected
+    });
 
+    // 更新UI显示
     this.setData({
       totalPrice: total.toFixed(2)
     });
+    
+    // 额外记录订单类型，便于其他函数使用
+    const orderType = this.data.selected === '自提' ? 1 : 2;
+    // 记录到页面数据中，方便其他地方引用
+    this.setData({
+      orderType: orderType,
+      basePrice: itemsTotal.toFixed(2),
+      finalDeliveryFee: deliveryFee.toFixed(2)
+    });
+    
+    return total;
   },
 
   // TODO: 实现获取卡券列表接口
@@ -549,6 +594,10 @@ Page({
   doPayment() {
     // 获取用户积分数据后处理支付
     const itsid = wx.getStorageSync('itsid');
+    console.log('启动积分支付流程');
+    
+    // 确保calculateTotal已执行并计算了正确的总价（含配送费）
+    this.calculateTotal();
     wx.request({
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
       method: 'GET',
@@ -575,6 +624,20 @@ Page({
     // TODO: 实现立即购买的积分支付处理
     const itsid = wx.getStorageSync('itsid');
     let totalAmount = parseFloat(this.data.totalPrice) || 0;
+    
+    // 明确配送费
+    const deliveryFee = this.data.selected === '外送' ? Number(this.data.delivery) : 0;
+    
+    // 明确定义订单类型
+    const orderType = this.data.selected === '自提' ? 1 : 2;
+    
+    // 记录详细日志
+    console.log('======= 积分支付详情 =======');
+    console.log('配送模式:', this.data.selected, `(类型=${orderType})`);
+    console.log('商品价格:', totalAmount - deliveryFee);
+    console.log('配送费:', deliveryFee);
+    console.log('最终总价:', totalAmount);
+    
     const usePoints = this.data.usePoints;
     
     // 修改：统一unitId的获取逻辑
@@ -583,18 +646,19 @@ Page({
       unitId = wx.getStorageSync('selectedStoreId');
     } else {
       // 外送时，优先使用存储中的deliveryUnitId，如果没有则使用app.globalData中的，如果也没有则使用默认值
-      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
-    }
-
-    // 如果是外送，总金额加上配送费
-    if (this.data.selected === '外送') {
-      totalAmount += this.data.delivery;
+      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6'; // 修改：与cashPayment保持一致，默认外送门店ID为6
     }
 
     // 积分支付逻辑
     if (this.data.usePoints) {
+      // 确保包含配送费后再计算所需积分
       const requiredPoints = totalAmount * 1.6;
-      console.log('Required Points:', requiredPoints);
+      console.log('积分计算详情:', {
+        '商品价格': this.data.items.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.num || 0)), 0),
+        '配送费': this.data.selected === '外送' ? Number(this.data.delivery) : 0,
+        '最终总金额': totalAmount,
+        '需要积分': requiredPoints
+      });
 
       // 检查积分是否足够
       if (score >= requiredPoints) {
@@ -617,26 +681,37 @@ Page({
           data: {
             MCODE: mcode,//商品编码
             OPID: '1203',
-            UNITID: this.data.selected === '自提' ? unitId : '',
+            UNITID: unitId, // 修改：无论自提还是外送都传递unitId
             NUM: num,//商品数量
             USERID: '0',
-            NOTE: '积分支付 - 立即购买',
+            NOTE: this.data.selected === '外送' ? '积分支付-立即购买-外送' : '积分支付-立即购买-自提',
             SCORE: requiredPoints,
+            // 在integralTotal字段中传递包含配送费的总金额，便于后台记录
+            integralTotal: totalAmount.toFixed(2),
             AMT: 0,
             ASK: item.ask,
-            type: this.data.selected === '自提' ? 1 : 2,
+            type: orderType, // 使用明确的变量
+            orderType: orderType, // 增加重复字段确保传递
+            isDelivery: this.data.selected === '外送' ? 1 : 0, // 使用数字标记
+            deliveryFee: deliveryFee, // 使用明确的变量
+            totalWithDelivery: totalAmount, // 增加总价字段
             username: this.data.username,
             phone: this.data.phone,
             address: this.data.address,
             extra: JSON.stringify({ 
               in_lite_app: true,
-              specs: this.data.selectedSpecs
+              specs: this.data.selectedSpecs,
+              isDelivery: this.data.selected === '外送', // 添加：是否外送标记
+              deliveryFee: deliveryFee, // 添加：配送费
+              orderType: orderType, // 添加订单类型
+              totalPrice: totalAmount // 添加总价
             })
           },
           header: {
             'content-type': 'application/json'
           },
           success: (res) => {
+            console.log('积分支付响应:', res.data);
             wx.showToast({
               title: '积分支付成功',
               duration: 2000
@@ -711,9 +786,10 @@ Page({
       unitId = wx.getStorageSync('selectedStoreId');
     } else {
       // 外送时，优先使用存储中的deliveryUnitId，如果没有则使用app.globalData中的，如果也没有则使用默认值
-      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
+      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6'; // 默认外送门店ID为6
     }
     
+    // 直接使用totalPrice，因为它在calculateTotal方法中已经包含了配送费
     let totalAmount = parseFloat(this.data.totalPrice);
 
     if (this.data.selected === '自提' && !unitId) {
@@ -724,9 +800,10 @@ Page({
       return;
     }
 
-    if (this.data.selected === '外送') {
-      totalAmount += this.data.delivery;
-    }
+    // 不再重复加配送费，因为calculateTotal中已经处理过了
+    // if (this.data.selected === '外送') {
+    //   totalAmount += this.data.delivery;
+    // }
     
     console.log('支付模式:', this.data.selected);
     console.log('使用的门店ID:', unitId);
@@ -758,7 +835,9 @@ Page({
           address: this.data.address,
           extra: JSON.stringify({ 
             in_lite_app: true,
-            specs: this.data.selectedSpecs
+            specs: this.data.selectedSpecs,
+            isDelivery: this.data.selected === '外送', // u6dfbu52a0uff1au662fu5426u5916u9001u6807u8bb0
+            deliveryFee: this.data.selected === '外送' ? this.data.delivery : 0 // u6dfbu52a0uff1au914du9001u8d39
           })
       },
       header: {
@@ -778,8 +857,11 @@ Page({
         wx.removeStorageSync('buyNowItems');
 
         if (!this.data.usePoints && !this.data.useCoupon) {
+          // 将totalAmount*100转为整数分单位，与后台保持一致
+          const amtInCents = Math.round(totalAmount * 100);
+          
           wx.navigateTo({
-            url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}&appId=${res.data.yeepay.appId}&nonceStr=${res.data.yeepay.nonceStr}&package=${packageNew}&paySign=${paySignNew}&signType=${res.data.yeepay.signType}&timeStamp=${res.data.yeepay.timeStamp}&SN=${res.data.SN}`,
+            url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${amtInCents}&sign=${res.data.sign}&appId=${res.data.yeepay.appId}&nonceStr=${res.data.yeepay.nonceStr}&package=${packageNew}&paySign=${paySignNew}&signType=${res.data.yeepay.signType}&timeStamp=${res.data.yeepay.timeStamp}&SN=${res.data.SN}`,
           });
         }
       },
@@ -798,8 +880,20 @@ Page({
     // TODO: 实现立即购买的卡券支付处理
     const itsid = wx.getStorageSync('itsid');
     const userid = wx.getStorageSync('userid');
-    const total = parseFloat(this.data.totalPrice) +
-      (this.data.selected === '外送' ? this.data.delivery : 0);
+    const total = parseFloat(this.data.totalPrice);
+    
+    // 明确配送费
+    const deliveryFee = this.data.selected === '外送' ? Number(this.data.delivery) : 0;
+    
+    // 确保总金额已经包含配送费
+    let finalTotal = total;
+    
+    // 记录详细日志
+    console.log('======= 卡券支付详情 =======');
+    console.log('配送模式:', this.data.selected);
+    console.log('商品价格:', total - deliveryFee);
+    console.log('配送费:', deliveryFee);
+    console.log('最终总价:', finalTotal);
     
     // 修改：统一unitId的获取逻辑
     let unitId;
@@ -807,13 +901,12 @@ Page({
       unitId = wx.getStorageSync('selectedStoreId');
     } else {
       // 外送时，优先使用存储中的deliveryUnitId，如果没有则使用app.globalData中的，如果也没有则使用默认值
-      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
+      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6'; // 修改：与cashPayment保持一致，默认外送门店ID为6
     }
     
-    console.log('支付模式:', this.data.selected);
-    console.log('使用的门店ID:', unitId);
-    console.log('计算后的总金额（含配送费）:', total);
-
+    // 明确定义订单类型
+    const orderType = this.data.selected === '自提' ? 1 : 2;
+    
     // 获取商品信息，用于提交MCODE和NUM
     const item = this.data.items[0]; // 假设立即购买只有一个商品
     const mcode = item.skuCode || ''; // 商品编码
@@ -824,25 +917,34 @@ Page({
       url: `${app.globalData.backUrl}phone.aspx?mbid=10644&ituid=${app.globalData.ituid}&itsid=${itsid}`,
       method: 'POST',
       data: {
-        MCODE: 'mcode',
+        MCODE: mcode, // 商品编码
         OPID: '1204',
-        UNITID: unitId,
-        NOTE: '立即购买-卡券支付',
-        NUM: 'num',
+        UNITID: unitId, // 无论自提还是外送都传递unitId
+        NOTE: this.data.selected === '外送' ? '立即购买-卡券支付-外送' : '立即购买-卡券支付-自提',
+        NUM: num, // 商品数量
         USERID: userid,
         cardid: this.data.cardid,
         AMT: 0,
         ASK: item.ask,
-        type: this.data.selected === '自提' ? 1 : 2,
+        type: orderType, // 明确订单类型：1=自提，2=外送
+        orderType: orderType, // 增加重复字段确保传递
+        isDelivery: this.data.selected === '外送' ? 1 : 0, // 添加数字标记
+        deliveryFee: deliveryFee, // 明确传递配送费
+        totalWithDelivery: finalTotal, // 增加总价字段
         username: this.data.username,
         phone: this.data.phone,
         address: this.data.address,
         extra: JSON.stringify({ 
           in_lite_app: true,
-          specs: this.data.selectedSpecs
+          specs: this.data.selectedSpecs,
+          isDelivery: this.data.selected === '外送', // 是否外送标记
+          deliveryFee: deliveryFee, // 配送费
+          orderType: orderType, // 添加订单类型
+          totalPrice: finalTotal // 添加总价
         })
       },
       success: (res) => {
+        console.log('卡券支付响应:', res.data);
         this.handlePaymentResult(res, 'coupon');
         // 移除立即购买缓存
         wx.removeStorageSync('buyNowItems');

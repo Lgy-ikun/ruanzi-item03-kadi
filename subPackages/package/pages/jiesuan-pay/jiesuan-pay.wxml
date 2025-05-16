@@ -9,6 +9,7 @@
   <view class="money">
     付款金额：
     <view class="amt">￥{{ amt/100 }}</view>
+    <view wx:if="{{orderType === '2'}}" class="delivery-note"></view>
   </view>
 </view>
 

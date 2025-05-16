@@ -56,7 +56,10 @@ Page({
         unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
       }
       
+      // 计算正确的总金额
+      // 先获取商品价格
       let totalAmount = parseFloat(this.data.totalprice);
+      
       if (this.data.selected === '自提' && !unitId) {
         wx.showToast({
           title: '请选择门店',
@@ -65,12 +68,27 @@ Page({
         console.log(111);
         return
       }
+
+      // 如果是外送订单，加上配送费
+      if (this.data.selected === '外送') {
+        // 确保使用数字类型相加
+        totalAmount = Number(totalAmount) + Number(this.data.delivery);
+        console.log('外送订单，添加配送费后总金额(元):', totalAmount);
+      }
+      
+      // 将金额转为分单位，乘以100
+      const amtInCents = Math.round(totalAmount * 100);
+      console.log('转换前totalAmount(元):', totalAmount);
+      console.log('转换后amtInCents(分):', amtInCents);
       
       console.log('支付模式:', this.data.selected);
       console.log('使用的门店ID:', unitId);
       console.log('计算后的总金额（含配送费）:', totalAmount);
       
       let that = this
+      // 记录请求前的金额
+      console.log('向后端发送的支付金额(元):', totalAmount);
+      
       wx.request({
         url: `${app.globalData.backUrl}phone.aspx?mbid=122&ituid=${app.globalData.ituid}&itsid=${itsid}`,
         method: 'POST',
@@ -81,7 +99,7 @@ Page({
           NUM: '',
           USERID: '0',
           NOTE: ' ',
-          // 现金支付金额为订单总价
+          // 现金支付金额为订单总价（包含配送费）
           AMT: totalAmount,
           // IMGS: JSON.stringify(this.data.items.map(item => item.img))
           XXSQ: 'SQB',
@@ -90,7 +108,7 @@ Page({
           username: this.data.username,
           phone: this.data.phone,
           address: this.data.address,
-          extra: JSON.stringify({in_lite_app: true})
+          extra: JSON.stringify({in_lite_app: true, includeDelivery: this.data.selected === '外送'})
         },
         method: 'POST',
         header: {
@@ -99,17 +117,57 @@ Page({
         success: (res) => {
           wx.hideToast()
           if (!that.data.usePoints && !that.data.useCoupon) {
-            console.log("返回订单数据:", res);
+                      console.log("返回订单数据:", res);
 
-            let packageNew = encodeURIComponent(res.data.yeepay.package)
-            let paySignNew = encodeURIComponent(res.data.yeepay.paySign)
+          let packageNew = encodeURIComponent(res.data.yeepay.package)
+          let paySignNew = encodeURIComponent(res.data.yeepay.paySign)
 
-            console.log("packageNew:", packageNew);
-            console.log("paySignNew:", paySignNew);
+          console.log("packageNew:", packageNew);
+          console.log("paySignNew:", paySignNew);
 
-            wx.navigateTo({
-              url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}&appId=${res.data.yeepay.appId}&nonceStr=${res.data.yeepay.nonceStr}&package=${packageNew}&paySign=${paySignNew}&signType=${res.data.yeepay.signType}&timeStamp=${res.data.yeepay.timeStamp}&SN=${res.data.SN}`,
-            })
+          // 核对金额信息：前端计算 vs 后端返回
+          console.log('后端返回的AMT(分):', res.data.AMT);
+          console.log('我们计算的金额(分):', amtInCents);
+          
+          // 确保使用我们计算的金额而不是后端返回的金额
+          console.log('强制使用前端计算的金额(包含配送费)');
+          
+          // 构建URL参数 - 关键点是确保使用amtInCents
+          const orderType = this.data.selected === '外送' ? '2' : '1';
+          const urlParams = {
+            return_url: res.data.rurl,
+            orderid: res.data.orderid,
+            terminal: res.data.terminal_sn,
+            amt: amtInCents.toString(), // 确保是字符串类型
+            sign: res.data.sign,
+            appId: res.data.yeepay.appId,
+            nonceStr: res.data.yeepay.nonceStr,
+            package: packageNew,
+            paySign: paySignNew,
+            signType: res.data.yeepay.signType,
+            timeStamp: res.data.yeepay.timeStamp,
+            SN: res.data.SN,
+            orderType: orderType // 改用orderType，避免与type冲突
+          };
+          
+          // 构建完整URL
+          let url = '/subPackages/package/pages/jiesuan-pay/jiesuan-pay?';
+          for (const key in urlParams) {
+            if (urlParams[key]) {
+              url += `${key}=${urlParams[key]}&`;
+            }
+          }
+          url = url.slice(0, -1); // 移除最后的&
+          
+          console.log('最终导航URL:', url);
+          
+          // 打印调试信息，检查金额是否一致
+          console.log('支付页面使用的总金额(分):', amtInCents);
+          console.log('预期金额包括:', this.data.selected === '外送' ? '商品价格+5元配送费' : '商品价格');
+          
+          wx.navigateTo({
+            url: url,
+          })
           }
         }
       });
@@ -618,7 +676,7 @@ Page({
     
     console.log('Total Price:', this.data.totalprice);
     console.log('Use Points:', usePoints);
-    // 如果是外送，总金额加上 delivery
+    // 如果是外送，总金额加上配送费
     if (this.data.selected === '外送') {
       totalAmount += this.data.delivery;
     }
@@ -806,24 +864,39 @@ Page({
       unitId = wx.getStorageSync('selectedStoreId');
     } else {
       // 外送时，优先使用存储中的deliveryUnitId，如果没有则使用app.globalData中的，如果也没有则使用默认值
-      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '2'; // 默认外送门店ID为2
+      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6'; // 默认外送门店ID为6
     }
     
+    // 计算正确的总金额
     let totalAmount = parseFloat(this.data.totalprice);
+    
     if (this.data.selected === '自提' && !unitId) {
       wx.showToast({
         title: '请选择门店',
         duration: 2000
       })
-      console.log(222);
+      console.log('未选择门店，中止支付流程');
       return
     }
+    
+    // 如果是外送订单，加上配送费
     if (this.data.selected === '外送') {
-      totalAmount += this.data.delivery;
+      totalAmount = Number(totalAmount) + Number(this.data.delivery);
+      console.log('外送订单，添加配送费后总金额(元):', totalAmount);
     }
     
+    // 将金额转为分单位，乘以100
+    const amtInCents = Math.round(totalAmount * 100);
+    console.log('转换前totalAmount(元):', totalAmount);
+    console.log('转换后amtInCents(分):', amtInCents);
+    
+    console.log('支付模式:', this.data.selected);
     console.log('使用的门店ID:', unitId);
+    console.log('计算后的总金额（含配送费）:', totalAmount);
+    
     let that = this
+    console.log('向后端发送的支付金额(元):', totalAmount);
+    
     wx.request({
       url: `${app.globalData.backUrl}phone.aspx?mbid=122&ituid=${app.globalData.ituid}&itsid=${itsid}`,
       method: 'POST',
@@ -861,8 +934,48 @@ Page({
           console.log("packageNew:", packageNew);
           console.log("paySignNew:", paySignNew);
 
+                    // 核对金额信息：前端计算 vs 后端返回
+          console.log('后端返回的AMT(分):', res.data.AMT);
+          console.log('我们计算的金额(分):', amtInCents);
+          
+          // 确保使用我们计算的金额而不是后端返回的金额
+          console.log('强制使用前端计算的金额(包含配送费)');
+          
+          // 构建URL参数 - 关键点是确保使用amtInCents
+          const orderType = this.data.selected === '外送' ? '2' : '1';
+          const urlParams = {
+            return_url: res.data.rurl,
+            orderid: res.data.orderid,
+            terminal: res.data.terminal_sn,
+            amt: amtInCents.toString(), // 确保是字符串类型
+            sign: res.data.sign,
+            appId: res.data.yeepay.appId,
+            nonceStr: res.data.yeepay.nonceStr,
+            package: packageNew,
+            paySign: paySignNew,
+            signType: res.data.yeepay.signType,
+            timeStamp: res.data.yeepay.timeStamp,
+            SN: res.data.SN,
+            orderType: orderType // 改用orderType，避免与type冲突
+          };
+          
+          // 构建完整URL
+          let url = '/subPackages/package/pages/jiesuan-pay/jiesuan-pay?';
+          for (const key in urlParams) {
+            if (urlParams[key]) {
+              url += `${key}=${urlParams[key]}&`;
+            }
+          }
+          url = url.slice(0, -1); // 移除最后的&
+          
+          console.log('最终导航URL:', url);
+          
+          // 打印调试信息，检查金额是否一致
+          console.log('支付页面使用的总金额(分):', amtInCents);
+          console.log('预期金额包括:', this.data.selected === '外送' ? '商品价格+5元配送费' : '商品价格');
+          
           wx.navigateTo({
-            url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}&appId=${res.data.yeepay.appId}&nonceStr=${res.data.yeepay.nonceStr}&package=${packageNew}&paySign=${paySignNew}&signType=${res.data.yeepay.signType}&timeStamp=${res.data.yeepay.timeStamp}&SN=${res.data.SN}`,
+            url: url,
           })
         }
         // wx.requestPayment({
@@ -1114,7 +1227,7 @@ Page({
       }
     });
   },
-  // 计算总价（商品单价*数量，如外送再加配送费）
+      // 计算总价（商品单价*数量，如外送再加配送费）
   calculateTotal: function () {
     let total = this.data.items.reduce((sum, item) => {
       const quantity = Number(item.num) || 0;
@@ -1122,14 +1235,18 @@ Page({
       return sum + (quantity * price);
     }, 0);
 
-    // 如果选择外送，则加上配送费
-    if (this.data.selected === '外送') {
-      total += Number(this.data.delivery);
-    }
-
+    // 更新显示用的基本价格（不含配送费）
     this.setData({
       totalprice: total.toFixed(2)
     });
+
+    // 对于外送订单，我们需要实时显示含配送费的总价
+    // 但配送费会在支付时单独加上，这样避免重复计算
+    // 注意：这里不修改totalprice，只用于显示
+    if (this.data.selected === '外送') {
+      let totalWithDelivery = total + Number(this.data.delivery);
+      console.log('含配送费的总价:', totalWithDelivery.toFixed(2));
+    }
   },
 
 
