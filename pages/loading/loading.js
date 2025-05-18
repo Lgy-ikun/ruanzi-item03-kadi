@@ -215,16 +215,56 @@ Page({
     console.log('跳转执行...');
 
     if (wx.getStorageSync('itsid')) {
-      wx.setStorageSync('isLoginSuccess', true);
-      wx.switchTab({
-        url: '/pages/home/home',
-      });
+      // 获取用户信息以及注册类型
+      this.fetchData10603(wx.getStorageSync('itsid'));
     } else {
       wx.setStorageSync('isLoginSuccess', false);
       wx.switchTab({
         url: '/pages/home/home',
       });
     }
+  },
+
+  /**
+ * 获取10603接口数据
+ */
+  fetchData10603: function (itsid, invite) {
+    const that = this;
+
+    const AUrl = app.globalData.AUrl;
+    wx.request({
+      url: `${AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+      method: 'GET',
+      success: (res) => {
+        console.log("10603success:", res);
+
+        if (res.statusCode === 200 && res.data) {
+          wx.switchTab({
+            url: '/pages/home/home',
+          });
+
+          let usertitle = res.data.usertitle
+          let UserNameCn = res.data.UserNameCn//用户名
+          let usertype = res.data.usertype//注册类型
+          if (usertype == '0') {
+            wx.setStorageSync('isLoginSuccess', false);
+          } else {
+            wx.setStorageSync('isLoginSuccess', true);
+          }
+          wx.setStorageSync('userid', res.data.userid);
+
+          // 存储注册类型
+          app.globalData.usertype = usertype
+          wx.switchTab({
+            url: '/pages/home/home',
+          });
+        }
+      },
+      fail: (error) => {
+        console.error('10603获取数据失败', error);
+        wx.setStorageSync('isLoginSuccess', false);
+      }
+    });
   },
 
   passCountDown() {

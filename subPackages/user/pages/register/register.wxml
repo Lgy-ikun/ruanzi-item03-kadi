@@ -62,14 +62,17 @@
       <text>》</text>
     </view>
     <button wx:if="{{agreed}}" id="getPhoneBtn" class="phone-btn" open-type="getPhoneNumber" bindgetphonenumber="getPhoneNumber">
-      手机号快捷注册登录
+      手机号安全登录
     </button>
     <button wx:else class="phone-btn" bind:tap="handleGetPhone">
-      手机号快捷注册登录
+      手机号安全登录
+    </button>
+    <button data-agreed="{{agreed}}" data-registerType="2" class="openidLogin" bind:tap="openidLogin">
+      微信一键登录
     </button>
 
-    <!-- <text class="rejectGetPhone" bind:tap="rejectGetPhone">不同意就返回</text> -->
-    <button class="rejectGetPhone" bind:tap="rejectGetPhone">放弃权益，暂不注册</button>
+    <view wx:if="{{from=='diandan'}}" style="color: rgb(0, 102, 255);font-weight: bold;margin-top: 10px;" data-agreed="{{agreed}}" data-registerType="0" bind:tap="openidLogin">免登录下单</view>
+    <button wx:else class="rejectGetPhone" bind:tap="rejectGetPhone">放弃权益，暂不注册</button>
 
     <!-- <button wx:if="{{agreed}}" id="getUserBtn" class="user-btn" open-type="getUserInfo" bindgetuserinfo="getUserNumber">
       账号注册登录

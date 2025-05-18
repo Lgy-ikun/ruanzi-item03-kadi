@@ -344,7 +344,7 @@ Page({
   handleNavigate: function () {
     if (!wx.getStorageSync('isLoginSuccess')) {
       wx.navigateTo({
-        url: '/subPackages/user/pages/register/register',
+        url: '/subPackages/user/pages/register/register?from=home',
       })
       return
     }
@@ -382,7 +382,7 @@ Page({
   handleNavigate2() {
     if (!wx.getStorageSync('isLoginSuccess')) {
       wx.navigateTo({
-        url: '/subPackages/user/pages/register/register',
+        url: '/subPackages/user/pages/register/register?from=home',
       })
       return
     }
@@ -393,7 +393,7 @@ Page({
   handleNavigate3() {
     if (!wx.getStorageSync('isLoginSuccess')) {
       wx.navigateTo({
-        url: '/subPackages/user/pages/register/register',
+        url: '/subPackages/user/pages/register/register?from=home',
       })
       return
     }
@@ -426,7 +426,7 @@ Page({
 
   gotoLogin() {
     wx.navigateTo({
-      url: `/subPackages/user/pages/register/register`,
+      url: `/subPackages/user/pages/register/register?from=home`,
     })
   },
 

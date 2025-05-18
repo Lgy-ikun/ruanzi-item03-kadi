@@ -53,45 +53,49 @@
   text-decoration: underline;
 }
 
-.kd-imgCon{
-  display:flex;    /*设置为flex布局*/
-  justify-content: center; /*水平居中*/
+.kd-imgCon {
+  display: flex;
+  /*设置为flex布局*/
+  justify-content: center;
+  /*水平居中*/
   margin-top: -10px;
   margin-bottom: 30px;
- }
+}
 
- .kd-imgCon image { 
-   width:200rpx;
-   height:130rpx;
-  }
+.kd-imgCon image {
+  width: 200rpx;
+  height: 130rpx;
+}
 
-  .kd-head{
-    display: flex;
-    margin-bottom: 150rpx;
-    justify-content: center;
-    align-items: center;
-    font-size: 22px;
-    font-weight: bold;
-  }
+.kd-head {
+  display: flex;
+  margin-bottom: 150rpx;
+  justify-content: center;
+  align-items: center;
+  font-size: 22px;
+  font-weight: bold;
+}
 
-  .kd-textarea{
-    display:flex;    /*设置为flex布局*/
-    justify-content: center; /*水平居中*/
-    width: 490rpx;
-    padding-left: 65px;
-    padding-right: 70px;
-    margin-bottom: 90px;
-    flex-direction: column;
-   }
+.kd-textarea {
+  display: flex;
+  /*设置为flex布局*/
+  justify-content: center;
+  /*水平居中*/
+  width: 490rpx;
+  padding-left: 65px;
+  padding-right: 70px;
+  margin-bottom: 90px;
+  flex-direction: column;
+}
 
-  .kd-text{
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 13px;
-    line-height: 25px;
-    white-space: pre-line;
-  }
+.kd-text {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 13px;
+  line-height: 25px;
+  white-space: pre-line;
+}
 
 /* 手机注册样式 */
 .phone-register {
@@ -132,7 +136,16 @@
   text-decoration: underline;
   display: inline-block;
 } */
+
 .rejectGetPhone {
+  width: 88%;
+  background: rgb(205, 174, 242);
+  color: white;
+  border-radius: 50rpx;
+  margin-top: 10px;
+}
+
+.openidLogin {
   width: 88%;
   background: rgb(205, 174, 242);
   color: white;
@@ -236,5 +249,5 @@
   color: rgb(205, 174, 242);
   text-decoration: underline;
   white-space: normal;
-  word-wrap: break-word; 
+  word-wrap: break-word;
 }

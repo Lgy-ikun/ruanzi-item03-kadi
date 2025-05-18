@@ -151,9 +151,9 @@ Page({
       isFavorited: isFavorited
     });
 
-          wx.request({
-        // url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10638&itcid=10638&keyvalue=${dishId}&itsid=${itsid}`,
-        url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10638&itcid=10638&userid=${userid}&keyvalue=${dishId}`,
+    wx.request({
+      // url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10638&itcid=10638&keyvalue=${dishId}&itsid=${itsid}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10638&itcid=10638&userid=${userid}&keyvalue=${dishId}`,
       method: 'GET',
       success: (res) => {
         const {
@@ -617,24 +617,24 @@ Page({
     if (!userid) {
       // 保存当前商品参数，用于登录后回跳
       const currentPage = getCurrentPages();
-      const currentRoute = currentPage[currentPage.length-1].route;
+      const currentRoute = currentPage[currentPage.length - 1].route;
       const options = {
         dishId: this.data.dishId,
         index1: this.data.index1,
         index2: this.data.index2,
         action: 'addToCart' // 标记用户操作为加入购物车
       };
-      
+
       // 将参数编码为URL参数
       const urlParams = Object.keys(options).map(key => `${key}=${options[key]}`).join('&');
-      
+
       // 跳转到登录页面，并传递回调参数
       wx.navigateTo({
-        url: `/subPackages/user/pages/register/register?callback=/${currentRoute}&${urlParams}`
+        url: `/subPackages/user/pages/register/register?from=diandan&callback=/${currentRoute}&${urlParams}`
       });
       return;
     }
-    
+
     const skuCode = this.data.targetSkuCode;
     const {
       selectedSpecs,
@@ -645,7 +645,7 @@ Page({
     const displaySettings = specList.map(spec =>
       `${spec.name}:${selectedSpecs[spec.name]}`
     ).join('; ');
-    
+
     const tempCategories = this.data.categories;
     const currentQuantity = Number(this.data.quantity);
     // 获取当前选中的商品对象
@@ -711,40 +711,40 @@ Page({
 
     return true;
   },
-  
+
   // 立即购买功能
-  goToJiesuanNow: function() {
+  goToJiesuanNow: function () {
     // 检查用户是否已登录
     const userid = wx.getStorageSync('userid');
     if (!userid) {
       // 保存当前商品参数，用于登录后回跳
       const currentPage = getCurrentPages();
-      const currentRoute = currentPage[currentPage.length-1].route;
+      const currentRoute = currentPage[currentPage.length - 1].route;
       const options = {
         dishId: this.data.dishId,
         index1: this.data.index1,
         index2: this.data.index2,
         action: 'buyNow' // 标记用户操作为立即购买
       };
-      
+
       // 将参数编码为URL参数
       const urlParams = Object.keys(options).map(key => `${key}=${options[key]}`).join('&');
-      
+
       // 跳转到登录页面，并传递回调参数
       wx.navigateTo({
-        url: `/subPackages/user/pages/register/register?callback=/${currentRoute}&${urlParams}`
+        url: `/subPackages/user/pages/register/register?from=diandan&callback=/${currentRoute}&${urlParams}`
       });
       return;
     }
-    
+
     const skuCode = this.data.targetSkuCode;
-    const {selectedSpecs, specList} = this.data;
-    
+    const { selectedSpecs, specList } = this.data;
+
     // 生成规格描述（根据接口返回的规格顺序）
     const displaySettings = specList.map(spec =>
       `${spec.name}:${selectedSpecs[spec.name]}`
     ).join('; ');
-    
+
     // 创建一个专门用于立即购买的商品对象
     const currentItem = {
       id: this.data.dishId,
@@ -755,19 +755,19 @@ Page({
       skuCode: skuCode,
       add: displaySettings,
       num: this.data.quantity,  // 当前选择的数量
-      specs: {...selectedSpecs}, // 添加完整规格对象
+      specs: { ...selectedSpecs }, // 添加完整规格对象
       ask: displaySettings
     };
-    
+
     // 保存到本地缓存，用于结算页面读取
     wx.setStorageSync('buyNowItems', [currentItem]);
-    
+
     // 跳转到立即购买结算页面
     wx.navigateTo({
       url: '/subPackages/package/pages/jiesuan-now/jiesuan-now'
     });
   },
-  
+
   onShow: function () {
     // 确保每次页面显示时，都从缓存中获取最新的数据
     const categories = wx.getStorageSync('categories') || [];

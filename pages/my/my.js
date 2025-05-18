@@ -52,7 +52,7 @@ Page({
   handleNavigate() {
     if (!wx.getStorageSync('itsid')) {
       wx.navigateTo({
-        url: '/subPackages/user/pages/register/register',
+        url: '/subPackages/user/pages/register/register?from=my',
       })
       return
     }
@@ -63,7 +63,7 @@ Page({
   handleNavigate2() {
     if (!wx.getStorageSync('itsid')) {
       wx.navigateTo({
-        url: '/subPackages/user/pages/register/register',
+        url: '/subPackages/user/pages/register/register?from=my',
       })
       return
     }
@@ -74,7 +74,7 @@ Page({
   handleNavigate3() {
     if (!wx.getStorageSync('itsid')) {
       wx.navigateTo({
-        url: '/subPackages/user/pages/register/register',
+        url: '/subPackages/user/pages/register/register?from=my',
       })
       return
     }
@@ -85,7 +85,7 @@ Page({
   handleNavigate4() {
     if (!wx.getStorageSync('itsid')) {
       wx.navigateTo({
-        url: '/subPackages/user/pages/register/register',
+        url: '/subPackages/user/pages/register/register?from=my',
       })
       return
     }
@@ -97,7 +97,7 @@ Page({
   handleNavigate5() {
     if (!wx.getStorageSync('itsid')) {
       wx.navigateTo({
-        url: '/subPackages/user/pages/register/register',
+        url: '/subPackages/user/pages/register/register?from=my',
       })
       return
     }
@@ -113,7 +113,7 @@ Page({
   },
   avatar() {
     wx.navigateTo({
-      url: '/subPackages/user/pages/register/register',
+      url: '/subPackages/user/pages/register/register?from=my',
     })
   },
   calendar() {

@@ -676,7 +676,14 @@ Page({
    */
   onLoad(options) {
     let that = this; // 确保定义了 that
-    
+
+    if (options.from) {
+      console.log("options.from:", options.from);
+      that.setData({
+        from: options.from
+      })
+    }
+
     // 保存回调信息，用于登录成功后跳转回商品详情页
     if (options?.callback) {
       this.setData({
@@ -687,7 +694,7 @@ Page({
         action: options.action
       });
     }
-    
+
     if (options?.regway) {
       this.setData({
         RegWay: options.regway
@@ -892,7 +899,8 @@ Page({
                 data: {
                   openid: res.data.openid,
                   phone: res.data.phone_info,
-                  invite: that.data.userid2
+                  invite: that.data.userid2,
+                  type: 1,//注册类型
                 },
                 success: (registerRes) => {
                   // 注册成功，获取用户信息
@@ -917,7 +925,7 @@ Page({
                             wx.setStorageSync('inviteUserid', that.data.userid2); // 存储到缓存，键名为invite
                             wx.setStorageSync('itsid', itsid);
                             wx.setStorageSync('userid', userid);
-                            
+
                             // 检查是否有回调页面，有则跳回之前的商品页面
                             if (that.data.callback && that.data.dishId) {
                               const params = {
@@ -932,9 +940,9 @@ Page({
                               });
                             } else {
                               // 无回调页面，正常跳转首页
-                            wx.switchTab({
-                              url: '/pages/home/home'
-                            });
+                              wx.switchTab({
+                                url: '/pages/home/home'
+                              });
                             }
                           } else {
                             wx.showToast({
@@ -999,6 +1007,143 @@ Page({
         icon: 'none'
       });
       wx.hideToast();
+    }
+  },
+
+  // 微信号登录、免登录
+  openidLogin(e) {
+    let that = this;
+    console.log("e:", e);
+
+    let agreed = e.currentTarget.dataset.agreed
+    let registerType = e.currentTarget.dataset.registertype
+    console.log("registerType:", registerType);
+    console.log("是否登录：", agreed);
+    // 同意协议
+    if (agreed) {
+      wx.login({
+        success: (res) => {
+          if (res.code) {
+            wx.request({
+              url: `${app.globalData.backUrl}phone.aspx?ituid=${app.globalData.ituid}&mbid=120&code=${res.code}`,
+              success(result) {
+                console.log(result)
+                // 发送注册请求
+                wx.request({
+                  url: `${app.globalData.backUrl}phone.aspx?mbid=10620&ituid=106`,
+                  method: 'POST',
+                  data: {
+                    openid: result.data.value.openid,
+                    phone: '',
+                    invite: that.data.userid2,
+                    type: registerType
+                  },
+                  success: (res) => {
+                    console.log("注册成功返回：", res);
+                    // 注册成功，获取用户信息
+                    wx.login({
+                      success: (newLoginRes) => {
+                        wx.request({
+                          url: `${app.globalData.backUrl}phone.aspx?mbid=129&ituid=106`,
+                          data: {
+                            code: newLoginRes.code
+                          },
+                          success: (userInfoRes) => {
+                            // 确保数据解析正确
+                            if (userInfoRes.data && userInfoRes.data.value) {
+                              const {
+                                itsid,
+                                userid
+                              } = userInfoRes.data.value;
+                              // 更新全局变量
+                              app.globalData.itsid = itsid;
+                              app.globalData.userid = userid;
+                              if (registerType == 0) {
+                                wx.setStorageSync('isLoginSuccess', false);
+                              } else {
+                                wx.setStorageSync('isLoginSuccess', true);
+                              }
+
+                              wx.setStorageSync('inviteUserid', that.data.userid2); // 存储到缓存，键名为invite
+                              wx.setStorageSync('itsid', itsid);
+                              wx.setStorageSync('userid', userid);
+
+                              // 检查是否有回调页面，有则跳回之前的商品页面
+                              if (that.data.callback && that.data.dishId) {
+                                const params = {
+                                  dishId: that.data.dishId,
+                                  index1: that.data.index1 || 0,
+                                  index2: that.data.index2 || 0
+                                };
+                                const urlParams = Object.keys(params).map(key => `${key}=${params[key]}`).join('&');
+                                // 跳转回商品详情页
+                                wx.redirectTo({
+                                  url: `${that.data.callback}?${urlParams}`
+                                });
+                              } else {
+                                // 无回调页面，正常跳转首页
+                                wx.switchTab({
+                                  url: '/pages/home/home'
+                                });
+                              }
+                            } else {
+                              wx.showToast({
+                                title: '获取用户信息失败',
+                                icon: 'none'
+                              });
+                            }
+                            wx.hideToast();
+                          },
+                          fail: (err) => {
+                            console.error('获取用户信息失败:', err);
+                            wx.showToast({
+                              title: '获取信息失败',
+                              icon: 'none'
+                            });
+                            wx.hideToast();
+                          }
+                        });
+                      },
+                      fail: (err) => {
+                        console.error('重新登录失败:', err);
+                        wx.showToast({
+                          title: '登录失败',
+                          icon: 'none'
+                        });
+                        wx.hideToast();
+                      }
+                    });
+                  },
+                  fail: (err) => {
+                    console.error('注册请求失败:', err);
+                    wx.showToast({
+                      title: '注册失败',
+                      icon: 'none'
+                    });
+                    wx.hideToast();
+                  }
+                });
+              }
+            })
+          }
+        },
+        fail: (err) => {
+          console.error('获取登录code失败:', err);
+          wx.showToast({
+            title: '登录失败',
+            icon: 'none'
+          });
+          wx.hideToast();
+        }
+      });
+
+    }
+    // 不同意协议
+    else {
+      wx.showToast({
+        title: '请先同意协议',
+        icon: 'none'
+      });
     }
   },
 

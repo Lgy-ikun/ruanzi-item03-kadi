@@ -23,6 +23,7 @@ Component({
       if (wx.getPrivacySetting) {
         wx.getPrivacySetting({
           success: res => {
+            console.log("getPrivacySetting:", res);
             console.log("是否需要授权：", res.needAuthorization, "隐私协议的名称为：", res.privacyContractName)
             if (res.needAuthorization) {
               this.popUp()
