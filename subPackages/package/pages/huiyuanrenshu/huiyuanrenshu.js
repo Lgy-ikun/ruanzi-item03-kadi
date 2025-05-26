@@ -20,9 +20,15 @@ Page({
       success(res) {
         if (res.statusCode === 200 && res.data && res.data.code === "1" && res.data.msg === "操作成功") {
           const processedMembers = res.data.result.list.map(member => {
+            // 电话号正则表达式
+            const regex = /^1[3-9]\d{9}$/;
             let maskedUsername = '';
-            if (member.usernameen && member.usernameen.length >= 11) {
+
+            // if (member.usernameen && member.usernameen.length >= 11) {
+            if (member.usernameen && regex.test(member.usernameen)) {
               maskedUsername = member.usernameen.substring(0, 3) + '****' + member.usernameen.substring(7);
+            } else {
+              maskedUsername = member.usernameen
             }
             return {
               ...member,
