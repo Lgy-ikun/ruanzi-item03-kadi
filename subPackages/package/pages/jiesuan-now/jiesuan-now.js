@@ -684,7 +684,7 @@ Page({
             UNITID: unitId, // 修改：无论自提还是外送都传递unitId
             NUM: num,//商品数量
             USERID: '0',
-            NOTE: this.data.selected === '外送' ? '积分支付-立即购买-外送' : '积分支付-立即购买-自提',
+            NOTE: this.data.selected === '外送' ? '积分支付-立即购买-外送' : '积分支付-立即购买-自提', //注释
             SCORE: requiredPoints,
             // 在integralTotal字段中传递包含配送费的总金额，便于后台记录
             integralTotal: totalAmount.toFixed(2),
@@ -826,7 +826,7 @@ Page({
           USERID: '0',
           NOTE: '立即购买现金',
           ASK: item.ask, // 添加规格数据
-          AMT: totalAmount,
+          AMT: totalAmount, //金额
           XXSQ: 'SQB',
           RURL: '/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult',
           type: this.data.selected === '自提' ? 1 : 2,

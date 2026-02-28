@@ -1,7 +1,7 @@
 const app = getApp();
 Page({
   data: {
-    name: '未登录', // 用户名
+    name: '未登录', // 用户
     leixing: '用户', //用户类型
     agent: '',//代理级别
     content: '', // 我的消费券

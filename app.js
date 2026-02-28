@@ -35,10 +35,10 @@ App({
   },
   globalData: {
     userInfo: null,
-    backUrl: 'https://www.caldicoffee.com/jy/go/',
-    globalUrl: 'https://www.caldicoffee.com/jy/wxuser/106',
-    tupianUrl: 'https://www.caldicoffee.com/jy/wxuser/106/images',
-    AUrl: "https://www.caldicoffee.com",
+    backUrl: 'https://www.ruanzi.net/jy/go/',
+    globalUrl: 'https://www.ruanzi.net/jy/wxuser/106',
+    tupianUrl: 'https://www.ruanzi.net/jy/wxuser/106/images',
+    AUrl: "https://www.ruanzi.net",
     ituid: 106,
     userid: null, // 用于存储用户ID
     userid2: null,

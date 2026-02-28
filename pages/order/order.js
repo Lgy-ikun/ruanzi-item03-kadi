@@ -19,6 +19,7 @@ Page({
     showCartPopup: false, // 控制弹窗显示
     cartItems: [], // 弹窗内购物车数据，与 updataArray 同步
   },
+  
   // 按 id 分组并累加数量
   groupItemsByQuantity: function (updataArray) {
     return updataArray.reduce((acc, item) => {
