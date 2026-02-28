@@ -10,7 +10,7 @@
   <view class="dishItem" wx:for="{{searchResults}}" wx:key="id">
     <view class="item-container">
       <view class="left">
-        <image class="result-image" src="https://www.ruanzi.net/jy/wxUserImg/106/{{item.image}}" />
+          <image class="result-image" src="{{AUrl}}/jy/wxUserImg/106/{{item.image}}" />
       </view>
       <view class="right">
         <view class="name">{{item.name}}</view>

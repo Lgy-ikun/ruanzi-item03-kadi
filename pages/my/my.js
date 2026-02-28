@@ -1,55 +1,116 @@
 const app = getApp();
 Page({
   data: {
-    name: '未登录', // 用户
-    leixing: '用户', //用户类型
-    agent: '',//代理级别
-    content: '', // 我的消费券
-    score: '', // 可用积分
-    freeze: '', // 冻结积分
-    money: '', // 余额
-    cupsDrank: 0, // 已喝咖啡的杯数
-    totalCups: 100, // 总杯数，可以根据实际情况调整
-    progress: 0, // 进度条的进度，从0到100
-    tupianUrl: app.globalData.tupianUrl,
-    AUrl: app.globalData.AUrl,
-    avatar: '${AUrl}/jy/wxuser/106/images/info/beiload.png/mylogo1.jpg',
-    dai: '',
-    yi: '',
-    inviteCode: ''
-  },
-  onclik: function () {
-    wx.navigateTo({
-      url: '/subPackages/package/pages/keyongjifen/keyongjifen',
-    })
-  },
-  onxiaofeiquan: function () {
-    wx.navigateTo({
-      url: '/subPackages/package/pages/xiaofeiquan/xiaofeiquan',
-    })
-  },
-  charge() {
-    wx.navigateTo({
-      url: '/subPackages/package/pages/yishifang/yishifang',
-    })
-  },
-  charge1() {
-    wx.navigateTo({
-      url: '/subPackages/package/pages/daishifang/daishifang',
-    })
-  },
-  // 页面加载完成后，初始化进度条
-  onReady: function () {
-    this.updateProgress();
-  },
-  updateProgress: function () {
-    let progress = (this.data.cupsDrank / this.data.totalCups) * 100;
-    this.setData({
-      progress: progress
-    });
+    // 核心数据（和图片匹配）
+    name: 'YUAN_170',
+    avatar: '', // 头像地址
+    money: 480.00, // 个人余额
+    coffeeCoupon: 4977.96, // 咖啡券
+    depositCard: 0.00, // 储值卡
+    electronicCoupon: 0.00, // 电子券
+    AUrl: app.globalData.AUrl
   },
 
-  handleNavigate() {
+  // 右上角二维码点击事件
+  gotoQrcode() {
+    wx.showToast({
+      title: '二维码功能暂未实现',
+      icon: 'none'
+    })
+    // 后续补充二维码逻辑：
+    // wx.navigateTo({
+    //   url: '/subPackages/package/pages/qrcode/qrcode',
+    // })
+  },
+
+  // 卡狄D套餐详情
+  gotocardDetail() {
+    // 先判断是否登录（和其他功能保持一致逻辑）
+    if (!wx.getStorageSync('itsid')) {
+      wx.navigateTo({
+        url: '/subPackages/user/pages/register/register?from=cardDetail',
+      })
+      return
+    }
+    // 跳转到套餐列表页面
+    wx.navigateTo({
+      url: '/subPackages/package/pages/cardList/cardList',
+    })
+  },
+
+  // 电商订单
+  gotoEcommerceOrder() {
+    wx.showToast({
+      title: '暂未实现',
+      icon: 'none'
+    })
+  },
+
+  // 口味定制
+  gotoTasteCustom() {
+    wx.showToast({
+      title: '暂未实现',
+      icon: 'none'
+    })
+  },
+
+  // 公告
+  gotoNotice() {
+    wx.showToast({
+      title: '暂未实现',
+      icon: 'none'
+    })
+  },
+
+  // 领券中心
+  gotoCouponCenter() {
+    wx.showToast({
+      title: '暂未实现',
+      icon: 'none'
+    })
+  },
+
+  // 我的优惠券
+  gotoMyCoupon() {
+    wx.navigateTo({
+      url: '/subPackages/package/pages/kaquan/kaquan',
+    })
+  },
+
+  // 收货地址
+  gotoAddress() {
+    wx.showToast({
+      title: '暂未实现',
+      icon: 'none'
+    })
+  },
+
+  // 我的收藏
+  gotoCollection() {
+    wx.showToast({
+      title: '暂未实现',
+      icon: 'none'
+    })
+  },
+
+  // 会员订单
+  gotoMemberOrder() {
+    wx.showToast({
+      title: '暂未实现',
+      icon: 'none'
+    })
+  },
+
+  // 微股东门店
+  gotoShareholderStore() {
+    wx.showToast({
+      title: '暂未实现',
+      icon: 'none'
+    })
+  },
+
+  // 子账户
+  gotoSubAccount() {
     if (!wx.getStorageSync('itsid')) {
       wx.navigateTo({
         url: '/subPackages/user/pages/register/register?from=my',
@@ -60,18 +121,17 @@ Page({
       url: '/subPackages/package/pages/qiehuan/qiehuan',
     })
   },
-  handleNavigate2() {
-    if (!wx.getStorageSync('itsid')) {
-      wx.navigateTo({
-        url: '/subPackages/user/pages/register/register?from=my',
-      })
-      return
-    }
-    wx.navigateTo({
-      url: '/subPackages/package/pages/putong/putong',
+
+  // 我的好友
+  gotoMyFriend() {
+    wx.showToast({
+      title: '暂未实现',
+      icon: 'none'
     })
   },
-  handleNavigate3() {
+
+  // 发票管理
+  gotoInvoice() {
     if (!wx.getStorageSync('itsid')) {
       wx.navigateTo({
         url: '/subPackages/user/pages/register/register?from=my',
@@ -82,7 +142,9 @@ Page({
       url: '/subPackages/package/pages/fapiao/fapiao',
     })
   },
-  handleNavigate4() {
+
+  // 邀请码
+  gotoInviteCode() {
     if (!wx.getStorageSync('itsid')) {
       wx.navigateTo({
         url: '/subPackages/user/pages/register/register?from=my',
@@ -90,212 +152,55 @@ Page({
       return
     }
     wx.navigateTo({
-      url: '/subPackages/package/pages/chongzhijilu/chongzhijilu',
+      url: '/subPackages/package/pages/putong/putong',
     })
   },
-  // 代理奖励跳转
-  handleNavigate5() {
-    if (!wx.getStorageSync('itsid')) {
-      wx.navigateTo({
-        url: '/subPackages/user/pages/register/register?from=my',
-      })
-      return
-    }
-    wx.navigateTo({
-      url: '/subPackages/package/pages/agentRewards/agentRewards',
+
+  // 设置
+  gotoSetting() {
+    wx.showToast({
+      title: '暂未实现',
+      icon: 'none'
     })
   },
+
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-
-  },
-  avatar() {
-    wx.navigateTo({
-      url: '/subPackages/user/pages/register/register?from=my',
-    })
-  },
-  calendar() {
-    wx.navigateTo({
-      url: '/subPackages/package/pages/calendarCard/calendarCard',
-    })
-  },
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-
-  },
-  onLoad: function () {
+    // 如需从接口获取数据，保留以下逻辑（无需则删除）
     const itsid = wx.getStorageSync('itsid');
     if (itsid) {
-      this.fetchData(itsid);
-    } else {
-      console.error('itsid 未定义或获取失败');
-      // 处理 itsid 未定义的情况，例如提示用户或跳转到登录页面
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none',
-        duration: 3000
-      });
-      // wx.navigateTo({
-      //   url: '/subPackages/user/pages/login/login',
-      // });
+      this.fetchUserData(itsid);
     }
   },
-  fetchData: function (itsid) {
+
+  // 从接口获取用户数据（如需则保留，无需则删除）
+  fetchUserData(itsid) {
     const that = this;
-    const AUrl = app.globalData.AUrl;
-    const userid = wx.getStorageSync('userid');
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`, // 注意：这里需要确保 URL 是合法的
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
       method: 'GET',
       success: (res) => {
         if (res.statusCode === 200 && res.data) {
-          app.globalData.userid = res.data.userid;
-          app.globalData.score = res.data.score; // 将 score 存储到全局变量中
-          app.globalData.contente = res.data.content;
           that.setData({
-            name: res.data.name || '未登录',
-            leixing: res.data.leixing || '用户',
-            agent: res.data.agent || '',
-            // leixing: '股东',
-            content: res.data.content || '0',
-            freeze: res.data.freeze || '0',
-            money: res.data.money || '0',
-            score: res.data.score || '0',
-            avatar: `${app.globalData.AUrl}/jy/wxuser/106/images/singeravatar/` + res.data.avatar,
-            userid: res.data.userid
+            name: res.data.name || 'YUAN_170',
+            money: res.data.money || 480.00,
+            coffeeCoupon: res.data.score || 4977.96,
+            avatar: `${app.globalData.AUrl}/jy/wxuser/106/images/singeravatar/` + (res.data.avatar || '')
           });
-          // app.globalData.userid = res.data.userid;
-          // wx.setStorageSync('userid', res.data.userid)
         }
-      },
-      fail: (error) => {
-        console.error('获取数据失败', error);
-        wx.showToast({
-          title: '获取数据失败，请检查网络或联系管理员',
-          icon: 'none'
-        });
-      }
-    });
-    wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10634&userid=${userid}`,
-      method: 'GET',
-      success: function (res) {
-        console.log('接口返回数据:', res.data); // 调试信息
-        if (res.statusCode === 200) {
-          if (res.data && res.data.code === "1" && res.data.result && res.data.result.list && res.data.result.list.length > 0) {
-            // // 处理数据，确保没有小数点
-            // const dai = Math.floor(parseFloat(res.data.result.list[0].dai || '0'));
-            // const yi = Math.floor(parseFloat(res.data.result.list[0].yi || '0'));
-
-            const dai = (res.data.result.list[0].dai || '0');
-            const yi = (res.data.result.list[0].yi || '0');
-
-            that.setData({
-              dai: dai.toString(), // 转换为字符串
-              yi: yi.toString() // 转换为字符串
-            });
-          } else {
-            console.error('数据格式错误或为空', res.data);
-            that.setData({
-              dai: '0',
-              yi: '0'
-            });
-            // wx.showToast({
-            //   title: '数据错误',
-            //   icon: 'none'
-            // });
-          }
-        } else {
-          console.error('请求失败，状态码:', res.statusCode);
-          // wx.showToast({
-          //   title: '加载失败',
-          //   icon: 'none'
-          // });
-        }
-      },
-      fail: function (error) {
-        console.error('请求失败', error);
-        // wx.showToast({
-        //   title: '网络错误',
-        //   icon: 'none'
-        // });
-      }
-    });
-    // 获取 inviteCode
-    wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10637&userid=${userid}`,
-      method: "GET",
-      success: function (res) {
-        console.log('inviteCode 接口返回数据:', res.data);
-        if (res.statusCode === 200 && res.data && res.data.result && res.data.result.list && res.data.result.list.length > 0) {
-          const inviteCode = res.data.result.list[0].invite;
-          that.setData({
-            inviteCode: inviteCode
-          });
-        } else {
-          console.error('获取 inviteCode 失败', res);
-        }
-      },
-      fail: function (error) {
-        console.error('获取 inviteCode 请求失败', error);
       }
     });
   },
+
   /**
    * 生命周期函数--监听页面显示
    */
   onShow() {
     const itsid = wx.getStorageSync('itsid');
     if (itsid) {
-      this.fetchData(itsid); // 调用 fetchData 获取数据
+      this.fetchUserData(itsid);
     }
-    // const tabBar = this.getTabBar();
-    // if (typeof this.getTabBar().setData === 'function' && this.getTabBar()) {
-    //   tabBar.setData({
-    //     active: 3 //这里的active的值根据你的routerList 顺序一致
-    //   })
-    // }
-    // this.setData({
-    //   avatar: wx.getStorageSync('avatar')
-    // })
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
   }
 })

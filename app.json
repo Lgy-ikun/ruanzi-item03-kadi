@@ -111,7 +111,8 @@
         "pages/orderDetail/orderDetail",
         "pages/web-view/web-view",
         "pages/jiesuan-now/jiesuan-now",
-        "pages/agentRewards/agentRewards"
+        "pages/agentRewards/agentRewards",
+        "pages/cardList/cardList"
       ]
     }
   ],
