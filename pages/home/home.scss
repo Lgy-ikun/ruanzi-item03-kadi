@@ -444,48 +444,173 @@
 //   }
 // }
 
-// 新版-图片展示区
-.story-new {
-  position: absolute;
-  top: 1520rpx;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 95%;
-  height: 1380rpx;
-  // height: 100%;
-  // margin-bottom: 100rpx;
-  box-shadow: 0 0 8px rgba(233, 229, 229, 0.2);
-  background-color: white;
+ 
+
+.home-actions {
+  display: flex;
+  flex-direction: column;
+  height: 805rpx;
+  gap: 20rpx;
+  background-color: #F6F1FF;
+}
+.home-actions .box {
+  background-color: #fff;
   border-radius: 20rpx;
-
-  .item {
-    margin: 40rpx;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-
-    .img {
-      width: 640rpx;
-      height: 320rpx;
-    }
-
-    .txt {
-      display: flex;
-      align-items: center;
-      width: 640rpx;
-      height: 90rpx;
-      box-shadow: 0 0 8px rgba(0, 0, 0, 0.2);
-
-      text {
-        margin-left: 30rpx;
-        font-size: 26rpx;
-        color: gray;
-      }
-    }
-  }
+  box-shadow: 0 0 8rpx rgba(233, 229, 229, 0.2);
+  padding: 30rpx 24rpx;
+}
+.home-actions .box-top {
+  height: 340rpx;
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  top: -70rpx;
+  z-index: 2;
+}
+.home-actions .box-top .action {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  background-color: #FAF7FF;
+  border-radius: 16rpx;
+  padding: 30rpx 24rpx;
+  transition: transform 0.12s ease, opacity 0.12s ease, background-color 0.12s ease;
+}
+.home-actions .box-top .action .icon {
+  width: 114rpx;
+  height: 114rpx;
+  margin-right: 16rpx;
+}
+.home-actions .box-top .action .icon image {
+  width: 100%;
+  height: 100%;
+}
+.home-actions .box-top .action .texts .title {
+  font-size: 32rpx;
+  margin-bottom: 12rpx;
+}
+.home-actions .box-top .action .texts .desc {
+  font-size: 26rpx;
+  color: gray;
+}
+.home-actions .box-top .login-banner {
+  width: 86%;
+  margin: 0 auto 15rpx;
+  display: flex;
+  align-items: center;
+  height: 80rpx;
+  border-radius: 40rpx;
+  padding: 0 20rpx;
+  background: linear-gradient(90deg, #CDAEF2, #B78AEF);
+  color: #fff;
+}
+.home-actions .box-top .login-banner .login-icon {
+  width: 50rpx;
+  height: 50rpx;
+  border-radius: 50%;
+  margin-right: 16rpx;
+}
+.home-actions .box-top .login-banner .login-text {
+  font-size: 26rpx;
+}
+.home-actions .box-top .login-banner.logged {
+  background: linear-gradient(90deg, #E7DAFA, #D9C8F7);
+  color: #574266;
+}
+.home-actions .box-bottom {
+  display: flex;
+  gap: 15rpx;
+  height: 350rpx;
+  margin-top: -80rpx;
+}
+.home-actions .box-bottom .tile {
+  background-color: #f7f7f7;
+  border-radius: 16rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30rpx 24rpx;
+  transition: transform 0.12s ease, opacity 0.12s ease, background-color 0.12s ease;
+}
+.home-actions .box-bottom .order-full {
+  flex: 1;
+  height: 100%;
+}
+.home-actions .box-bottom .right-stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15rpx;
+}
+.home-actions .box-bottom .right-stack .tile {
+  flex: 1;
+}
+.home-actions .box-bottom .tile .tile-icon {
+  width: 120rpx;
+  height: 90rpx;
+  margin-bottom: 16rpx;
+}
+.home-actions .box-bottom .tile .tile-icon image {
+  width: 100%;
+  height: 100%;
+}
+.home-actions .box-bottom .tile .tile-icon .placeholder {
+  width: 100%;
+  height: 100%;
+  background-color: #eaeaea;
+  border-radius: 12rpx;
+}
+.home-actions .box-bottom .tile .txt {
+  font-size: 28rpx;
 }
 
+.pressed {
+  transform: scale(0.96);
+  opacity: 0.75;
+  background-color: #f0f0f0;
+}
+.pressed .texts .title,
+.pressed .texts .desc,
+.pressed .txt {
+  color: #9a9a9a;
+}
+.pressed .icon image,
+.pressed .tile-icon image {
+  opacity: 0.8;
+}
 
+/* Overrides to remove spacing and white background */
+.home-actions .box {
+  background-color: #F6F1FF;
+  padding: 0;
+}
+.home-actions .box-top {
+  justify-content: flex-start;
+  gap: 0;
+  flex-wrap: wrap;
+}
+.home-actions .box-top .action {
+  width: 50%;
+  margin: 0;
+}
+.home-actions .box-top .top-actions {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+.home-actions .box-bottom {
+  gap: 15rpx;
+  align-items: stretch;
+}
+.home-actions .box-bottom .right-stack {
+  gap: 15rpx;
+}
+
+.pressed-parent {
+  transform: scale(0.99);
+  transition: transform 0.12s ease;
+}
 // 占位盒子
 // .useless {
 //   position: absolute;

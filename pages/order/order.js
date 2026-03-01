@@ -119,9 +119,15 @@ Page({
       });
       return;
     }
-    if (this.data.storeName === '') {
+    const itsid = wx.getStorageSync('itsid');
+    if (!itsid) {
+      wx.showToast({ title: '请先登录', icon: 'none' });
+      wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=order' });
+      return;
+    }
+    if (this.data.selected === '自提' && (!unitId || this.data.storeName === '')) {
       wx.showToast({
-        title: '请选择门店',
+        title: '请选择自提门店',
         icon: 'none',
         duration: 2000
       });
@@ -136,6 +142,8 @@ Page({
           wx.request({
             url: `${backUrl}phone.aspx?mbid=10627&ituid=${app.globalData.ituid}&itsid=${wx.getStorageSync('itsid')}`,
             method: "POST",
+            success(r1){ console.log('创建订单(10627)返回：', r1?.data); },
+            fail(err){ console.error('创建订单(10627)失败', err); }
           })
 
           // 遍历购物车中的商品并发送到接口
@@ -152,6 +160,7 @@ Page({
                   img: item.image || '' // 商品图片
                 },
                 success(res) {
+                  console.log('添加商品(10604)返回：', res?.data);
                   resolve(res);
                 },
                 fail(err) {
@@ -166,12 +175,17 @@ Page({
           })
         }
         else {
+          console.error('门店营业检查(10639)失败：', res?.data);
           wx.showToast({
             title: res.data.desc,
             icon: 'error',
             mask: true
           })
         }
+      }
+      ,fail(err){
+        console.error('调用10639失败', err);
+        wx.showToast({ title: '门店状态接口失败', icon: 'none' });
       }
     })
 
@@ -182,6 +196,12 @@ Page({
     const AUrl = app.globalData.AUrl;
     this.fetchCategories();
     this.checkLocationPermission();
+    if (options.selected) {
+      this.setData({
+        selected: decodeURIComponent(options.selected)
+      });
+      app.globalData.selected = decodeURIComponent(options.selected);
+    }
     if (options.address) {
       this.setData({
         address: decodeURIComponent(options.address),

@@ -1,8 +1,8 @@
 <view class="order-confirm">
   <view class="pickup-delivery-group">
-    <navigator url="/subPackages/package/pages/ziti/ziti?type=order" class="pickup-button {{selected === '自提' ? 'active' : ''}}" bindtap="selectOption" data-option="自提">
+    <view class="pickup-button {{selected === '自提' ? 'active' : ''}}" bindtap="selectOption" data-option="自提">
       <text>自提</text>
-    </navigator>
+    </view>
     <navigator url="/subPackages/package/pages/chooseLocation/chooseLocation?type=order" class="delivery-button {{selected === '外送' ? 'active' : ''}}" bindtap="selectOption" data-option="外送">
       <text>外送</text>
     </navigator>
@@ -15,7 +15,10 @@
   </navigator>
   <view class="ad">
     <view class="store-section" style="position: relative;top: 20rpx; left: -10rpx; font-size: 30rpx;" wx:if="{{selected === '自提'}}">
-      <text>门店：{{storeName}}</text>
+      <text>门店：{{storeName || '未选择'}}</text>
+      <navigator url="/subPackages/package/pages/ziti/ziti?type=order" class="choose-store" style="margin-left: 20rpx; color: #7f7f7f;">
+        选择门店
+      </navigator>
     </view>
     <view class="address-section" wx:else>
       <text class="a" style="font-size: 28rpx; position: relative;top: 5rpx; left: -10rpx;">{{address}}</text>
