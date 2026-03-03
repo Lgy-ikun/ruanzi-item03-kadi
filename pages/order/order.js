@@ -119,10 +119,22 @@ Page({
       });
       return;
     }
+    const rawLogin = wx.getStorageSync('isLoginSuccess');
     const itsid = wx.getStorageSync('itsid');
-    if (!itsid) {
-      wx.showToast({ title: '请先登录', icon: 'none' });
-      wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=order' });
+    const userid = wx.getStorageSync('userid');
+    const isLogin = rawLogin === true || rawLogin === 'true' || rawLogin === 1 || rawLogin === '1' || !!itsid || !!userid;
+    if (!isLogin) {
+      wx.showModal({
+        title: '提示',
+        content: '亲，你还未登录，是否立即登录？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success(res){
+          if (res.confirm){
+            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=order' });
+          }
+        }
+      });
       return;
     }
     if (this.data.selected === '自提' && (!unitId || this.data.storeName === '')) {

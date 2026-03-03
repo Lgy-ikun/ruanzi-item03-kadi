@@ -35,29 +35,48 @@ Page({
     orderType: 1, // 订单类型：1=自提，2=外送，默认自提
     basePrice: 0, // 商品基础价格（不含配送费）
     finalDeliveryFee: 0, // 最终配送费
+    // 新增UI/逻辑状态
+    payMethod: 'wechat', // wechat | balance | coffee | deposit
+    funds: { balance: 0, coffee: 0, deposit: 0 },
+    balanceDisabled: true,
+    coffeeDisabled: true,
+    depositDisabled: true,
+    selectedCouponText: '',
+    dineType: 'dine_in'
   },
 
   // 启动支付流程
   initiatePayment() {
-    this.setData({
-      isShow: false
-    })
-    wx.showToast({
-      title: '加载中',
-      icon: 'loading',
-      mask: true
-    })
-    console.log('点击付款，当前支付方式：', {
-      useCoupon: this.data.useCoupon,
-      usePoints: this.data.usePoints
-    });
-
-    if (this.data.useCoupon || this.data.usePoints) {
-      this.showCodeDialog();
-    } else {
-      // 现金支付无需验证交易码
+    const method = this.data.payMethod || 'wechat';
+    if (method === 'wechat') {
       this.cashPayment();
+      return;
+    }
+    if (method === 'balance') {
+      if (this.data.balanceDisabled) {
+        wx.showToast({ title: '余额不足抵扣', icon: 'none' });
+        return;
       }
+      wx.showToast({ title: '余额支付暂未对接', icon: 'none' });
+      return;
+    }
+    if (method === 'coffee') {
+      if (this.data.coffeeDisabled) {
+        wx.showToast({ title: '咖啡券不足抵扣', icon: 'none' });
+        return;
+      }
+      this.setData({ usePoints: true, useCoupon: false });
+      this.showCodeDialog();
+      return;
+    }
+    if (method === 'deposit') {
+      if (this.data.depositDisabled) {
+        wx.showToast({ title: '储值卡不足抵扣', icon: 'none' });
+        return;
+      }
+      wx.showToast({ title: '储值卡支付暂未对接', icon: 'none' });
+      return;
+    }
   },
 
   // 显示交易码弹窗
@@ -236,6 +255,11 @@ Page({
     this.setData({
       remark: e.detail.value
     });
+  },
+  // 设置取餐方式（自提内）
+  setDineType(e) {
+    const type = e.currentTarget.dataset.type;
+    this.setData({ dineType: type, selected: '自提' });
   },
 
   // 卡券选择处理
@@ -428,6 +452,8 @@ Page({
 
     // 获取用户信息 - 包括自提门店、送货地址等
     this.loadUserInfo();
+    // 预取资金余额
+    this.prefetchFunds && this.prefetchFunds();
   },
 
   // 加载用户信息 - 需要实现
@@ -459,7 +485,19 @@ Page({
       // 获取用户积分
       this.getUserScore();
     });
+      // 应用选中的优惠券
+      const picked = wx.getStorageSync('selectedCoupon');
+      if (picked && picked.cardid) {
+        this.setData({
+          cardid: picked.cardid,
+          selectedCouponText: `${picked.cardName} - ¥${picked.atm}`,
+          couponAvailable: true,
+          useCoupon: true
+        });
+        wx.removeStorageSync('selectedCoupon');
+      }
   },
+
 
   // 获取用户积分
   getUserScore() {
@@ -956,6 +994,54 @@ Page({
           icon: 'none'
         });
       }
+    });
+  }
+  ,
+  // 预取资金余额（余额/咖啡券/储值卡）
+  prefetchFunds() {
+    const itsid = wx.getStorageSync('itsid');
+    wx.request({
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+      method: 'GET',
+      success: (res) => {
+        const balance = Number(res.data.money || 0);
+        const coffee = Number(res.data.score || 0);
+        const deposit = Number(res.data.chuhzika || 0);
+        const total = Number(this.data.totalPrice || 0);
+        this.setData({
+          funds: { balance, coffee, deposit },
+          balanceDisabled: !(balance >= total),
+          coffeeDisabled: !(coffee >= Math.ceil(total * 1.6) || coffee >= total),
+          depositDisabled: !(deposit >= total),
+          selectedCouponText: this.data.couponAvailable ? '已选择优惠券' : ''
+        });
+      }
+    });
+  },
+  // 选择支付方式
+  choosePayMethod(e) {
+    const val = e.detail.value;
+    this.setData({ payMethod: val });
+  },
+  guardBalancePay() {
+    if (this.data.balanceDisabled) {
+      wx.showToast({ title: '余额不足抵扣', icon: 'none' });
+    }
+  },
+  guardCoffeePay() {
+    if (this.data.coffeeDisabled) {
+      wx.showToast({ title: '咖啡券不足抵扣', icon: 'none' });
+    }
+  },
+  guardDepositPay() {
+    if (this.data.depositDisabled) {
+      wx.showToast({ title: '储值卡不足抵扣', icon: 'none' });
+    }
+  },
+  // 优惠券行点击
+  couponSelect() {
+    wx.navigateTo({
+      url: '/subPackages/package/pages/coupon-select/coupon-select?from=jiesuan-now'
     });
   }
 })

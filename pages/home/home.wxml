@@ -19,7 +19,7 @@
       </view>
       <view class="login-banner logged" wx:else>
         <image class="login-icon" src="{{avatarUrl}}" mode="aspectFill" />
-        <text class="login-text">{{name || '未登录'}}</text>
+        <text class="login-text">{{name || '已登录'}}</text>
       </view>
       <view class="top-actions">
         <view class="action" bindtap="gotoOrderPickUp">

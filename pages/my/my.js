@@ -2,13 +2,41 @@ const app = getApp();
 Page({
   data: {
     // 核心数据（和图片匹配）
-    name: 'YUAN_170',
+    name: '',
     avatar: '', // 头像地址
-    money: 480.00, // 个人余额
-    coffeeCoupon: 4977.96, // 咖啡券
+    money: 0.00, // 个人余额
+    coffeeCoupon: 0.00, // 咖啡券
     depositCard: 0.00, // 储值卡
     electronicCoupon: 0.00, // 电子券
-    AUrl: app.globalData.AUrl
+    AUrl: app.globalData.AUrl,
+    isLogin: false
+  },
+  logoutConfirm() {
+    wx.showModal({
+      title: '提示',
+      content: '确认退出登录？',
+      confirmText: '退出登录',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          try {
+            wx.clearStorageSync();
+          } catch (e) {}
+          getApp().globalData.userid = null;
+          getApp().globalData.itsid = null;
+          this.setData({
+            isLogin: false,
+            name: '',
+            avatar: '',
+            money: 0.00,
+            coffeeCoupon: 0.00,
+            depositCard: 0.00,
+            electronicCoupon: 0.00
+          });
+          wx.switchTab({ url: '/pages/home/home' });
+        }
+      }
+    });
   },
 
   // 右上角二维码点击事件
@@ -25,12 +53,21 @@ Page({
 
   // 卡狄D套餐详情
   gotocardDetail() {
-    // 先判断是否登录（和其他功能保持一致逻辑）
-    if (!wx.getStorageSync('itsid')) {
-      wx.navigateTo({
-        url: '/subPackages/user/pages/register/register?from=cardDetail',
-      })
-      return
+    const raw = wx.getStorageSync('isLoginSuccess');
+    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    if (!isLogin) {
+      wx.showModal({
+        title: '提示',
+        content: '目前暂未登录，是否跳转登录页面？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success(res){
+          if (res.confirm){
+            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=cardDetail' });
+          }
+        }
+      });
+      return;
     }
     // 跳转到套餐列表页面
     wx.navigateTo({
@@ -111,11 +148,21 @@ Page({
 
   // 子账户
   gotoSubAccount() {
-    if (!wx.getStorageSync('itsid')) {
-      wx.navigateTo({
-        url: '/subPackages/user/pages/register/register?from=my',
-      })
-      return
+    const raw = wx.getStorageSync('isLoginSuccess');
+    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    if (!isLogin) {
+      wx.showModal({
+        title: '提示',
+        content: '目前暂未登录，是否跳转登录页面？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success(res){
+          if (res.confirm){
+            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
+          }
+        }
+      });
+      return;
     }
     wx.navigateTo({
       url: '/subPackages/package/pages/qiehuan/qiehuan',
@@ -132,11 +179,21 @@ Page({
 
   // 发票管理
   gotoInvoice() {
-    if (!wx.getStorageSync('itsid')) {
-      wx.navigateTo({
-        url: '/subPackages/user/pages/register/register?from=my',
-      })
-      return
+    const raw = wx.getStorageSync('isLoginSuccess');
+    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    if (!isLogin) {
+      wx.showModal({
+        title: '提示',
+        content: '目前暂未登录，是否跳转登录页面？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success(res){
+          if (res.confirm){
+            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
+          }
+        }
+      });
+      return;
     }
     wx.navigateTo({
       url: '/subPackages/package/pages/fapiao/fapiao',
@@ -145,11 +202,21 @@ Page({
 
   // 邀请码
   gotoInviteCode() {
-    if (!wx.getStorageSync('itsid')) {
-      wx.navigateTo({
-        url: '/subPackages/user/pages/register/register?from=my',
-      })
-      return
+    const raw = wx.getStorageSync('isLoginSuccess');
+    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    if (!isLogin) {
+      wx.showModal({
+        title: '提示',
+        content: '目前暂未登录，是否跳转登录页面？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success(res){
+          if (res.confirm){
+            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
+          }
+        }
+      });
+      return;
     }
     wx.navigateTo({
       url: '/subPackages/package/pages/putong/putong',
@@ -174,6 +241,32 @@ Page({
       this.fetchUserData(itsid);
     }
   },
+  tapLeftWrap() {
+    const raw = wx.getStorageSync('isLoginSuccess');
+    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    if (!isLogin) {
+      wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
+    }
+  },
+  cardLoginPrompt() {
+    const raw = wx.getStorageSync('isLoginSuccess');
+    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    if (!isLogin) {
+      wx.showModal({
+        title: '提示',
+        content: '目前暂未登录，是否跳转登录页面？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success(res){
+          if (res.confirm){
+            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
+          }
+        }
+      });
+      return;
+    }
+    this.gotocardDetail();
+  },
 
   // 从接口获取用户数据（如需则保留，无需则删除）
   fetchUserData(itsid) {
@@ -184,9 +277,11 @@ Page({
       success: (res) => {
         if (res.statusCode === 200 && res.data) {
           that.setData({
-            name: res.data.name || 'YUAN_170',
-            money: res.data.money || 480.00,
-            coffeeCoupon: res.data.score || 4977.96,
+            name: res.data.name || '',
+            money: res.data.money || 0.00,
+            coffeeCoupon: res.data.score || 0.00,
+            depositCard: res.data.chuhzika || 0.00,
+            electronicCoupon: res.data.dianzi || 0.00,
             avatar: `${app.globalData.AUrl}/jy/wxuser/106/images/singeravatar/` + (res.data.avatar || '')
           });
         }
@@ -199,8 +294,13 @@ Page({
    */
   onShow() {
     const itsid = wx.getStorageSync('itsid');
+    //这里页面会闪动到时解决，先判断是否登录，再获取用户数据
     if (itsid) {
       this.fetchUserData(itsid);
     }
+    const raw = wx.getStorageSync('isLoginSuccess');
+    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!itsid || !!wx.getStorageSync('userid');
+    this.setData({ isLogin });
+    
   }
 })

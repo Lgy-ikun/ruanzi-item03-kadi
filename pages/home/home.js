@@ -117,18 +117,22 @@ Page({
       method: 'GET',
       success: (res) => {
         if (res.statusCode === 200 && res.data) {
+          const newName = (res.data.name || '').trim();
+          const newAvatar = res.data.avatar || '';
           that.setData({
             content: res.data.content || '0',
             freeze: res.data.freeze || '0',
             money: res.data.money || '0',
             score: res.data.score || '0',
-            name: res.data.name || '未登录',
+            name: newName || that.data.name || wx.getStorageSync('name') || '',
             userid: res.data.userid || '0',
-            avatarUrl: res.data.avatar || ''
+            avatarUrl: newAvatar || that.data.avatarUrl || wx.getStorageSync('avatar') || ''
           });
           // 存储全局变量
           // app.globalData.userid = res.data.userid;
           wx.setStorageSync('userid', res.data.userid);
+          if (newName) wx.setStorageSync('name', newName);
+          if (newAvatar) wx.setStorageSync('avatar', newAvatar);
           // console.log('用户ID已全局化:', app.globalData.userid);
         }
       },
@@ -261,13 +265,16 @@ Page({
    */
   onShow: function () {
     const itsid = wx.getStorageSync('itsid');
-    if (itsid) {
-      this.fetchData10603(itsid); // 调用10603接口获取数据
-    }
+    const raw = wx.getStorageSync('isLoginSuccess');
+    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!itsid || !!wx.getStorageSync('userid');
     this.setData({
-      avatar: wx.getStorageSync('avatar'),
-      isLoginSuccess: wx.getStorageSync('isLoginSuccess')
+      name: wx.getStorageSync('name') || this.data.name,
+      avatarUrl: wx.getStorageSync('avatar') || this.data.avatarUrl,
+      isLoginSuccess: isLogin
     });
+    if (itsid) {
+      this.fetchData10603(itsid);
+    }
   },
 
   gotoLogin() {

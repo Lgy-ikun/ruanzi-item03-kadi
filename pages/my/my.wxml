@@ -2,11 +2,11 @@
   <!-- 顶部渐变背景栏（含右上角二维码） -->
   <view class="top-bar">
     <!-- 左侧头像+用户信息 -->
-    <view class="left-wrap">
+    <view class="left-wrap" bindtap="tapLeftWrap">
       <image class="avatar" src="{{avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
       <view class="user-info-wrap">
-        <text class="username">{{name || 'YUAN_170'}}</text>
-        <view class="card-tag">卡狄D套餐</view>
+        <text class="username">{{isLogin ? (name || '已登录') : '登录注册'}}</text>
+        <view class="card-tag">{{isLogin ? '卡狄D套餐' : ' '}}</view>
       </view>
     </view>
     <!-- 右上角二维码图标 -->
@@ -14,19 +14,19 @@
   </view>
 
   <!-- 模块1：卡狄D套餐 -->
-  <view class="card-module">
-    <text class="card-title">卡狄D套餐</text>
-    <text class="card-detail" bindtap="gotocardDetail">查看详情></text>
+  <view class="card-module" bindtap="cardLoginPrompt">
+    <text class="card-title">{{isLogin ? '卡狄D套餐' : '请先登录'}}</text>
+    <text class="card-detail">{{isLogin ? '查看详情>' : '点击此处登录'}}</text>
   </view>
 
   <!-- 模块2：资产模块（个人余额/咖啡券/储值卡/电子券 横向排列） -->
   <view class="asset-module">
     <view class="asset-item">
-      <text class="asset-num">{{money || 480.00}}</text>
+      <text class="asset-num">{{money || 0.00}}</text>
       <text class="asset-name">个人余额</text>
     </view>
     <view class="asset-item">
-      <text class="asset-num">{{coffeeCoupon || 4977.96}}</text>
+      <text class="asset-num">{{coffeeCoupon || 0.00}}</text>
       <text class="asset-name">咖啡券</text>
     </view>
     <view class="asset-item">
@@ -106,5 +106,8 @@
     </view>
     <view class="func-item empty"></view>
     <view class="func-item empty"></view>
+    <view class="func-item" bindtap="logoutConfirm">
+      <text class="func-text">退出登录</text>
+    </view>
   </view>
 </view>

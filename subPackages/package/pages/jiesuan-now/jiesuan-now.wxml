@@ -31,37 +31,75 @@
     <view class="delivery-fee" style="position: relative;top: 20rpx;" wx:if="{{selected === '外送'}}">
       <text class="peisong" style="margin-left: 30rpx;">配送费 ¥{{delivery}}</text>
     </view>
-    <view class="total" style="position: relative;top: 30rpx; margin-bottom: 60rpx;">
-      <text class="dai" style="margin-left: 30rpx;">待支付 ¥{{totalPrice}}</text>
+    <view class="coupon-row">
+      <text class="label" style="margin-left: 30rpx;">实付</text>
+      <text class="value" style="margin-right: 30rpx;">¥{{totalPrice}}</text>
     </view>
-    <!-- 消费券支付选项 -->
-    <view class="points-option">
-      <checkbox-group bindchange="checkboxChange">
-        <label class="checkbox-item">
-          <checkbox value="积分支付" checked="{{usePoints}}" />
-          消费券支付
-        </label>
-      </checkbox-group>
+    <!-- 优惠券选择 -->
+    <view class="coupon-row" bindtap="couponSelect">
+      <text class="label" style="margin-left: 30rpx;">优惠券</text>
+      <text class="value" style="margin-right: 30rpx;">{{couponAvailable ? (selectedCouponText || '可用优惠券') : '暂无可用券'}}</text>
     </view>
-
-    <!-- 卡券支付选项 -->
-    <view class="points-option">
-      <checkbox-group bindchange="couponCheckboxChange">
-        <label>
-          <checkbox value="卡券支付" checked="{{useCoupon}}" />使用卡券支付
+    <!-- 支付方式 -->
+    <view class="pay-methods" style="margin-top: 20rpx; background: #fff; border-radius: 16rpx; padding: 20rpx;">
+      <text class="section-title" style="margin-left: 10rpx;">支付方式</text>
+      <radio-group bindchange="choosePayMethod">
+        <label class="pay-item">
+          <view class="pm-left">
+            <view class="pm-icon icon-wechat"></view>
+            <text class="pm-text">微信支付</text>
+          </view>
+          <radio class="pm-radio" value="wechat" checked="{{payMethod==='wechat'}}"></radio>
         </label>
-      </checkbox-group>
-      <view wx:if="{{!couponAvailable}}">
-      </view>
+        <label class="pay-item {{balanceDisabled ? 'disabled' : ''}}" bindtap="guardBalancePay">
+          <view class="pm-left">
+            <view class="pm-icon icon-balance"></view>
+            <text class="pm-text">余额支付</text>
+            <text class="pm-hint">可用 ¥{{funds.balance}}</text>
+          </view>
+          <radio class="pm-radio" value="balance" disabled="{{balanceDisabled}}" checked="{{payMethod==='balance'}}"></radio>
+        </label>
+        <label class="pay-item {{coffeeDisabled ? 'disabled' : ''}}" bindtap="guardCoffeePay">
+          <view class="pm-left">
+            <view class="pm-icon icon-coffee"></view>
+            <text class="pm-text">咖啡券支付</text>
+            <text class="pm-hint">可用 ¥{{funds.coffee}}</text>
+          </view>
+          <radio class="pm-radio" value="coffee" disabled="{{coffeeDisabled}}" checked="{{payMethod==='coffee'}}"></radio>
+        </label>
+        <label class="pay-item {{depositDisabled ? 'disabled' : ''}}" bindtap="guardDepositPay">
+          <view class="pm-left">
+            <view class="pm-icon icon-deposit"></view>
+            <text class="pm-text">储值卡支付</text>
+            <text class="pm-hint">可用 ¥{{funds.deposit}}</text>
+          </view>
+          <radio class="pm-radio" value="deposit" disabled="{{depositDisabled}}" checked="{{payMethod==='deposit'}}"></radio>
+        </label>
+      </radio-group>
     </view>
   </view>
   
   <!-- 支付按钮 -->
   <view class="zhifu">
-    <view wx:if="{{isShow}}" class="pay-button" bindtap="initiatePayment">去支付</view>
-    <view wx:else class="pay-button">去支付</view>
+    <view wx:if="{{isShow}}" class="pay-button" bindtap="initiatePayment">提交订单</view>
+    <view wx:else class="pay-button">提交订单</view>
   </view>
-</view>
+
+  <!-- 取餐方式 -->
+  <view class="section-box pickup-box">
+    <view class="section-title">取餐方式</view>
+    <view class="pickup-options">
+      <view class="pickup-btn {{dineType==='dine_in' ? 'active' : ''}}" bindtap="setDineType" data-type="dine_in">店内用餐</view>
+      <view class="pickup-btn {{dineType==='takeaway' ? 'active' : ''}}" bindtap="setDineType" data-type="takeaway">自提带走</view>
+    </view>
+  </view>
+
+  <!-- 备注 -->
+  <view class="section-box remark-box">
+    <view class="section-title">备注特殊要求</view>
+    <textarea class="remark-textarea" placeholder="请输入备注内容" bindinput="inputRemark" value="{{remark}}"></textarea>
+  </view>
+  </view>
 
 <!-- 交易码弹窗 -->
 <view wx:if="{{showCodeDialog}}" class="code-dialog-mask">

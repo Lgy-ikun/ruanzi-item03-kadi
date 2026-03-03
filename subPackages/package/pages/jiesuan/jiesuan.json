@@ -1,5 +1,4 @@
 {
-  "usingComponents": {
-    "sqb-pay": "plugin://sqb-pay/sqb-pay"
-  }
+  "usingComponents": {},
+  "navigationBarTitleText": "确认订单"
 }

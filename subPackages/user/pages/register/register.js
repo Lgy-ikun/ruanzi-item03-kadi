@@ -164,6 +164,7 @@ Page({
         wx.setStorageSync('userid', res.data.userid)
         app.globalData.itsid = res.data.itsid;
         app.globalData.userid = res.data.userid;
+        console.log('登录成功，其itsid:', res.data.itsid, 'userid:', res.data.userid);
         wx.switchTab({
           url: '/pages/home/home',
         })
@@ -925,6 +926,7 @@ Page({
                             wx.setStorageSync('inviteUserid', that.data.userid2); // 存储到缓存，键名为invite
                             wx.setStorageSync('itsid', itsid);
                             wx.setStorageSync('userid', userid);
+                            console.log('手机号登录成功，其itsid:', itsid, 'userid:', userid);
 
                             // 检查是否有回调页面，有则跳回之前的商品页面
                             if (that.data.callback && that.data.dishId) {
@@ -1067,6 +1069,7 @@ Page({
                               wx.setStorageSync('inviteUserid', that.data.userid2); // 存储到缓存，键名为invite
                               wx.setStorageSync('itsid', itsid);
                               wx.setStorageSync('userid', userid);
+                              console.log('微信号登录成功，其itsid:', itsid, 'userid:', userid);
 
                               // 检查是否有回调页面，有则跳回之前的商品页面
                               if (that.data.callback && that.data.dishId) {

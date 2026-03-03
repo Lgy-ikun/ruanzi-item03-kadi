@@ -27,8 +27,45 @@ Page({
     userScore: 0, // 当前用户积分
     requiredScore: 0, // 本次支付需要积分
     pointsAvailable: false, // 新增：消费券是否可用
+    // 新增：统一支付方式与余额展示
+    payMethod: 'wechat', // wechat | balance | coffee | deposit
+    funds: { balance: 0, coffee: 0, deposit: 0 },
+    balanceDisabled: true,
+    coffeeDisabled: true,
+    depositDisabled: true,
+    selectedCouponText: '',
+    // 新增：取餐方式（自提内部分：店内用餐/自提带走）
+    dineType: 'dine_in' // dine_in | takeaway
   },
   initiatePayment() {
+    const method = this.data.payMethod || 'wechat';
+    if (method !== 'wechat') {
+      if (method === 'balance') {
+        if (this.data.balanceDisabled) {
+          wx.showToast({ title: '余额不足抵扣', icon: 'none' });
+          return;
+        }
+        wx.showToast({ title: '余额支付暂未对接', icon: 'none' });
+        return;
+      }
+      if (method === 'coffee') {
+        if (this.data.coffeeDisabled) {
+          wx.showToast({ title: '咖啡券不足抵扣', icon: 'none' });
+          return;
+        }
+        this.setData({ usePoints: true, useCoupon: false });
+        this.showCodeDialog();
+        return;
+      }
+      if (method === 'deposit') {
+        if (this.data.depositDisabled) {
+          wx.showToast({ title: '储值卡不足抵扣', icon: 'none' });
+          return;
+        }
+        wx.showToast({ title: '储值卡支付暂未对接', icon: 'none' });
+        return;
+      }
+    }
     this.setData({
       isShow: false
     })
@@ -312,7 +349,7 @@ Page({
     }
     this.setData({
       selected: option,
-      address: app.globalData.address
+      address: option === '外送' ? (app.globalData.addressDesc || '') : (app.globalData.storeName || '')
     }, () => {
       // 重新加载商品数据，并计算总价
       this.fetchItems();
@@ -1197,7 +1234,7 @@ Page({
     this.setData({
       isShow: true,
       selected: app.globalData.selected,
-      address: app.globalData.selected === '外送' ? app.globalData.addressDesc : app.globalData.storeName,
+      address: app.globalData.selected === '外送' ? (app.globalData.addressDesc || '') : (app.globalData.storeName || ''),
       phone: app.globalData.phone,
       username: app.globalData.username,
       storeName: app.globalData.selectedStoreName,
@@ -1208,6 +1245,19 @@ Page({
       this.fetchItems();
       // 获取用户积分
       this.getUserScore();
+      // 应用选中的优惠券
+      const picked = wx.getStorageSync('selectedCoupon');
+      if (picked && picked.cardid) {
+        this.setData({
+          cardid: picked.cardid,
+          selectedCouponText: `${picked.cardName} - ¥${picked.atm}`,
+          couponAvailable: true,
+          useCoupon: true
+        });
+        wx.removeStorageSync('selectedCoupon');
+      }
+      // 预取资金余额
+      this.prefetchFunds && this.prefetchFunds();
     });
   },
   // 获取用户积分方法
@@ -1248,6 +1298,15 @@ Page({
       console.log('含配送费的总价:', totalWithDelivery.toFixed(2));
     }
   },
+  // 设置取餐方式（自提内）
+  setDineType(e) {
+    const type = e.currentTarget.dataset.type;
+    this.setData({ dineType: type, selected: '自提' });
+  },
+  // 备注输入处理
+  inputRemark(e) {
+    this.setData({ remark: e.detail.value });
+  },
 
 
   /**
@@ -1283,5 +1342,54 @@ Page({
    */
   onShareAppMessage: function () {
 
+  }
+  ,
+  // 预取资金余额（余额/咖啡券/储值卡）
+  prefetchFunds() {
+    const itsid = wx.getStorageSync('itsid');
+    wx.request({
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+      method: 'GET',
+      success: (res) => {
+        const balance = Number(res.data.money || 0);
+        const coffee = Number(res.data.score || 0);
+        const deposit = Number(res.data.chuhzika || 0);
+        const total = Number(this.data.selected === '外送' ? (this.data.totalprice*1 + this.data.delivery*1) : this.data.totalprice) || 0;
+        this.setData({
+          funds: { balance, coffee, deposit },
+          balanceDisabled: !(balance >= total),
+          coffeeDisabled: !(coffee >= Math.ceil(total * 1.6) || coffee >= total),
+          depositDisabled: !(deposit >= total),
+          selectedCouponText: this.data.couponAvailable ? '已选择优惠券' : '',
+          payMethod: this.data.payMethod || 'wechat'
+        });
+      }
+    });
+  },
+  // 选择支付方式
+  choosePayMethod(e) {
+    const val = e.detail.value;
+    this.setData({ payMethod: val });
+  },
+  guardBalancePay() {
+    if (this.data.balanceDisabled) {
+      wx.showToast({ title: '余额不足抵扣', icon: 'none' });
+    }
+  },
+  guardCoffeePay() {
+    if (this.data.coffeeDisabled) {
+      wx.showToast({ title: '咖啡券不足抵扣', icon: 'none' });
+    }
+  },
+  guardDepositPay() {
+    if (this.data.depositDisabled) {
+      wx.showToast({ title: '储值卡不足抵扣', icon: 'none' });
+    }
+  },
+  // 优惠券行点击
+  couponSelect() {
+    wx.navigateTo({
+      url: '/subPackages/package/pages/coupon-select/coupon-select?from=jiesuan'
+    });
   }
 })

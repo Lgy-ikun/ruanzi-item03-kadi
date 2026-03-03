@@ -18,7 +18,11 @@ Page({
   gotoAddress(e) {
     let id = e.currentTarget.dataset.id;
     if (id) {
-      const i = this.data.list.find(item => item.id === id);
+      const i = (this.data.list || []).find(item => item.id === id);
+      if (!i) {
+        wx.showToast({ title: '未找到地址项', icon: 'none' });
+        return;
+      }
       let isIndex = 0;
       if (this.data.tagIndex === i.id) {
         isIndex = 1;
@@ -96,10 +100,12 @@ Page({
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10606&itcid=10606&itsid=${itsid}`,
       method: 'GET',
       success: function (res) {
-        console.log('Fetched list:', res.data.result.list); // 打印 list 数据
-        that.setData({
-          list: res.data.result.list
-        });
+        const result = res && res.data && res.data.result;
+        const list = result && Array.isArray(result.list) ? result.list : [];
+        that.setData({ list });
+        if (!list.length) {
+          wx.showToast({ title: '暂无地址，请添加', icon: 'none' });
+        }
       },
       fail: function (error) {
         console.error('获取数据失败', error);

@@ -1,0 +1,11 @@
+page { background: #f6f7fb; }
+.container { padding-bottom: 120rpx; }
+.list { background: #fff; margin: 20rpx; border-radius: 16rpx; box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.04); }
+.coupon-item { display:flex; align-items:center; justify-content:space-between; padding: 20rpx; border-bottom: 1rpx solid #f0f0f0; }
+.coupon-item:last-child { border-bottom: none; }
+.info { display:flex; flex-direction:column; }
+.title { color:#333; font-size: 30rpx; }
+.sub { color:#999; font-size: 24rpx; margin-top: 8rpx; }
+.radio { margin-left:auto; }
+.footer { position: fixed; left:0; right:0; bottom:0; padding: 20rpx; background: linear-gradient(180deg, rgba(246,247,251,0) 0%, rgba(246,247,251,1) 60%); }
+.btn { width:90%; margin:0 auto; height: 88rpx; line-height:88rpx; text-align:center; color:#fff; border-radius:44rpx; background: linear-gradient(90deg, #5e4ddb, #8b6cff); }

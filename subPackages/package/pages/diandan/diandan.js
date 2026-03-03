@@ -612,9 +612,11 @@ Page({
 
   // 加入购物车
   goBackOrder() {
-    // 检查用户是否已登录
-    const userid = wx.getStorageSync('userid');
-    if (!userid) {
+    console.log('当前itsid:', wx.getStorageSync('itsid'), 'userid:', wx.getStorageSync('userid'));
+    // 检查用户是否已登录（兼容多种存储形态）
+    const raw = wx.getStorageSync('isLoginSuccess');
+    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    if (!isLogin) {
       // 保存当前商品参数，用于登录后回跳
       const currentPage = getCurrentPages();
       const currentRoute = currentPage[currentPage.length - 1].route;
@@ -714,25 +716,32 @@ Page({
 
   // 立即购买功能
   goToJiesuanNow: function () {
-    // 检查用户是否已登录
-    const userid = wx.getStorageSync('userid');
-    if (!userid) {
-      // 保存当前商品参数，用于登录后回跳
+    console.log('当前itsid:', wx.getStorageSync('itsid'), 'userid:', wx.getStorageSync('userid'));
+    // 检查用户是否已登录（兼容多种存储形态）
+    const raw = wx.getStorageSync('isLoginSuccess');
+    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    if (!isLogin) {
       const currentPage = getCurrentPages();
       const currentRoute = currentPage[currentPage.length - 1].route;
       const options = {
         dishId: this.data.dishId,
         index1: this.data.index1,
         index2: this.data.index2,
-        action: 'buyNow' // 标记用户操作为立即购买
+        action: 'buyNow'
       };
-
-      // 将参数编码为URL参数
       const urlParams = Object.keys(options).map(key => `${key}=${options[key]}`).join('&');
-
-      // 跳转到登录页面，并传递回调参数
-      wx.navigateTo({
-        url: `/subPackages/user/pages/register/register?from=diandan&callback=/${currentRoute}&${urlParams}`
+      wx.showModal({
+        title: '提示',
+        content: '亲，你还未登录，是否立即登录？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success: (res) => {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: `/subPackages/user/pages/register/register?from=diandan&callback=/${currentRoute}&${urlParams}`
+            });
+          }
+        }
       });
       return;
     }
