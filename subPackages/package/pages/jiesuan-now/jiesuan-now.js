@@ -37,6 +37,7 @@ Page({
     finalDeliveryFee: 0, // 最终配送费
     // 新增UI/逻辑状态
     payMethod: 'wechat', // wechat | balance | coffee | deposit
+    pendingPayMethod: '',
     funds: { balance: 0, coffee: 0, deposit: 0 },
     balanceDisabled: true,
     coffeeDisabled: true,
@@ -48,35 +49,25 @@ Page({
   // 启动支付流程
   initiatePayment() {
     const method = this.data.payMethod || 'wechat';
+    const payable = Number(this.data.payableAmount || this.data.totalPrice || 0);
     if (method === 'wechat') {
       this.cashPayment();
       return;
     }
-    if (method === 'balance') {
-      if (this.data.balanceDisabled) {
-        wx.showToast({ title: '余额不足抵扣', icon: 'none' });
-        return;
-      }
-      wx.showToast({ title: '余额支付暂未对接', icon: 'none' });
+    if (method === 'balance' && Number(this.data.funds.balance || 0) < payable) {
+      wx.showToast({ title: '余额不足抵扣', icon: 'none' });
       return;
     }
-    if (method === 'coffee') {
-      if (this.data.coffeeDisabled) {
-        wx.showToast({ title: '咖啡券不足抵扣', icon: 'none' });
-        return;
-      }
-      this.setData({ usePoints: true, useCoupon: false });
-      this.showCodeDialog();
+    if (method === 'coffee' && Number(this.data.funds.coffee || 0) < payable) {
+      wx.showToast({ title: '咖啡券不足抵扣', icon: 'none' });
       return;
     }
-    if (method === 'deposit') {
-      if (this.data.depositDisabled) {
-        wx.showToast({ title: '储值卡不足抵扣', icon: 'none' });
-        return;
-      }
-      wx.showToast({ title: '储值卡支付暂未对接', icon: 'none' });
+    if (method === 'deposit' && Number(this.data.funds.deposit || 0) < payable) {
+      wx.showToast({ title: '储值卡不足抵扣', icon: 'none' });
       return;
     }
+    this.setData({ pendingPayMethod: method });
+    this.showCodeDialog();
   },
 
   // 显示交易码弹窗
@@ -179,12 +170,7 @@ Page({
           title: '交易码验证成功'
         });
         this.closeDialog();
-        // 根据支付方式分别调用对应接口
-        if (this.data.useCoupon) {
-          this.couponPayment();
-        } else if (this.data.usePoints) {
-          this.doPayment(); // 积分支付流程
-        }
+        this.executePayByMethod(this.data.pendingPayMethod || this.data.payMethod);
       } else {
         wx.showToast({
           title: '交易码错误，请重新输入',
@@ -201,6 +187,21 @@ Page({
         icon: 'none'
       });
     }
+  },
+  executePayByMethod(method) {
+    if (method === 'coffee') {
+      this.coffeeWalletPayment();
+      return;
+    }
+    if (method === 'balance') {
+      this.balancePayment();
+      return;
+    }
+    if (method === 'deposit') {
+      this.depositPayment();
+      return;
+    }
+    this.cashPayment();
   },
 
   // 跳转到选择地址页面
@@ -490,11 +491,16 @@ Page({
       if (picked && picked.cardid) {
         this.setData({
           cardid: picked.cardid,
-          selectedCouponText: `${picked.cardName} - ¥${picked.atm}`,
+          selectedCouponText: `[${picked.cardName}] 已减￥${picked.atm}`,
           couponAvailable: true,
-          useCoupon: true
+          useCoupon: true,
+          appliedCouponAmt: Number(picked.atm || 0)
         });
+        this.recomputePayable && this.recomputePayable();
         wx.removeStorageSync('selectedCoupon');
+      }
+      if (!this.data.selectedCouponText) {
+        this.fetchCoupons();
       }
   },
 
@@ -557,6 +563,13 @@ Page({
     
     return total;
   },
+  recomputePayable() {
+    // totalPrice 已在 calculateTotal 中包含了配送费（外送）或不包含（自提）
+    const total = Number(this.data.totalPrice || 0);
+    const couponAmt = Number(this.data.appliedCouponAmt || 0);
+    const payable = Math.max(0, total - couponAmt);
+    this.setData({ payableAmount: payable.toFixed(2) });
+  },
 
   // TODO: 实现获取卡券列表接口
   fetchCoupons() {
@@ -567,23 +580,23 @@ Page({
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=0902&itcid=10619&userid=${userid}`,
       method: 'GET',
       success: (res) => {
-        console.log('原始卡券数据:', res.data.result);
-        if (res.data.result && res.data.result.length > 0) {
-          // 此处默认使用第一个可用卡券
+        const list = (res.data && res.data.result) ? res.data.result : [];
+        // 筛选status==='1'的可用券
+        const usable = list.filter(item => item.status === '1');
+        if (usable.length > 0) {
+          const first = usable[0];
+          const end = (first.endTime || '').replace(/^[^\/]+\//, '');
           that.setData({
-            cardid: res.data.result[0].cardid || res.data.result[0].id,
+            cardid: first.cardid,
+            selectedCouponText: `[${first.cardName}] 已减￥${first.atm}`,
             couponAvailable: true,
-            useCoupon: true
+            useCoupon: true,
+            appliedCouponAmt: Number(first.atm || 0)
           });
+          that.recomputePayable && that.recomputePayable();
         } else {
-          that.setData({
-            couponAvailable: false,
-            useCoupon: false
-          });
-          wx.showToast({
-            title: '当前订单无可用卡券',
-            icon: 'none'
-          });
+          that.setData({ couponAvailable: false, useCoupon: false });
+          wx.showToast({ title: '当前订单无可用卡券', icon: 'none' });
         }
       },
       fail: (err) => {
@@ -594,6 +607,7 @@ Page({
 
   // 处理支付结果
   handlePaymentResult(res, type) {
+    console.log('立即购买钱包支付返回：', type, res && res.data);
     const msg = {
       coupon: {
         success: '卡券支付成功',
@@ -606,10 +620,26 @@ Page({
       cash: {
         success: '支付成功',
         fail: '支付失败'
+      },
+      balance: {
+        success: '余额支付成功',
+        fail: '余额支付失败'
+      },
+      deposit: {
+        success: '储值卡支付成功',
+        fail: '储值卡支付失败'
+      },
+      coffee: {
+        success: '咖啡券支付成功',
+        fail: '咖啡券支付失败'
       }
     }[type];
 
-    if (res.data.code === '1') {
+    const resp = res && res.data ? res.data : {};
+    const hasOrder = !!(resp.orderid || resp.ORDERID || resp.sn || resp.SN || resp.result?.orderid || resp.result?.list?.[0]?.orderid);
+    const success = resp.code === '1' || resp.code === 1 || resp.code === '0' || resp.code === 0 || resp.success === true ||
+      resp.result === '1' || resp.result === 1 || /成功/.test(String(resp.msg || resp.desc || '')) || hasOrder;
+    if (success) {
       // 清除立即购买的缓存数据
       wx.removeStorageSync('buyNowItems');
 
@@ -617,12 +647,12 @@ Page({
         title: msg.success,
         icon: 'success'
       });
-      setTimeout(() => wx.switchTab({
-        url: '/pages/orders/orders'
-      }), 2000);
+      setTimeout(() => wx.navigateTo({
+        url: '/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult'
+      }), 1200);
     } else {
       wx.showToast({
-        title: res.data.msg || msg.fail,
+        title: resp.msg || resp.desc || msg.fail,
         icon: 'none'
       });
     }
@@ -654,6 +684,27 @@ Page({
           duration: 3000
         });
       }
+    });
+  },
+  // 取餐方式选择
+  setDineType(e) {
+    const type = e.currentTarget.dataset.type;
+    this.setData({ dineType: type, selected: '自提' }, () => {
+      this.calculateTotal();
+      this.fetchCoupons();
+      this.recomputePayable && this.recomputePayable();
+    });
+  },
+  // 自提/外送切换
+  selectOption(e) {
+    const option = e.currentTarget.dataset.option;
+    this.setData({
+      selected: option,
+      address: option === '外送' ? (app.globalData.addressDesc || '') : (app.globalData.storeName || '')
+    }, () => {
+      this.calculateTotal();
+      this.fetchCoupons();
+      this.recomputePayable && this.recomputePayable();
     });
   },
 
@@ -995,6 +1046,81 @@ Page({
         });
       }
     });
+  },
+  balancePayment() {
+    this.storedPay('1201', '余额支付成功');
+  },
+  coffeeWalletPayment() {
+    this.storedPay('1203', '咖啡券支付成功');
+  },
+  depositPayment() {
+    this.storedPay('1202', '储值卡支付成功');
+  },
+  storedPay(opid, successText) {
+    const itsid = wx.getStorageSync('itsid');
+    const userid = wx.getStorageSync('userid');
+    const unitId = this.data.selected === '自提'
+      ? (wx.getStorageSync('selectedStoreId') || app.globalData.selectedStoreId)
+      : (wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6');
+    const totalAmount = Number(this.data.payableAmount || this.data.totalPrice || 0);
+    const item = this.data.items[0] || {};
+    const payScore = opid === '1203' ? totalAmount : '';
+    const payload = {
+      MCODE: item.skuCode || '',
+      OPID: opid,
+      UNITID: unitId,
+      NUM: item.num || 1,
+      USERID: userid,
+      NOTE: this.data.selected === '外送' ? `${successText}-外送` : `${successText}-自提`,
+      AMT: opid === '1203' ? 0 : totalAmount,
+      SCORE: payScore,
+      ASK: item.ask,
+      type: this.data.selected === '自提' ? 1 : 2,
+      username: this.data.username,
+      phone: this.data.phone,
+      address: this.data.address
+    };
+    const requestPay = (mbid, retried) => {
+      wx.request({
+        url: `${app.globalData.backUrl}phone.aspx?mbid=${mbid}&ituid=${app.globalData.ituid}&itsid=${itsid}`,
+        method: 'POST',
+        data: payload,
+        header: { 'content-type': 'application/json' },
+        success: (res) => {
+          console.log('支付对账日志', {
+            mbid,
+            OPID: payload.OPID,
+            AMT: payload.AMT,
+            SCORE: payload.SCORE,
+            resp: res && res.data
+          });
+          const resp = res && res.data ? res.data : {};
+          const msgText = String(resp.msg || resp.desc || '');
+          const noMbid = /(无此mbid|mbid参数)/i.test(msgText);
+          if (noMbid && !retried) {
+            requestPay('10644', true);
+            return;
+          }
+          const type = opid === '1201' ? 'balance' : (opid === '1202' ? 'deposit' : 'coffee');
+          this.handlePaymentResult(res, type);
+          const hasOrder = !!(resp.orderid || resp.ORDERID || resp.sn || resp.SN || resp.result?.orderid || resp.result?.list?.[0]?.orderid);
+          const retryButCommitted = /(请重新下单|重复下单|已下单|订单已提交)/.test(msgText);
+          const success = resp.code === '1' || resp.code === 1 || resp.code === '0' || resp.code === 0 || resp.success === true ||
+            resp.result === '1' || resp.result === 1 || /成功/.test(msgText) || hasOrder || retryButCommitted;
+          if (success) {
+            wx.removeStorageSync('buyNowItems');
+          }
+        },
+        fail: () => {
+          if (!retried) {
+            requestPay('10644', true);
+            return;
+          }
+          wx.showToast({ title: '支付失败，请重试', icon: 'none' });
+        }
+      });
+    };
+    requestPay('10643', false);
   }
   ,
   // 预取资金余额（余额/咖啡券/储值卡）
@@ -1006,14 +1132,14 @@ Page({
       success: (res) => {
         const balance = Number(res.data.money || 0);
         const coffee = Number(res.data.score || 0);
-        const deposit = Number(res.data.chuhzika || 0);
-        const total = Number(this.data.totalPrice || 0);
+        const deposit = Number(res.data.chuzhika || res.data.chuhzika || 0);
+        const total = Number(this.data.payableAmount || this.data.totalPrice || 0);
         this.setData({
           funds: { balance, coffee, deposit },
           balanceDisabled: !(balance >= total),
           coffeeDisabled: !(coffee >= Math.ceil(total * 1.6) || coffee >= total),
           depositDisabled: !(deposit >= total),
-          selectedCouponText: this.data.couponAvailable ? '已选择优惠券' : ''
+          // 不覆盖已选择的优惠券文案
         });
       }
     });
@@ -1021,22 +1147,31 @@ Page({
   // 选择支付方式
   choosePayMethod(e) {
     const val = e.detail.value;
-    this.setData({ payMethod: val });
+    this.setData({ payMethod: val, pendingPayMethod: '' });
   },
   guardBalancePay() {
-    if (this.data.balanceDisabled) {
+    const payable = Number(this.data.payableAmount || this.data.totalPrice || 0);
+    if (this.data.balanceDisabled || Number(this.data.funds.balance || 0) < payable) {
       wx.showToast({ title: '余额不足抵扣', icon: 'none' });
+      return;
     }
+    this.setData({ payMethod: 'balance', pendingPayMethod: '' });
   },
   guardCoffeePay() {
-    if (this.data.coffeeDisabled) {
+    const payable = Number(this.data.payableAmount || this.data.totalPrice || 0);
+    if (this.data.coffeeDisabled || Number(this.data.funds.coffee || 0) < payable) {
       wx.showToast({ title: '咖啡券不足抵扣', icon: 'none' });
+      return;
     }
+    this.setData({ payMethod: 'coffee', pendingPayMethod: '' });
   },
   guardDepositPay() {
-    if (this.data.depositDisabled) {
+    const payable = Number(this.data.payableAmount || this.data.totalPrice || 0);
+    if (this.data.depositDisabled || Number(this.data.funds.deposit || 0) < payable) {
       wx.showToast({ title: '储值卡不足抵扣', icon: 'none' });
+      return;
     }
+    this.setData({ payMethod: 'deposit', pendingPayMethod: '' });
   },
   // 优惠券行点击
   couponSelect() {

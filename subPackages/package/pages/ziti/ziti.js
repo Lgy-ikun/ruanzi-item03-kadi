@@ -82,6 +82,11 @@ Page({
         url: '/subPackages/package/pages/jiesuan/jiesuan',
       });
     }
+    if (this.data.type === 'jiesuan-now') {
+      wx.navigateBack({
+        url: '/subPackages/package/pages/jiesuan-now/jiesuan-now',
+      });
+    }
   },
 
 

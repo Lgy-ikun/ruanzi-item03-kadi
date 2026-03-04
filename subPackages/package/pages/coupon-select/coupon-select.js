@@ -11,7 +11,25 @@ Page({
       method: 'GET',
       success: (res) => {
         const list = (res.data && res.data.result) ? res.data.result : [];
-        this.setData({ coupons: list });
+        // 归一化、去重、仅展示可选的券（status==='1'为可用）
+        const seen = new Set();
+        const normalized = list.map(item => {
+          const end = (item.endTime || '').replace(/^[^\/]+\//, '');
+          return {
+            cardid: item.cardid,
+            cardName: item.cardName,
+            atm: Number(item.atm || 0),
+            endTime: end || '长期有效',
+            disabled: item.status !== '1'
+          };
+        }).filter(item => {
+          if (seen.has(item.cardid)) return false;
+          seen.add(item.cardid);
+          return true;
+        });
+        // 默认选中第一个可用
+        const firstUsable = normalized.find(n => !n.disabled);
+        this.setData({ coupons: normalized, selectedId: firstUsable ? firstUsable.cardid : '' });
       }
     });
   },
@@ -19,15 +37,21 @@ Page({
   radioChange(e) {
     this.setData({ selectedId: e.detail.value });
   },
+  selectOne(e) {
+    const id = e.currentTarget.dataset.id;
+    const disabled = e.currentTarget.dataset.disabled;
+    if (disabled) return;
+    this.setData({ selectedId: id });
+  },
   confirm() {
     const { coupons, selectedId } = this.data;
-    const picked = coupons.find(c => (c.cardid || c.id) == selectedId) || coupons[0];
+    const picked = coupons.find(c => c.cardid == selectedId) || coupons.find(c => !c.disabled);
     if (!picked) {
       wx.showToast({ title: '请选择优惠券', icon: 'none' });
       return;
     }
     wx.setStorageSync('selectedCoupon', {
-      cardid: picked.cardid || picked.id,
+      cardid: picked.cardid,
       cardName: picked.cardName,
       atm: picked.atm
     });

@@ -58,6 +58,25 @@ Page({
   formatPrice(price) {
     return parseFloat(price).toFixed(2);
   },
+  toMoney(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : 0;
+  },
+  pickMoneyField(sources, keys) {
+    for (let i = 0; i < sources.length; i++) {
+      const source = sources[i] || {};
+      for (let j = 0; j < keys.length; j++) {
+        const key = keys[j];
+        if (source[key] !== undefined && source[key] !== null && source[key] !== '') {
+          return {
+            found: true,
+            value: this.toMoney(source[key])
+          };
+        }
+      }
+    }
+    return { found: false, value: 0 };
+  },
 
   gotoDetail(e) {
     console.log(e);
@@ -149,8 +168,21 @@ Page({
         
       });
 
-      // 将订单总价格式化为两位小数
-      order.total = this.formatPrice(order.total);
+      const firstItem = validItems[0] || {};
+      const deliveryField = this.pickMoneyField([orderGroup, firstItem], ['delivery', 'deliveryFee', 'peisongfei', 'psf', 'freight', 'yunfei', 'shipFee', 'delivery_amount']);
+      const discountField = this.pickMoneyField([orderGroup, firstItem], ['discount', 'youhui', 'coupon', 'couponAmt', 'coupon_amt', 'yhje', 'cardAmt', 'preferential', 'reduce', 'reduceAmt', 'youhuiAmt', 'appliedCouponAmt']);
+      const paidField = this.pickMoneyField([orderGroup, firstItem], ['payable', 'paid', 'realPay', 'realpay', 'ssamt', 'sfje', 'amt', 'totalPay', 'actualAmount', 'actual_amount']);
+
+      const subtotal = this.toMoney(order.total);
+      const deliveryFee = deliveryField.value;
+      const discountAmt = discountField.value;
+      const paidAmt = paidField.found ? paidField.value : Math.max(0, subtotal + deliveryFee - discountAmt);
+
+      order.subtotal = this.formatPrice(subtotal);
+      order.deliveryFee = this.formatPrice(deliveryFee);
+      order.discountAmt = this.formatPrice(discountAmt);
+      order.paidAmt = this.formatPrice(paidAmt);
+      order.total = order.paidAmt;
 
       ordersMap.set(orderId, order);
     });

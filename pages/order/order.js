@@ -19,7 +19,7 @@ Page({
     showCartPopup: false, // 控制弹窗显示
     cartItems: [], // 弹窗内购物车数据，与 updataArray 同步
   },
-  
+
   // 按 id 分组并累加数量
   groupItemsByQuantity: function (updataArray) {
     return updataArray.reduce((acc, item) => {
@@ -108,8 +108,8 @@ Page({
     // const unitId = this.data.
     const backUrl = app.globalData.backUrl;
 
-    // 筛选出购物车中数量大于 0 的商品
-    const cartItems = updataArray.filter(item => item.num > 0);
+    // 使用与购物车弹窗一致的合并结果，避免结算数量与购物车不一致
+    const cartItems = this.getCartItemsFromUpdataArray(updataArray);
 
     if (cartItems.length === 0) {
       wx.showToast({
@@ -120,21 +120,12 @@ Page({
       return;
     }
     const rawLogin = wx.getStorageSync('isLoginSuccess');
-    const itsid = wx.getStorageSync('itsid');
-    const userid = wx.getStorageSync('userid');
-    const isLogin = rawLogin === true || rawLogin === 'true' || rawLogin === 1 || rawLogin === '1' || !!itsid || !!userid;
+    const itsid = String(wx.getStorageSync('itsid') || '');
+    const userid = String(wx.getStorageSync('userid') || '');
+    const isLogin = (rawLogin === true || rawLogin === 'true' || rawLogin === 1 || rawLogin === '1') &&
+      itsid && itsid !== '0' && userid && userid !== '0';
     if (!isLogin) {
-      wx.showModal({
-        title: '提示',
-        content: '亲，你还未登录，是否立即登录？',
-        confirmText: '立即登录',
-        cancelText: '取消',
-        success(res){
-          if (res.confirm){
-            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=order' });
-          }
-        }
-      });
+      wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=order' });
       return;
     }
     if (this.data.selected === '自提' && (!unitId || this.data.storeName === '')) {
@@ -151,40 +142,67 @@ Page({
       success(res) {
         console.log("是否营业：", res);
         if (res.data.code == '0') {
-          wx.request({
-            url: `${backUrl}phone.aspx?mbid=10627&ituid=${app.globalData.ituid}&itsid=${wx.getStorageSync('itsid')}`,
-            method: "POST",
-            success(r1){ console.log('创建订单(10627)返回：', r1?.data); },
-            fail(err){ console.error('创建订单(10627)失败', err); }
-          })
-
-          // 遍历购物车中的商品并发送到接口
-          const requests = cartItems.map(item => {
-            return new Promise((resolve, reject) => {
-              wx.request({
-                url: `${backUrl}phone.aspx?mbid=10604&ituid=${app.globalData.ituid}&itsid=${wx.getStorageSync('itsid')}`,
-                method: "POST",
-                data: {
-                  MCODE: item.skuCode, // 商品的 SKU 代码
-                  NUM: item.num, // 商品数量
-                  UNITID: unitId, // 门店 ID（如果选择自提）
-                  add: item.add || '', // 地址信息（如果选择外送）
-                  img: item.image || '' // 商品图片
-                },
-                success(res) {
-                  console.log('添加商品(10604)返回：', res?.data);
-                  resolve(res);
-                },
-                fail(err) {
-                  reject(err);
-                }
-              });
+          const validCartItems = cartItems.filter(item => item.skuCode);
+          if (validCartItems.length !== cartItems.length) {
+            wx.showToast({ title: '存在商品规格未就绪，请返回重选后再结算', icon: 'none' });
+            return;
+          }
+          const createOrder = () => new Promise((resolve, reject) => {
+            wx.request({
+              url: `${backUrl}phone.aspx?mbid=10627&ituid=${app.globalData.ituid}&itsid=${wx.getStorageSync('itsid')}`,
+              method: "POST",
+              success(r1) {
+                console.log('创建订单(10627)返回：', r1?.data);
+                resolve(r1);
+              },
+              fail(err) {
+                console.error('创建订单(10627)失败', err);
+                reject(err);
+              }
             });
           });
-          // wx.setStorageSync('updataArray', [])
-          wx.navigateTo({
-            url: '/subPackages/package/pages/jiesuan/jiesuan',
-          })
+
+          const pushItem = (item) => new Promise((resolve, reject) => {
+            wx.request({
+              url: `${backUrl}phone.aspx?mbid=10604&ituid=${app.globalData.ituid}&itsid=${wx.getStorageSync('itsid')}`,
+              method: "POST",
+              data: {
+                MCODE: item.skuCode,
+                NUM: Number(item.num || 0),
+                UNITID: unitId,
+                add: item.add || '',
+                img: item.image || ''
+              },
+              success(resp) {
+                console.log('添加商品(10604)返回：',
+                  '【后台数据】', resp?.data,  // 加“【后台数据】”标注
+                  '【商品编码】', item.skuCode,
+                  '【数量】', item.num);
+                resolve(resp);
+              },
+              fail(err) {
+                reject(err);
+              }
+            });
+          });
+
+          createOrder()
+            .then(() => {
+              let chain = Promise.resolve();
+              validCartItems.forEach(item => {
+                chain = chain.then(() => pushItem(item));
+              });
+              return chain;
+            })
+            .then(() => {
+              wx.navigateTo({
+                url: '/subPackages/package/pages/jiesuan/jiesuan',
+              });
+            })
+            .catch((err) => {
+              console.error('提交结算商品失败', err);
+              wx.showToast({ title: '提交结算商品失败，请重试', icon: 'none' });
+            });
         }
         else {
           console.error('门店营业检查(10639)失败：', res?.data);
@@ -195,7 +213,7 @@ Page({
           })
         }
       }
-      ,fail(err){
+      , fail(err) {
         console.error('调用10639失败', err);
         wx.showToast({ title: '门店状态接口失败', icon: 'none' });
       }
@@ -348,7 +366,7 @@ Page({
       //   url: '/subPackages/user/pages/register/register',
       // })
       //return
-     // wx.setStorageSync('itsid','[WXA]abc');
+      // wx.setStorageSync('itsid','[WXA]abc');
     }
     console.log(e);
     const dishId = e.currentTarget.dataset.dishid;
@@ -393,6 +411,13 @@ Page({
   onReady() { },
 
   onShow: function () {
+    const forceStoreSelect = app.globalData.forceStoreSelectOnOrder === true;
+    if (forceStoreSelect) {
+      app.globalData.forceStoreSelectOnOrder = false;
+      app.globalData.selectedStoreName = '';
+      wx.removeStorageSync('selectedStoreId');
+      wx.removeStorageSync('hasShownRecommendationPopup');
+    }
     const categories = wx.getStorageSync('categories') || [];
     const updataArray = wx.getStorageSync('updataArray') || [];
     this.syncCategoriesFromUpdataArray(updataArray);
@@ -425,7 +450,7 @@ Page({
     this.setData({
       selected: app.globalData.selected,
       address: app.globalData.addressDesc,
-      storeName: app.globalData.selectedStoreName,
+      storeName: app.globalData.selectedStoreName || '',
       totalprice: this.countTotalPrice() // 使用函数计算
     });
   },
@@ -781,12 +806,27 @@ Page({
   },
   // 新增方法：从categories提取购物车数据
   getCartItemsFromUpdataArray: function (updataArray) {
-    return updataArray
-      .filter(item => item.num > 0)
-      .map(item => ({
-        ...item,
-        specs: item.specs || {} // 确保 specs 存在
-      }));
+    const map = new Map();
+    (updataArray || [])
+      .filter(item => Number(item.num) > 0)
+      .forEach(item => {
+        const key = `${item.skuCode ? `sku:${item.skuCode}` : `id:${item.id}`}|${JSON.stringify(item.specs || {})}`;
+        const existing = map.get(key);
+        if (existing) {
+          map.set(key, {
+            ...existing,
+            ...item,
+            num: Number(existing.num || 0) + Number(item.num || 0),
+            specs: item.specs || existing.specs || {}
+          });
+        } else {
+          map.set(key, {
+            ...item,
+            specs: item.specs || {}
+          });
+        }
+      });
+    return Array.from(map.values());
   },
 
   // 关闭弹窗
@@ -843,9 +883,19 @@ Page({
 
   // 同步购物车数据和缓存
   syncCartData: function (updataArray) {
+    // 去重：同 sku + 同规格 只保留一条
+    const deduped = (updataArray || []).reduce((acc, it) => {
+      const key = `${it.skuCode ? `sku:${it.skuCode}` : `id:${it.id}`}|${JSON.stringify(it.specs || {})}`;
+      const prev = acc.map[key];
+      acc.map[key] = prev
+        ? { ...prev, ...it, num: Number(prev.num || 0) + Number(it.num || 0) }
+        : { ...it };
+      return acc;
+    }, { map: {} });
+    const merged = Object.values(deduped.map);
     // 更新缓存
-    wx.setStorageSync('updataArray', updataArray);
-    const sum = updataArray.reduce((sum, item) => sum + (item.num || 0), 0);
+    wx.setStorageSync('updataArray', merged);
+    const sum = merged.reduce((sum, item) => sum + (item.num || 0), 0);
     wx.setStorageSync('sum', sum);
     const total = this.countTotalPrice();
     wx.setStorageSync('total', total);
@@ -855,11 +905,11 @@ Page({
       sum: sum,
       totalprice: total,
       // 重新计算购物车内具体的 item 数组
-      cartItems: this.getCartItemsFromUpdataArray(updataArray)
+      cartItems: this.getCartItemsFromUpdataArray(merged)
     });
 
     // 同步更新分类页面数据
-    this.syncCategoriesFromUpdataArray(updataArray);
+    this.syncCategoriesFromUpdataArray(merged);
   },
 
   // 更新 updataArray

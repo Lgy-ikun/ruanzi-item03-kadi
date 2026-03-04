@@ -22,6 +22,7 @@ Page({
     skuList: [],
     inventory: 0,
     targetSkuCode: '',
+    skuReady: false,
 
 
   },
@@ -41,21 +42,7 @@ Page({
       quantity: newQuantity
     });
 
-    // 同步更新 categories 和 updataArray
-    const categories = this.data.categories;
-    const keyPath = `categories[${index1}].children[${index2}].num`;
-    this.setData({
-      [keyPath]: newQuantity
-    });
-
-    // 更新 updataArray
-    const updataArray = this.updateUpdataArray(categories, index1, index2, newQuantity);
-    wx.setStorageSync('updataArray', updataArray);
-
-    // 更新缓存
-    wx.setStorageSync('categories', categories);
-    wx.setStorageSync('sum', this.countSum());
-    wx.setStorageSync('total', this.countTotalPrice());
+    // 仅更新当前页面选择数量，点击“加入购物车”时再统一入车，避免重复累加
   },
 
   onIncrease: function () {
@@ -73,34 +60,43 @@ Page({
       quantity: newQuantity
     });
 
-    // 同步更新 categories 和 updataArray
-    const categories = this.data.categories;
-    const keyPath = `categories[${index1}].children[${index2}].num`;
-    this.setData({
-      [keyPath]: newQuantity
-    });
-
-    // 更新 updataArray
-    const updataArray = this.updateUpdataArray(categories, index1, index2, newQuantity);
-    wx.setStorageSync('updataArray', updataArray);
-
-    // 更新缓存
-    wx.setStorageSync('categories', categories);
-    wx.setStorageSync('sum', this.countSum());
-    wx.setStorageSync('total', this.countTotalPrice());
+    // 仅更新当前页面选择数量，点击“加入购物车”时再统一入车，避免重复累加
   },
 
   // 更新 updataArray
   updateUpdataArray: function (categories, index1, index2, newQuantity) {
     const updataArray = wx.getStorageSync('updataArray') || [];
     const item = categories[index1].children[index2];
-    item.num = newQuantity;
+    // 统一以 sku + specs 作为唯一键，避免同一 id 的重复项
+    const skuCode = this.data.targetSkuCode;
+    const selectedSpecs = this.data.selectedSpecs || {};
+    const specList = Array.isArray(this.data.specList) ? this.data.specList : [];
+    const displaySettings = (specList.length
+      ? specList.map(spec => `${spec.name}:${selectedSpecs[spec.name] || ''}`)
+      : Object.keys(selectedSpecs).map(name => `${name}:${selectedSpecs[name]}`)
+    ).join('; ');
+    const price = Number(this.data.currentPrice || item.price || 0);
+    const oldPrice = Number(this.data.oldPrice || item.oldPrice || 0);
 
-    const existingIndex = updataArray.findIndex(upItem => upItem.id === item.id);
+    const normalized = {
+      ...item,
+      num: newQuantity,
+      skuCode,
+      specs: { ...selectedSpecs },
+      add: displaySettings,
+      price,
+      oldPrice
+    };
+
+    const currentKey = `${skuCode ? `sku:${skuCode}` : `id:${item.id}`}|${JSON.stringify(selectedSpecs || {})}`;
+    const existingIndex = updataArray.findIndex(upItem => {
+      const upKey = `${upItem.skuCode ? `sku:${upItem.skuCode}` : `id:${upItem.id}`}|${JSON.stringify(upItem.specs || {})}`;
+      return upKey === currentKey;
+    });
     if (existingIndex !== -1) {
-      updataArray[existingIndex] = item; // 更新现有项
+      updataArray[existingIndex] = normalized; // 覆盖为当前选择的数量
     } else {
-      updataArray.push(item); // 添加新项
+      updataArray.push(normalized); // 添加新项
     }
 
     return updataArray;
@@ -122,7 +118,8 @@ Page({
       dishId: dishId,
       currentImage: decodeURIComponent(options.image),
       index1: index1,
-      index2: index2
+      index2: index2,
+      skuReady: false
     });
 
     // 从缓存中获取最新的 categories 数据
@@ -395,7 +392,8 @@ Page({
       currentPrice: matchedSku?.price / 100 || 0,
       inventory: matchedSku?.stock || 0,
       currentImage: matchedSku?.image || this.data.mainPictures[0],
-      targetSkuCode: matchedSku.skuCode // 发送请求的目标skuCode
+      targetSkuCode: matchedSku?.skuCode || '',
+      skuReady: !!matchedSku?.skuCode
     });
     if (matchedSku) {
       wx.setStorageSync(`currentPrice_${this.data.dishId}`, matchedSku.price / 100);
@@ -613,45 +611,27 @@ Page({
   // 加入购物车
   goBackOrder() {
     console.log('当前itsid:', wx.getStorageSync('itsid'), 'userid:', wx.getStorageSync('userid'));
-    // 检查用户是否已登录（兼容多种存储形态）
-    const raw = wx.getStorageSync('isLoginSuccess');
-    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
-    if (!isLogin) {
-      // 保存当前商品参数，用于登录后回跳
-      const currentPage = getCurrentPages();
-      const currentRoute = currentPage[currentPage.length - 1].route;
-      const options = {
-        dishId: this.data.dishId,
-        index1: this.data.index1,
-        index2: this.data.index2,
-        action: 'addToCart' // 标记用户操作为加入购物车
-      };
-
-      // 将参数编码为URL参数
-      const urlParams = Object.keys(options).map(key => `${key}=${options[key]}`).join('&');
-
-      // 跳转到登录页面，并传递回调参数
-      wx.navigateTo({
-        url: `/subPackages/user/pages/register/register?from=diandan&callback=/${currentRoute}&${urlParams}`
+    const skuCode = this.data.targetSkuCode;
+    if (!this.data.skuReady || !skuCode) {
+      wx.showToast({
+        title: '商品规格加载中，请稍后再加入',
+        icon: 'none'
       });
       return;
     }
-
-    const skuCode = this.data.targetSkuCode;
-    const {
-      selectedSpecs,
-      specList
-    } = this.data;
+    const selectedSpecs = this.data.selectedSpecs || {};
+    const specList = Array.isArray(this.data.specList) ? this.data.specList : [];
 
     // 生成规格描述（根据接口返回的规格顺序）
-    const displaySettings = specList.map(spec =>
-      `${spec.name}:${selectedSpecs[spec.name]}`
+    const displaySettings = (specList.length
+      ? specList.map(spec => `${spec.name}:${selectedSpecs[spec.name] || ''}`)
+      : Object.keys(selectedSpecs).map(name => `${name}:${selectedSpecs[name]}`)
     ).join('; ');
 
     const tempCategories = this.data.categories;
     const currentQuantity = Number(this.data.quantity);
     // 获取当前选中的商品对象
-    let currentItem = tempCategories[this.data.index1].children[this.data.index2];
+    let currentItem = { ...tempCategories[this.data.index1].children[this.data.index2] };
     // 新增价格存储
     currentItem.price = this.data.currentPrice; // 当前规格价格
     currentItem.oldPrice = this.data.oldPrice; // 原价
@@ -668,11 +648,11 @@ Page({
 
     // 用商品ID和附加设置来判断是否为同一商品
     const existingIndex = updataArray.findIndex(item =>
-      item.skuCode === skuCode &&
-      this.compareSpecs(item.specs, selectedSpecs) // 调用 compareSpecs 方法
+      `${item.skuCode ? `sku:${item.skuCode}` : `id:${item.id}`}|${JSON.stringify(item.specs || {})}` ===
+      `${skuCode ? `sku:${skuCode}` : `id:${currentItem.id}`}|${JSON.stringify(selectedSpecs || {})}`
     );
     if (existingIndex !== -1) {
-      const newQuantity = Number(updataArray[existingIndex].num) + currentQuantity;
+      const newQuantity = Number(updataArray[existingIndex].num || 0) + currentQuantity;
       updataArray[existingIndex].num = newQuantity;
       currentItem.num = newQuantity;
     } else {
@@ -680,6 +660,8 @@ Page({
       updataArray.push(currentItem);
     }
 
+    // 去重：同 sku + 同规格 只保留一条（以最新记录为准）
+    updataArray = this.dedupeUpdataArray(updataArray);
     wx.setStorageSync('updataArray', updataArray);
 
     wx.setStorageSync('categories', tempCategories);
@@ -702,6 +684,25 @@ Page({
     //    });
   },
 
+  // 按 sku + specs 去重
+  dedupeUpdataArray(list) {
+    const map = new Map();
+    (list || []).forEach(it => {
+      const key = `${it.skuCode ? `sku:${it.skuCode}` : `id:${it.id}`}|${JSON.stringify(it.specs || {})}`;
+      const existing = map.get(key);
+      if (existing) {
+        // 增量合并数量，其他字段以最近一次为准
+        map.set(key, {
+          ...existing,
+          ...it,
+          num: Number(existing.num || 0) + Number(it.num || 0)
+        });
+      } else {
+        map.set(key, { ...it });
+      }
+    });
+    return Array.from(map.values());
+  },
 
   compareSpecs(specs1, specs2) {
     if (!specs1 || !specs2) return false;
@@ -730,28 +731,27 @@ Page({
         action: 'buyNow'
       };
       const urlParams = Object.keys(options).map(key => `${key}=${options[key]}`).join('&');
-      wx.showModal({
-        title: '提示',
-        content: '亲，你还未登录，是否立即登录？',
-        confirmText: '立即登录',
-        cancelText: '取消',
-        success: (res) => {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: `/subPackages/user/pages/register/register?from=diandan&callback=/${currentRoute}&${urlParams}`
-            });
-          }
-        }
+      wx.navigateTo({
+        url: `/subPackages/user/pages/register/register?from=diandan&callback=/${currentRoute}&${urlParams}`
       });
       return;
     }
 
     const skuCode = this.data.targetSkuCode;
-    const { selectedSpecs, specList } = this.data;
+    if (!this.data.skuReady || !skuCode) {
+      wx.showToast({
+        title: '商品规格加载中，请稍后再结算',
+        icon: 'none'
+      });
+      return;
+    }
+    const selectedSpecs = this.data.selectedSpecs || {};
+    const specList = Array.isArray(this.data.specList) ? this.data.specList : [];
 
     // 生成规格描述（根据接口返回的规格顺序）
-    const displaySettings = specList.map(spec =>
-      `${spec.name}:${selectedSpecs[spec.name]}`
+    const displaySettings = (specList.length
+      ? specList.map(spec => `${spec.name}:${selectedSpecs[spec.name] || ''}`)
+      : Object.keys(selectedSpecs).map(name => `${name}:${selectedSpecs[name]}`)
     ).join('; ');
 
     // 创建一个专门用于立即购买的商品对象

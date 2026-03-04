@@ -33,6 +33,22 @@ Page({
     ],
     companyIconUrl: app.globalData.tupianUrl + '/new/company.png',
   },
+  isRealLogin() {
+    const raw = wx.getStorageSync('isLoginSuccess');
+    const itsid = String(wx.getStorageSync('itsid') || '');
+    const userid = String(wx.getStorageSync('userid') || '');
+    return (raw === true || raw === 'true' || raw === 1 || raw === '1') &&
+      itsid && itsid !== '0' && userid && userid !== '0';
+  },
+  clearAuthState() {
+    wx.setStorageSync('isLoginSuccess', false);
+    wx.removeStorageSync('itsid');
+    wx.removeStorageSync('userid');
+    wx.removeStorageSync('name');
+    wx.removeStorageSync('avatar');
+    app.globalData.userid = null;
+    app.globalData.itsid = null;
+  },
   // onLoad: function() {
   //   const itsid= wx.getStorageSync('itsid')
   //   wx.request({
@@ -116,7 +132,8 @@ Page({
       url: `${AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
       method: 'GET',
       success: (res) => {
-        if (res.statusCode === 200 && res.data) {
+        const hasValidUser = res.statusCode === 200 && res.data && String(res.data.userid || '') !== '0' && !!String(res.data.name || '').trim();
+        if (hasValidUser) {
           const newName = (res.data.name || '').trim();
           const newAvatar = res.data.avatar || '';
           that.setData({
@@ -124,9 +141,9 @@ Page({
             freeze: res.data.freeze || '0',
             money: res.data.money || '0',
             score: res.data.score || '0',
-            name: newName || that.data.name || wx.getStorageSync('name') || '',
+            name: newName || '',
             userid: res.data.userid || '0',
-            avatarUrl: newAvatar || that.data.avatarUrl || wx.getStorageSync('avatar') || ''
+            avatarUrl: newAvatar || ''
           });
           // 存储全局变量
           // app.globalData.userid = res.data.userid;
@@ -134,6 +151,19 @@ Page({
           if (newName) wx.setStorageSync('name', newName);
           if (newAvatar) wx.setStorageSync('avatar', newAvatar);
           // console.log('用户ID已全局化:', app.globalData.userid);
+          wx.setStorageSync('isLoginSuccess', true);
+        } else {
+          that.clearAuthState();
+          that.setData({
+            content: '0',
+            freeze: '0',
+            money: '0',
+            score: '0',
+            name: '',
+            userid: '0',
+            avatarUrl: '',
+            isLoginSuccess: false
+          });
         }
       },
       fail: (error) => {
@@ -234,6 +264,7 @@ Page({
   // 首页到店取：预设自提并跳到点单页
   gotoOrderPickUp() {
     app.globalData.selected = '自提';
+    app.globalData.forceStoreSelectOnOrder = true;
     wx.switchTab({
       url: '/pages/order/order',
     });
@@ -265,15 +296,21 @@ Page({
    */
   onShow: function () {
     const itsid = wx.getStorageSync('itsid');
-    const raw = wx.getStorageSync('isLoginSuccess');
-    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!itsid || !!wx.getStorageSync('userid');
+    const isLogin = this.isRealLogin();
     this.setData({
-      name: wx.getStorageSync('name') || this.data.name,
-      avatarUrl: wx.getStorageSync('avatar') || this.data.avatarUrl,
+      name: isLogin ? (wx.getStorageSync('name') || this.data.name || '') : '',
+      avatarUrl: isLogin ? (wx.getStorageSync('avatar') || this.data.avatarUrl || '') : '',
       isLoginSuccess: isLogin
     });
-    if (itsid) {
+    if (itsid && isLogin) {
       this.fetchData10603(itsid);
+    } else {
+      this.setData({
+        content: '0',
+        freeze: '0',
+        money: '0',
+        score: '0'
+      });
     }
   },
 

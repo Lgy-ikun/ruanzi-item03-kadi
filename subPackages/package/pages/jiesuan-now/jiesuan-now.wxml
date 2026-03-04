@@ -28,20 +28,22 @@
         </view>
       </view>
     </view>
-    <view class="delivery-fee" style="position: relative;top: 20rpx;" wx:if="{{selected === '外送'}}">
-      <text class="peisong" style="margin-left: 30rpx;">配送费 ¥{{delivery}}</text>
-    </view>
-    <view class="coupon-row">
-      <text class="label" style="margin-left: 30rpx;">实付</text>
-      <text class="value" style="margin-right: 30rpx;">¥{{totalPrice}}</text>
-    </view>
     <!-- 优惠券选择 -->
     <view class="coupon-row" bindtap="couponSelect">
       <text class="label" style="margin-left: 30rpx;">优惠券</text>
-      <text class="value" style="margin-right: 30rpx;">{{couponAvailable ? (selectedCouponText || '可用优惠券') : '暂无可用券'}}</text>
+      <text class="value" style="margin-right: 30rpx;">{{selectedCouponText || (couponAvailable ? '可用优惠券' : '暂无可用券')}}</text>
     </view>
+    <view class="coupon-row" wx:if="{{selected === '外送'}}">
+      <text class="label" style="margin-left: 30rpx;">配送费</text>
+      <text class="value" style="margin-right: 30rpx;">¥{{delivery}}</text>
+    </view>
+    <view class="coupon-row">
+      <text class="label" style="margin-left: 30rpx;">实付</text>
+      <text class="value" style="margin-right: 30rpx;">¥{{payableAmount || totalPrice}}</text>
+    </view>
+    
     <!-- 支付方式 -->
-    <view class="pay-methods" style="margin-top: 20rpx; background: #fff; border-radius: 16rpx; padding: 20rpx;">
+   <view class="pay-methods coupon-row" style="margin-top: 20rpx; background: #fff; border-radius: 16rpx; padding: 20rpx;">
       <text class="section-title" style="margin-left: 10rpx;">支付方式</text>
       <radio-group bindchange="choosePayMethod">
         <label class="pay-item">
@@ -77,30 +79,30 @@
         </label>
       </radio-group>
     </view>
-  </view>
-  
-  <!-- 支付按钮 -->
-  <view class="zhifu">
-    <view wx:if="{{isShow}}" class="pay-button" bindtap="initiatePayment">提交订单</view>
-    <view wx:else class="pay-button">提交订单</view>
-  </view>
-
-  <!-- 取餐方式 -->
-  <view class="section-box pickup-box">
-    <view class="section-title">取餐方式</view>
-    <view class="pickup-options">
-      <view class="pickup-btn {{dineType==='dine_in' ? 'active' : ''}}" bindtap="setDineType" data-type="dine_in">店内用餐</view>
-      <view class="pickup-btn {{dineType==='takeaway' ? 'active' : ''}}" bindtap="setDineType" data-type="takeaway">自提带走</view>
+    <view class="section-box pickup-box" wx:if="{{selected === '自提'}}">
+      <view class="section-title">取餐方式</view>
+      <view class="pickup-options">
+        <view class="pickup-btn {{dineType==='dine_in' ? 'active' : ''}}" bindtap="setDineType" data-type="dine_in">
+          店内用餐
+        </view>
+        <view class="pickup-btn {{dineType==='takeaway' ? 'active' : ''}}" bindtap="setDineType" data-type="takeaway">
+          自提带走
+        </view>
+      </view>
+    </view>
+    <!-- 备注 -->
+    <view class="section-box remark-box">
+      <view class="section-title">备注特殊要求</view>
+      <textarea class="remark-textarea" placeholder="请输入备注内容" bindinput="inputRemark" value="{{remark}}"></textarea>
     </view>
   </view>
-
-  <!-- 备注 -->
-  <view class="section-box remark-box">
-    <view class="section-title">备注特殊要求</view>
-    <textarea class="remark-textarea" placeholder="请输入备注内容" bindinput="inputRemark" value="{{remark}}"></textarea>
-  </view>
-  </view>
-
+</view>
+<!-- 支付按钮 -->
+<view class="zhifu">
+  <view wx:if="{{isShow}}" class="pay-button" bindtap="initiatePayment">提交订单</view>
+  <view wx:else class="pay-button">提交订单</view>
+</view>
+<!-- 取餐方式 -->
 <!-- 交易码弹窗 -->
 <view wx:if="{{showCodeDialog}}" class="code-dialog-mask">
   <view class="code-content">

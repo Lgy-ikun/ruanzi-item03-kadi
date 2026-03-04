@@ -1,13 +1,18 @@
 <view class="container">
   <view class="list">
-    <block wx:for="{{coupons}}" wx:key="id">
-      <label class="coupon-item">
-        <view class="info">
-          <text class="title">{{item.cardName}}</text>
-          <text class="sub">面额 ¥{{item.atm}} | 有效期至 {{item.endTime}}</text>
+    <block wx:for="{{coupons}}" wx:key="cardid">
+      <view class="coupon-card {{item.disabled ? 'disabled' : ''}} {{selectedId===item.cardid?'selected':''}}" bindtap="selectOne" data-id="{{item.cardid}}" data-disabled="{{item.disabled}}">
+        <view class="left">
+          <view class="amount">¥{{item.atm}}</view>
         </view>
-        <radio class="radio" value="{{item.cardid || item.id}}" checked="{{selectedId === (item.cardid || item.id)}}"></radio>
-      </label>
+        <view class="center">
+          <text class="title">{{item.cardName}}</text>
+          <text class="sub">有效期至 {{item.endTime}}</text>
+        </view>
+        <view class="right">
+          <view class="tick"></view>
+        </view>
+      </view>
     </block>
   </view>
   <view class="footer">

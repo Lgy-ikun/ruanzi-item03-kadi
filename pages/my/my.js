@@ -11,6 +11,22 @@ Page({
     AUrl: app.globalData.AUrl,
     isLogin: false
   },
+  isRealLogin() {
+    const raw = wx.getStorageSync('isLoginSuccess');
+    const itsid = String(wx.getStorageSync('itsid') || '');
+    const userid = String(wx.getStorageSync('userid') || '');
+    return (raw === true || raw === 'true' || raw === 1 || raw === '1') &&
+      itsid && itsid !== '0' && userid && userid !== '0';
+  },
+  clearAuthState() {
+    wx.setStorageSync('isLoginSuccess', false);
+    wx.removeStorageSync('itsid');
+    wx.removeStorageSync('userid');
+    wx.removeStorageSync('name');
+    wx.removeStorageSync('avatar');
+    getApp().globalData.userid = null;
+    getApp().globalData.itsid = null;
+  },
   logoutConfirm() {
     wx.showModal({
       title: '提示',
@@ -22,8 +38,7 @@ Page({
           try {
             wx.clearStorageSync();
           } catch (e) {}
-          getApp().globalData.userid = null;
-          getApp().globalData.itsid = null;
+          this.clearAuthState();
           this.setData({
             isLogin: false,
             name: '',
@@ -53,8 +68,7 @@ Page({
 
   // 卡狄D套餐详情
   gotocardDetail() {
-    const raw = wx.getStorageSync('isLoginSuccess');
-    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    const isLogin = this.isRealLogin();
     if (!isLogin) {
       wx.showModal({
         title: '提示',
@@ -148,8 +162,7 @@ Page({
 
   // 子账户
   gotoSubAccount() {
-    const raw = wx.getStorageSync('isLoginSuccess');
-    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    const isLogin = this.isRealLogin();
     if (!isLogin) {
       wx.showModal({
         title: '提示',
@@ -179,8 +192,7 @@ Page({
 
   // 发票管理
   gotoInvoice() {
-    const raw = wx.getStorageSync('isLoginSuccess');
-    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    const isLogin = this.isRealLogin();
     if (!isLogin) {
       wx.showModal({
         title: '提示',
@@ -202,8 +214,7 @@ Page({
 
   // 邀请码
   gotoInviteCode() {
-    const raw = wx.getStorageSync('isLoginSuccess');
-    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    const isLogin = this.isRealLogin();
     if (!isLogin) {
       wx.showModal({
         title: '提示',
@@ -242,15 +253,13 @@ Page({
     }
   },
   tapLeftWrap() {
-    const raw = wx.getStorageSync('isLoginSuccess');
-    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    const isLogin = this.isRealLogin();
     if (!isLogin) {
       wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
     }
   },
   cardLoginPrompt() {
-    const raw = wx.getStorageSync('isLoginSuccess');
-    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!wx.getStorageSync('itsid') || !!wx.getStorageSync('userid');
+    const isLogin = this.isRealLogin();
     if (!isLogin) {
       wx.showModal({
         title: '提示',
@@ -275,14 +284,28 @@ Page({
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
       method: 'GET',
       success: (res) => {
-        if (res.statusCode === 200 && res.data) {
+        const hasValidUser = res.statusCode === 200 && res.data && String(res.data.userid || '') !== '0' && !!String(res.data.name || '').trim();
+        if (hasValidUser) {
           that.setData({
             name: res.data.name || '',
             money: res.data.money || 0.00,
             coffeeCoupon: res.data.score || 0.00,
-            depositCard: res.data.chuhzika || 0.00,
+            depositCard: res.data.chuzhika || 0.00,
             electronicCoupon: res.data.dianzi || 0.00,
             avatar: `${app.globalData.AUrl}/jy/wxuser/106/images/singeravatar/` + (res.data.avatar || '')
+          });
+          wx.setStorageSync('name', res.data.name || '');
+          wx.setStorageSync('avatar', res.data.avatar || '');
+        } else {
+          that.clearAuthState();
+          that.setData({
+            isLogin: false,
+            name: '',
+            avatar: '',
+            money: 0.00,
+            coffeeCoupon: 0.00,
+            depositCard: 0.00,
+            electronicCoupon: 0.00
           });
         }
       }
@@ -294,12 +317,20 @@ Page({
    */
   onShow() {
     const itsid = wx.getStorageSync('itsid');
-    //这里页面会闪动到时解决，先判断是否登录，再获取用户数据
-    if (itsid) {
+    const isLogin = this.isRealLogin();
+    if (itsid && isLogin) {
       this.fetchUserData(itsid);
+    } else {
+      this.setData({
+        isLogin: false,
+        name: '',
+        avatar: '',
+        money: 0.00,
+        coffeeCoupon: 0.00,
+        depositCard: 0.00,
+        electronicCoupon: 0.00
+      });
     }
-    const raw = wx.getStorageSync('isLoginSuccess');
-    const isLogin = raw === true || raw === 'true' || raw === 1 || raw === '1' || !!itsid || !!wx.getStorageSync('userid');
     this.setData({ isLogin });
     
   }

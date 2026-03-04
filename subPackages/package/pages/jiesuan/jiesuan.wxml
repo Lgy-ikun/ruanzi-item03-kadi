@@ -5,7 +5,6 @@
         <text class="item-adress" wx:if="{{selected === '外送'}}">{{address}}</text>
         <text class="item-adress" wx:else>{{storeName}}</text>
         <text class="user-id" wx:if="{{selected === '外送'}}">{{phone}} {{username}}</text>
-
       </view>
       <view class="pickup-delivery-group">
         <navigator url="/subPackages/package/pages/ziti/ziti?type=jiesuan" class="pickup-button {{selected === '自提' ? 'active' : ''}}" bindtap="selectOption" data-option="自提">
@@ -33,7 +32,7 @@
     <!-- 优惠券选择 -->
     <view class="coupon-row" bindtap="couponSelect">
       <text class="label" style="margin-left: 30rpx;">优惠券</text>
-      <text class="value" style="margin-right: 30rpx;">{{couponAvailable ? (selectedCouponText || '可用优惠券') : '暂无可用券'}}</text>
+      <text class="value" style="margin-right: 30rpx;">{{selectedCouponText || (couponAvailable ? '可用优惠券' : '暂无可用券')}}</text>
     </view>
     <view class="coupon-row" wx:if="{{selected === '外送'}}">
       <text class="label" style="margin-left: 30rpx;">配送费</text>
@@ -41,7 +40,9 @@
     </view>
     <view class="coupon-row">
       <text class="label" style="margin-left: 30rpx;">实付</text>
-      <text class="value" style="margin-right: 30rpx;">¥{{selected === '自提' ? totalprice : (totalprice*1 + delivery*1)}}</text>
+      <text class="value" style="margin-right: 30rpx;">
+        ¥{{payableAmount || (selected === '自提' ? totalprice : (totalprice*1 + delivery*1))}}
+      </text>
     </view>
     <!-- 支付方式 -->
     <view class="pay-methods coupon-row" style="margin-top: 20rpx; background: #fff; border-radius: 16rpx; padding: 20rpx;">
@@ -63,7 +64,7 @@
           <radio class="pm-radio" value="balance" disabled="{{balanceDisabled}}" checked="{{payMethod==='balance'}}"></radio>
         </label>
         <label class="pay-item {{coffeeDisabled ? 'disabled' : ''}}" bindtap="guardCoffeePay">
-          <view class="pm-left"pay>
+          <view class="pm-left">
             <view class="pm-icon icon-coffee"></view>
             <text class="pm-text">咖啡券支付</text>
             <text class="pm-hint">可用 ¥{{funds.coffee}}</text>
@@ -80,6 +81,17 @@
         </label>
       </radio-group>
     </view>
+    <view class="section-box pickup-box" wx:if="{{selected === '自提'}}">
+      <view class="section-title">取餐方式</view>
+      <view class="pickup-options">
+        <view class="pickup-btn {{dineType==='dine_in' ? 'active' : ''}}" bindtap="setDineType" data-type="dine_in">
+          店内用餐
+        </view>
+        <view class="pickup-btn {{dineType==='takeaway' ? 'active' : ''}}" bindtap="setDineType" data-type="takeaway">
+          自提带走
+        </view>
+      </view>
+    </view>
     <!-- 备注（移入滚动容器内） -->
     <view class="section-box remark-box">
       <view class="section-title">备注特殊要求</view>
@@ -90,61 +102,26 @@
     <view wx:if="{{isShow}}" class="pay-button" bindtap="initiatePayment">提交订单</view>
     <view wx:else class="pay-button">提交订单</view>
   </view>
-
-  <!-- 取餐方式 -->
-  <view class="section-box pickup-box">
-    <view class="section-title">取餐方式</view>
-    <view class="pickup-options">
-      <view class="pickup-btn {{dineType==='dine_in' ? 'active' : ''}}" bindtap="setDineType" data-type="dine_in">店内用餐</view>
-      <view class="pickup-btn {{dineType==='takeaway' ? 'active' : ''}}" bindtap="setDineType" data-type="takeaway">自提带走</view>
-    </view>
-  </view>
-
- 
-<!-- 交易码弹窗 -->
-<!-- <view wx:if="{{showCodeDialog}}" class="code-dialog-mask" style="position: fixed; top:30%;transform: translateY(-50%); left:50%;transform: translateX(-50%); right:0; bottom:0;  z-index: 1;background-color: rgb(255, 255, 255); height: 350rpx; width: 90%;  box-shadow: -5px  -5rpx 10px 10px rgba(129, 128, 128, 0.2); border-radius: 20rpx;">
-  <view class="title1">请输入六位数交易码</view>
-  <view class="input-container">
-    <block wx:for="{{inputBoxes}}" wx:key="index">
-      <view class="input-box">
-        -- input 输入框 --
-        <input id="input-{{index}}" focus="false" type="number" value="{{item}}" data-index="{{index}}" disabled="true" maxlength="1" />
+  <!-- 新版交易码弹窗 -->
+  <view wx:if="{{showCodeDialog}}" class="code-dialog-mask">
+    <view class="code-content">
+      <view class="img">
+        <image bindtap="closeDialog" src="{{tupianUrl}}/new/close.png" mode="" />
       </view>
-      -- 蒙层 --
-      <view class="overlay" bind:tap="handleGetFocus"></view>
-    </block>
-  </view>
-  <input class="ipt" value="{{codeValue}}" focus="{{testFocus}}" type="number" bindinput="handleTestInput" maxlength="6" bind:tap="handleNotFocus" />
-  <view class="dialog-buttons">
-    <button class="dialog-btn cancel" bindtap="closeDialog">取消</button>
-    <button class="dialog-btn confirm" bindtap="verifyCode">确认</button>
-  </view>
-</view> -->
-<!-- <sqb-pay bindnavigateTo="navigateTo" return_url="/pages/payResult/index" total_amount="1" terminal_sn="tsn-100000330007352422" client_sn="{{ client_sn }}" subject="测试商品" subject_img="https://images.wosaimg.com/ba/a2b7c33c51258846fcc7bd8af95a12c093aa56.jpeg" merchant_name="测试商户" store_name="测试门店">
-  <button>去支付</button>
-</sqb-pay> -->
-
-
-<!-- 新版交易码弹窗 -->
-<view wx:if="{{showCodeDialog}}" class="code-dialog-mask">
-  <view class="code-content">
-    <view class="img">
-      <image bindtap="closeDialog" src="{{tupianUrl}}/new/close.png" mode="" />
-    </view>
-    <view class="title1">请输入交易码</view>
-    <view class="input-container">
-      <block wx:for="{{inputBoxes}}" wx:key="index">
-        <view class="input-box">
-          <!-- input 输入框 -->
-          <input id="input-{{index}}" focus="false" type="number" value="{{item}}" data-index="{{index}}" disabled="true" maxlength="1" />
-        </view>
-        <view class="overlay" bind:tap="handleGetFocus"></view> <!-- 蒙层 -->
-      </block>
-    </view>
-    <input class="ipt" value="{{codeValue}}" focus="{{testFocus}}" type="number" bindinput="handleTestInput" maxlength="6" bind:tap="handleNotFocus" />
-    <view class="dialog-buttons">
-      <view class="btn" bindtap="verifyCode">确定</view>
+      <view class="title1">请输入交易码</view>
+      <view class="input-container">
+        <block wx:for="{{inputBoxes}}" wx:key="index">
+          <view class="input-box">
+            <input id="input-{{index}}" focus="false" type="number" value="{{item}}" data-index="{{index}}" disabled="true" maxlength="1" />
+          </view>
+          <view class="overlay" bind:tap="handleGetFocus"></view>
+          <!-- 蒙层 -->
+        </block>
+      </view>
+      <input class="ipt" value="{{codeValue}}" focus="{{testFocus}}" type="number" bindinput="handleTestInput" maxlength="6" bind:tap="handleNotFocus" />
+      <view class="dialog-buttons">
+        <view class="btn" bindtap="verifyCode">确定</view>
+      </view>
     </view>
   </view>
-</view>
 </view>
