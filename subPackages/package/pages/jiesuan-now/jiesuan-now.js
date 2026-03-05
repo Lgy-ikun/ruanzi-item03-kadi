@@ -48,6 +48,12 @@ Page({
 
   // 启动支付流程
   initiatePayment() {
+    const userid = String(wx.getStorageSync('userid') || '');
+    const itsid = String(wx.getStorageSync('itsid') || '');
+    if (!userid || userid === '0' || !itsid || itsid === '0') {
+      wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=jiesuan-now' });
+      return;
+    }
     const method = this.data.payMethod || 'wechat';
     const payable = Number(this.data.payableAmount || this.data.totalPrice || 0);
     if (method === 'wechat') {
@@ -472,10 +478,11 @@ Page({
   // 页面显示时执行
   onShow: function () {
     // 更新全局相关信息
+    const currentSelected = app.globalData.selected || this.data.selected || '自提';
     this.setData({
       isShow: true,
-      selected: app.globalData.selected,
-      address: app.globalData.selected === '外送' ? app.globalData.addressDesc : app.globalData.storeName,
+      selected: currentSelected,
+      address: currentSelected === '外送' ? app.globalData.addressDesc : app.globalData.storeName,
       phone: app.globalData.phone,
       username: app.globalData.username,
       storeName: app.globalData.selectedStoreName,
@@ -483,8 +490,6 @@ Page({
     }, () => {
       // 重新计算总价
       this.calculateTotal();
-      // 获取用户积分
-      this.getUserScore();
     });
       // 应用选中的优惠券
       const picked = wx.getStorageSync('selectedCoupon');
@@ -496,7 +501,7 @@ Page({
           useCoupon: true,
           appliedCouponAmt: Number(picked.atm || 0)
         });
-        this.recomputePayable && this.recomputePayable();
+        this.calculateTotal();
         wx.removeStorageSync('selectedCoupon');
       }
       if (!this.data.selectedCouponText) {
@@ -505,24 +510,6 @@ Page({
   },
 
 
-  // 获取用户积分
-  getUserScore() {
-    const that = this;
-    const itsid = wx.getStorageSync('itsid');
-    // 接口调用示例
-    wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
-      success(res) {
-        if (res.data.code === '1') {
-          const score = parseInt(res.data.score || 0, 10);
-          that.setData({
-            userScore: score,
-            requiredScore: Math.ceil(that.data.totalPrice * 1.6) // 计算所需积分
-          });
-        }
-      }
-    });
-  },
 
   // 计算总价
   calculateTotal: function () {
@@ -539,17 +526,21 @@ Page({
     // 如果选择外送，则加上配送费
     const deliveryFee = this.data.selected === '外送' ? Number(this.data.delivery) : 0;
     const total = itemsTotal + deliveryFee;
+    const couponAmt = Number(this.data.appliedCouponAmt || 0);
+    const payable = Math.max(0, total - couponAmt);
     
     console.log('计算总价详情:', {
       '商品总价': itemsTotal.toFixed(2),
       '配送费': deliveryFee.toFixed(2),
-      '最终总价': total.toFixed(2),
+      '优惠金额': couponAmt.toFixed(2),
+      '实付金额': payable.toFixed(2),
       '配送模式': this.data.selected
     });
 
     // 更新UI显示
     this.setData({
-      totalPrice: total.toFixed(2)
+      totalPrice: itemsTotal.toFixed(2),
+      payableAmount: payable.toFixed(2)
     });
     
     // 额外记录订单类型，便于其他函数使用
@@ -564,10 +555,10 @@ Page({
     return total;
   },
   recomputePayable() {
-    // totalPrice 已在 calculateTotal 中包含了配送费（外送）或不包含（自提）
-    const total = Number(this.data.totalPrice || 0);
+    const base = Number(this.data.totalPrice || 0);
+    const includeDelivery = this.data.selected === '外送' ? Number(this.data.delivery || 0) : 0;
     const couponAmt = Number(this.data.appliedCouponAmt || 0);
-    const payable = Math.max(0, total - couponAmt);
+    const payable = Math.max(0, base + includeDelivery - couponAmt);
     this.setData({ payableAmount: payable.toFixed(2) });
   },
 
@@ -593,7 +584,7 @@ Page({
             useCoupon: true,
             appliedCouponAmt: Number(first.atm || 0)
           });
-          that.recomputePayable && that.recomputePayable();
+          that.calculateTotal();
         } else {
           that.setData({ couponAvailable: false, useCoupon: false });
           wx.showToast({ title: '当前订单无可用卡券', icon: 'none' });
@@ -658,34 +649,6 @@ Page({
     }
   },
 
-  // 积分支付流程
-  doPayment() {
-    // 获取用户积分数据后处理支付
-    const itsid = wx.getStorageSync('itsid');
-    console.log('启动积分支付流程');
-    
-    // 确保calculateTotal已执行并计算了正确的总价（含配送费）
-    this.calculateTotal();
-    wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
-      method: 'GET',
-      success: (res) => {
-        console.log('积分接口返回数据:', res.data);
-        const score = res.data.score ? res.data.score : 0;
-        console.log('用户当前积分为:', score);
-        app.globalData.score = parseInt(score, 10);
-        this.processPayment(score);
-      },
-      fail: (err) => {
-        console.log('积分接口调用失败:', err);
-        wx.showToast({
-          title: '获取积分失败，请重试',
-          icon: 'none',
-          duration: 3000
-        });
-      }
-    });
-  },
   // 取餐方式选择
   setDineType(e) {
     const type = e.currentTarget.dataset.type;
@@ -707,166 +670,27 @@ Page({
       this.recomputePayable && this.recomputePayable();
     });
   },
-
-  // 处理支付逻辑
-  processPayment(score) {
-    // TODO: 实现立即购买的积分支付处理
-    const itsid = wx.getStorageSync('itsid');
-    let totalAmount = parseFloat(this.data.totalPrice) || 0;
-    
-    // 明确配送费
-    const deliveryFee = this.data.selected === '外送' ? Number(this.data.delivery) : 0;
-    
-    // 明确定义订单类型
-    const orderType = this.data.selected === '自提' ? 1 : 2;
-    
-    // 记录详细日志
-    console.log('======= 积分支付详情 =======');
-    console.log('配送模式:', this.data.selected, `(类型=${orderType})`);
-    console.log('商品价格:', totalAmount - deliveryFee);
-    console.log('配送费:', deliveryFee);
-    console.log('最终总价:', totalAmount);
-    
-    const usePoints = this.data.usePoints;
-    
-    // 修改：统一unitId的获取逻辑
-    let unitId;
-    if (this.data.selected === '自提') {
-      unitId = wx.getStorageSync('selectedStoreId');
-    } else {
-      // 外送时，优先使用存储中的deliveryUnitId，如果没有则使用app.globalData中的，如果也没有则使用默认值
-      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6'; // 修改：与cashPayment保持一致，默认外送门店ID为6
-    }
-
-    // 积分支付逻辑
-    if (this.data.usePoints) {
-      // 确保包含配送费后再计算所需积分
-      const requiredPoints = totalAmount * 1.6;
-      console.log('积分计算详情:', {
-        '商品价格': this.data.items.reduce((sum, item) => sum + (Number(item.price || 0) * Number(item.num || 0)), 0),
-        '配送费': this.data.selected === '外送' ? Number(this.data.delivery) : 0,
-        '最终总金额': totalAmount,
-        '需要积分': requiredPoints
-      });
-
-      // 检查积分是否足够
-      if (score >= requiredPoints) {
-        console.log('积分足够，扣除积分');
-
-        if (this.data.useCoupon && this.data.couponAvailable) {
-          this.couponPayment(); // 独立卡券支付流程
-          return;
-        }
-
-        // 获取商品信息，用于提交MCODE和NUM
-        const item = this.data.items[0]; // 假设立即购买只有一个商品
-        const mcode = item.skuCode || ''; // 商品编码
-        const num = item.num || 1; // 商品数量
-
-        // 积分支付接口调用 - 需要实现
-        wx.request({
-          url: `${app.globalData.backUrl}phone.aspx?mbid=10643&ituid=${app.globalData.ituid}&itsid=${itsid}`,
-          method: 'POST',
-          data: {
-            MCODE: mcode,//商品编码
-            OPID: '1203',
-            UNITID: unitId, // 修改：无论自提还是外送都传递unitId
-            NUM: num,//商品数量
-            USERID: '0',
-            NOTE: this.data.selected === '外送' ? '积分支付-立即购买-外送' : '积分支付-立即购买-自提', //注释
-            SCORE: requiredPoints,
-            // 在integralTotal字段中传递包含配送费的总金额，便于后台记录
-            integralTotal: totalAmount.toFixed(2),
-            AMT: 0,
-            ASK: item.ask,
-            type: orderType, // 使用明确的变量
-            orderType: orderType, // 增加重复字段确保传递
-            isDelivery: this.data.selected === '外送' ? 1 : 0, // 使用数字标记
-            deliveryFee: deliveryFee, // 使用明确的变量
-            totalWithDelivery: totalAmount, // 增加总价字段
-            username: this.data.username,
-            phone: this.data.phone,
-            address: this.data.address,
-            extra: JSON.stringify({ 
-              in_lite_app: true,
-              specs: this.data.selectedSpecs,
-              isDelivery: this.data.selected === '外送', // 添加：是否外送标记
-              deliveryFee: deliveryFee, // 添加：配送费
-              orderType: orderType, // 添加订单类型
-              totalPrice: totalAmount // 添加总价
-            })
-          },
-          header: {
-            'content-type': 'application/json'
-          },
-          success: (res) => {
-            console.log('积分支付响应:', res.data);
-            wx.showToast({
-              title: '积分支付成功',
-              duration: 2000
-            });
-
-            // 移除立即购买缓存
-            wx.removeStorageSync('buyNowItems');
-
-            // 更新用户积分
-            this.updateUserScore();
-
-            // 支付成功后跳转到订单页面
-            wx.switchTab({
-              url: '/pages/orders/orders'
-            });
-          },
-          fail: (err) => {
-            console.log('微信支付接口调用失败:', err);
-            wx.showToast({
-              title: '支付失败，请重试',
-              icon: 'none',
-              duration: 3000
-            });
-          }
-        });
-      } else {
-        console.log('积分不足');
-        wx.showToast({
-          title: '积分不足，请选择现金支付或充值积分',
-          icon: 'none',
-          duration: 3000
-        });
-
-        // 强制勾选现金支付
-        this.setData({
-          usePoints: false
-        });
-
-        // 调用现金支付逻辑
-        this.cashPayment();
-      }
-    } else {
-      console.log('使用现金支付');
-      this.cashPayment();
-    }
-  },
-
-  // 更新用户积分 - 支付后调用
-  updateUserScore() {
-    const itsid = wx.getStorageSync('itsid');
-    // 重新获取积分
-    wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
-      method: 'GET',
-      success: (res) => {
-        const newScore = res.data.score ? res.data.score : 0;
-        console.log('新的积分:', newScore);
-        app.globalData.score = parseInt(newScore, 10);
-      }
+  onTapPickup() {
+    app.globalData.selected = '自提';
+    this.setData({ selected: '自提' });
+    wx.navigateTo({
+      url: '/subPackages/package/pages/ziti/ziti?type=jiesuan-now'
     });
   },
+  onTapDelivery() {
+    app.globalData.selected = '外送';
+    this.setData({ selected: '外送' });
+    wx.navigateTo({
+      url: '/subPackages/package/pages/chooseLocation/chooseLocation?type=jiesuan-now'
+    });
+  },
+
 
   // 现金支付流程 - 需要实现
   cashPayment() {
     // TODO: 实现立即购买的现金支付处理
     const itsid = wx.getStorageSync('itsid');
+    const userid = wx.getStorageSync('userid');
     const app = getApp();
     
     // 修改：统一获取unitId的逻辑，并添加默认外送门店ID
@@ -878,8 +702,7 @@ Page({
       unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6'; // 默认外送门店ID为6
     }
     
-    // 直接使用totalPrice，因为它在calculateTotal方法中已经包含了配送费
-    let totalAmount = parseFloat(this.data.totalPrice);
+    let totalAmount = Number(this.data.payableAmount || this.data.totalPrice || 0);
 
     if (this.data.selected === '自提' && !unitId) {
       wx.showToast({
@@ -896,7 +719,7 @@ Page({
     
     console.log('支付模式:', this.data.selected);
     console.log('使用的门店ID:', unitId);
-    console.log('计算后的总金额（含配送费）:', totalAmount);
+    console.log('计算后的总金额（含优惠与配送费）:', totalAmount);
 
     // 获取商品信息，用于提交MCODE和NUM
     const item = this.data.items[0]; // 假设立即购买只有一个商品
@@ -905,14 +728,15 @@ Page({
 
     //现金支付接口
     wx.request({
-      url: `${app.globalData.backUrl}phone.aspx?mbid=10642&ituid=${app.globalData.ituid}&itsid=${itsid}`,
+      // 微信支付接口（与购物车结算一致）：mbid=124, OPID=1200
+      url: `${app.globalData.backUrl}phone.aspx?mbid=124&ituid=${app.globalData.ituid}&itsid=${itsid}`,
       method: 'POST',
       data: {
           MCODE: mcode,//商品编码
           OPID: '1200',
           UNITID: unitId,
           NUM: num,
-          USERID: '0',
+          USERID: userid,
           NOTE: '立即购买现金',
           ASK: item.ask, // 添加规格数据
           AMT: totalAmount, //金额
@@ -945,14 +769,10 @@ Page({
         // 移除立即购买缓存
         wx.removeStorageSync('buyNowItems');
 
-        if (!this.data.usePoints && !this.data.useCoupon) {
-          // 将totalAmount*100转为整数分单位，与后台保持一致
-          const amtInCents = Math.round(totalAmount * 100);
-          
-          wx.navigateTo({
-            url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${amtInCents}&sign=${res.data.sign}&appId=${res.data.yeepay.appId}&nonceStr=${res.data.yeepay.nonceStr}&package=${packageNew}&paySign=${paySignNew}&signType=${res.data.yeepay.signType}&timeStamp=${res.data.yeepay.timeStamp}&SN=${res.data.SN}`,
-          });
-        }
+        const amtInCents = Math.round(totalAmount * 100);
+        wx.navigateTo({
+          url: `/subPackages/package/pages/jiesuan-pay/jiesuan-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${amtInCents}&sign=${res.data.sign}&appId=${res.data.yeepay.appId}&nonceStr=${res.data.yeepay.nonceStr}&package=${packageNew}&paySign=${paySignNew}&signType=${res.data.yeepay.signType}&timeStamp=${res.data.yeepay.timeStamp}&SN=${res.data.SN}`,
+        });
       },
       fail: (err) => {
         console.error('支付接口调用失败:', err);
@@ -964,89 +784,6 @@ Page({
     });
   },
 
-  // 卡券支付流程 - 需要实现
-  couponPayment() {
-    // TODO: 实现立即购买的卡券支付处理
-    const itsid = wx.getStorageSync('itsid');
-    const userid = wx.getStorageSync('userid');
-    const total = parseFloat(this.data.totalPrice);
-    
-    // 明确配送费
-    const deliveryFee = this.data.selected === '外送' ? Number(this.data.delivery) : 0;
-    
-    // 确保总金额已经包含配送费
-    let finalTotal = total;
-    
-    // 记录详细日志
-    console.log('======= 卡券支付详情 =======');
-    console.log('配送模式:', this.data.selected);
-    console.log('商品价格:', total - deliveryFee);
-    console.log('配送费:', deliveryFee);
-    console.log('最终总价:', finalTotal);
-    
-    // 修改：统一unitId的获取逻辑
-    let unitId;
-    if (this.data.selected === '自提') {
-      unitId = wx.getStorageSync('selectedStoreId');
-    } else {
-      // 外送时，优先使用存储中的deliveryUnitId，如果没有则使用app.globalData中的，如果也没有则使用默认值
-      unitId = wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6'; // 修改：与cashPayment保持一致，默认外送门店ID为6
-    }
-    
-    // 明确定义订单类型
-    const orderType = this.data.selected === '自提' ? 1 : 2;
-    
-    // 获取商品信息，用于提交MCODE和NUM
-    const item = this.data.items[0]; // 假设立即购买只有一个商品
-    const mcode = item.skuCode || ''; // 商品编码
-    const num = item.num || 1; // 商品数量
-
-    //卡券支付
-    wx.request({
-      url: `${app.globalData.backUrl}phone.aspx?mbid=10644&ituid=${app.globalData.ituid}&itsid=${itsid}`,
-      method: 'POST',
-      data: {
-        MCODE: mcode, // 商品编码
-        OPID: '1204',
-        UNITID: unitId, // 无论自提还是外送都传递unitId
-        NOTE: this.data.selected === '外送' ? '立即购买-卡券支付-外送' : '立即购买-卡券支付-自提',
-        NUM: num, // 商品数量
-        USERID: userid,
-        cardid: this.data.cardid,
-        AMT: 0,
-        ASK: item.ask,
-        type: orderType, // 明确订单类型：1=自提，2=外送
-        orderType: orderType, // 增加重复字段确保传递
-        isDelivery: this.data.selected === '外送' ? 1 : 0, // 添加数字标记
-        deliveryFee: deliveryFee, // 明确传递配送费
-        totalWithDelivery: finalTotal, // 增加总价字段
-        username: this.data.username,
-        phone: this.data.phone,
-        address: this.data.address,
-        extra: JSON.stringify({ 
-          in_lite_app: true,
-          specs: this.data.selectedSpecs,
-          isDelivery: this.data.selected === '外送', // 是否外送标记
-          deliveryFee: deliveryFee, // 配送费
-          orderType: orderType, // 添加订单类型
-          totalPrice: finalTotal // 添加总价
-        })
-      },
-      success: (res) => {
-        console.log('卡券支付响应:', res.data);
-        this.handlePaymentResult(res, 'coupon');
-        // 移除立即购买缓存
-        wx.removeStorageSync('buyNowItems');
-      },
-      fail: (err) => {
-        console.error('卡券支付接口调用失败:', err);
-        wx.showToast({
-          title: '支付失败，请重试',
-          icon: 'none'
-        });
-      }
-    });
-  },
   balancePayment() {
     this.storedPay('1201', '余额支付成功');
   },
@@ -1063,64 +800,42 @@ Page({
       ? (wx.getStorageSync('selectedStoreId') || app.globalData.selectedStoreId)
       : (wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6');
     const totalAmount = Number(this.data.payableAmount || this.data.totalPrice || 0);
-    const item = this.data.items[0] || {};
     const payScore = opid === '1203' ? totalAmount : '';
     const payload = {
-      MCODE: item.skuCode || '',
+      MCODE: '',
       OPID: opid,
       UNITID: unitId,
-      NUM: item.num || 1,
+      NUM: '',
       USERID: userid,
       NOTE: this.data.selected === '外送' ? `${successText}-外送` : `${successText}-自提`,
       AMT: opid === '1203' ? 0 : totalAmount,
       SCORE: payScore,
-      ASK: item.ask,
       type: this.data.selected === '自提' ? 1 : 2,
       username: this.data.username,
       phone: this.data.phone,
       address: this.data.address
     };
-    const requestPay = (mbid, retried) => {
-      wx.request({
-        url: `${app.globalData.backUrl}phone.aspx?mbid=${mbid}&ituid=${app.globalData.ituid}&itsid=${itsid}`,
-        method: 'POST',
-        data: payload,
-        header: { 'content-type': 'application/json' },
-        success: (res) => {
-          console.log('支付对账日志', {
-            mbid,
-            OPID: payload.OPID,
-            AMT: payload.AMT,
-            SCORE: payload.SCORE,
-            resp: res && res.data
-          });
-          const resp = res && res.data ? res.data : {};
-          const msgText = String(resp.msg || resp.desc || '');
-          const noMbid = /(无此mbid|mbid参数)/i.test(msgText);
-          if (noMbid && !retried) {
-            requestPay('10644', true);
-            return;
-          }
-          const type = opid === '1201' ? 'balance' : (opid === '1202' ? 'deposit' : 'coffee');
-          this.handlePaymentResult(res, type);
-          const hasOrder = !!(resp.orderid || resp.ORDERID || resp.sn || resp.SN || resp.result?.orderid || resp.result?.list?.[0]?.orderid);
-          const retryButCommitted = /(请重新下单|重复下单|已下单|订单已提交)/.test(msgText);
-          const success = resp.code === '1' || resp.code === 1 || resp.code === '0' || resp.code === 0 || resp.success === true ||
-            resp.result === '1' || resp.result === 1 || /成功/.test(msgText) || hasOrder || retryButCommitted;
-          if (success) {
-            wx.removeStorageSync('buyNowItems');
-          }
-        },
-        fail: () => {
-          if (!retried) {
-            requestPay('10644', true);
-            return;
-          }
-          wx.showToast({ title: '支付失败，请重试', icon: 'none' });
-        }
-      });
-    };
-    requestPay('10643', false);
+    wx.request({
+      // 钱包抵扣接口（余额/咖啡券/储值卡，与购物车结算一致）：mbid=124, OPID=1201/1203/1202
+      url: `${app.globalData.backUrl}phone.aspx?mbid=124&ituid=${app.globalData.ituid}&itsid=${itsid}`,
+      method: 'POST',
+      data: payload,
+      header: { 'content-type': 'application/json' },
+      success: (res) => {
+        console.log('支付对账日志', {
+          OPID: payload.OPID,
+          AMT: payload.AMT,
+          SCORE: payload.SCORE,
+          resp: res && res.data
+        });
+        const type = opid === '1201' ? 'balance' : (opid === '1202' ? 'deposit' : 'coffee');
+        this.handlePaymentResult(res, type);
+        wx.removeStorageSync('buyNowItems');
+      },
+      fail: () => {
+        wx.showToast({ title: '支付失败，请重试', icon: 'none' });
+      }
+    });
   }
   ,
   // 预取资金余额（余额/咖啡券/储值卡）

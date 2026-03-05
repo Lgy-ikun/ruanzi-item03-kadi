@@ -54,6 +54,32 @@ Page({
     shouhuo: [],
   },
 
+  isStoreOrder(t) {
+    const v = String(t || '').trim();
+    return v === '1' || v === '自提' || v.toLowerCase() === 'store' || v === '门店';
+  },
+  isDeliveryOrder(t) {
+    const v = String(t || '').trim();
+    return v === '2' || v === '外送' || v.toLowerCase() === 'delivery' || v === '外卖';
+  },
+  resolveOrderType(orderGroup, firstItem) {
+    const candidates = [
+      firstItem?.order_type,
+      orderGroup?.order_type,
+      firstItem?.type,
+      orderGroup?.type,
+      firstItem?.dine_type,
+      orderGroup?.dine_type
+    ];
+    for (let i = 0; i < candidates.length; i++) {
+      const value = candidates[i];
+      if (value !== undefined && value !== null && value !== '') {
+        return String(value).trim();
+      }
+    }
+    return '';
+  },
+
   // 格式化价格为两位小数
   formatPrice(price) {
     return parseFloat(price).toFixed(2);
@@ -132,19 +158,20 @@ Page({
     let that = this
     rawData.forEach(orderGroup => {
       const orderId = orderGroup.id;
-      const validItems = orderGroup.children.filter(item =>
-        item.num > 0 && item.price > 0
+      const children = Array.isArray(orderGroup.children) ? orderGroup.children : [];
+      const validItems = children.filter(item =>
+        Number(item.num || 0) > 0 || Number(item.price || 0) > 0 || item.productName || item.title || item.name
       );
 
-      if (validItems.length === 0) return;
-
+      const firstItem = validItems[0] || children[0] || {};
+      const orderType = this.resolveOrderType(orderGroup, firstItem);
       const order = {
         id: orderId,
         date: this.formatDate(orderGroup.time),
         total: 0,
-        order_type: validItems[0].order_type,
-        order_status: validItems[0].order_status,
-        statusText: this.getStatusText(validItems[0].order_status),
+        order_type: orderType,
+        order_status: firstItem.order_status,
+        statusText: this.getStatusText(firstItem.order_status),
         products: []
       };
 
@@ -168,15 +195,15 @@ Page({
         
       });
 
-      const firstItem = validItems[0] || {};
       const deliveryField = this.pickMoneyField([orderGroup, firstItem], ['delivery', 'deliveryFee', 'peisongfei', 'psf', 'freight', 'yunfei', 'shipFee', 'delivery_amount']);
       const discountField = this.pickMoneyField([orderGroup, firstItem], ['discount', 'youhui', 'coupon', 'couponAmt', 'coupon_amt', 'yhje', 'cardAmt', 'preferential', 'reduce', 'reduceAmt', 'youhuiAmt', 'appliedCouponAmt']);
       const paidField = this.pickMoneyField([orderGroup, firstItem], ['payable', 'paid', 'realPay', 'realpay', 'ssamt', 'sfje', 'amt', 'totalPay', 'actualAmount', 'actual_amount']);
 
-      const subtotal = this.toMoney(order.total);
+      const subtotalFromGoods = this.toMoney(order.total);
       const deliveryFee = deliveryField.value;
       const discountAmt = discountField.value;
-      const paidAmt = paidField.found ? paidField.value : Math.max(0, subtotal + deliveryFee - discountAmt);
+      const paidAmt = paidField.found ? paidField.value : Math.max(0, subtotalFromGoods + deliveryFee - discountAmt);
+      const subtotal = subtotalFromGoods > 0 ? subtotalFromGoods : Math.max(0, paidAmt + discountAmt - deliveryFee);
 
       order.subtotal = this.formatPrice(subtotal);
       order.deliveryFee = this.formatPrice(deliveryFee);
@@ -238,11 +265,13 @@ Page({
       success(res) {
         if (res.data?.result?.goods) {
           const processedData = that.processOrderData(res.data.result.goods);
+          const mendian = processedData.filter(item => that.isStoreOrder(item.order_type));
+          const waimai = processedData.filter(item => that.isDeliveryOrder(item.order_type));
 
           that.setData({
-            orderList: processedData,
-            mendianList: processedData.filter(item => item.order_type === '1'),
-            waimaiList: processedData.filter(item => item.order_type === '2')
+            orderList: mendian.concat(waimai),
+            mendianList: mendian,
+            waimaiList: waimai
           });
         }
         wx.hideToast()

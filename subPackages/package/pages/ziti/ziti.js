@@ -65,6 +65,7 @@ Page({
     // 存储选中的门店ID到全局变量
     wx.setStorageSync('selectedStoreId', storeId);
     app.globalData.selectedStoreId = storeId;
+    app.globalData.selected = '自提';
 
     wx.showToast({
       title: `已选择：${selectedStore.name}`,

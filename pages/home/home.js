@@ -1,18 +1,4 @@
 const app = getApp();
-
-// pages/home/home.js
-
-// const imageCdn = 'https://tdesign.gtimg.com/mobile/demos';
-// const swiperList = [
-//   '/images/bgimg1.jpg',
-//   '/images/bgimg2.jpg',
-//   '/images/bgimg3.jpg',
-// ];
-// import SkylineBehavior from '@behaviors/skyline.js';
-
-// Component({
-//   behaviors: [SkylineBehavior],
-// });
 Page({
 
   /**
@@ -49,51 +35,6 @@ Page({
     app.globalData.userid = null;
     app.globalData.itsid = null;
   },
-  // onLoad: function() {
-  //   const itsid= wx.getStorageSync('itsid')
-  //   wx.request({
-  //     url: `https://www.ruanzi.net/jy/go/we.aspx?ituid=106&itjid=10602&itcid=10602&itsid=${itsid}`,
-  //     method: 'GET',
-  //     success: function(res) {
-  //       console.log(
-  //         res
-  //       );
-  //     }
-  //   })
-  //   this.fetchData();
-  // console.log(app.globalData); // 访问全局数据
-
-
-  // },
-  // fetchData: function () {
-  //   const that = this;
-  //   const itsid = wx.getStorageSync('itsid')
-  //   // 后台接口地址
-  //   wx.request({
-  //     url: `https://www.ruanzi.net/jy/go/we.aspx?ituid=106&itjid=10602&itcid=10602&itsid=${itsid}`,
-  //     method: 'GET',
-  //     success: function (res) {
-  //       console.log(res);
-  //       if (res.statusCode == 200 & res.data) {
-  //         that.setData({
-  //           content: res.data.content,
-  //           freeze: res.data.freeze,
-  //           money: res.data.money,
-  //           score: res.data.score,
-
-  //         });
-  //       }
-  //     },
-  //     fail: function (error) {
-  //       console.error('获取数据失败', error);
-  //     }
-  //   });
-
-  // },
-
-  /**
-   * 生命周期函数--监听页面加载
-   */
   onLoad(options) {
     const AUrl = app.globalData.AUrl;
     console.log('Options:', options);
@@ -171,96 +112,6 @@ Page({
       }
     });
   },
-  // this.fetchData(itsid);
-  // const that = this;
-  // wx.request({
-  //   url: `https://www.ruanzi.net/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
-  //   method: 'GET',
-  //   success: (res) => {
-  //     that.setData({
-  //       content: res.data.content || '0',
-  //       freeze: res.data.freeze || '0',
-  //       money: res.data.money || '0',
-  //       score: res.data.score || '0',
-  //       name: res.data.name || '未登录',
-  //       userid: res.data.userid || '0',
-  //       // ... 设置其他数据
-  //     });
-  //     app.globalData.userid = res.data.userid;
-  //     wx.setStorageSync('userid', res.data.userid)
-  //     console.log('用户ID已全局化:', app.globalData.userid);
-  //     console.log('Response data:', res.data);
-  //     console.log('Page instance:', that);
-  //     if (res.statusCode === 200 && res.data) {
-  //       that.setData({
-  //         avatarUrl: res.data.avatar,
-
-  //       });
-
-
-  // 若存在userid，证明是通过分享进入的
-  //       if (options.userid) {
-  //         wx.request({
-  //           url: `https://www.ruanzi.net/jy/go/phone.aspx?mbid=10615&ituid=106&itsid=${itsid}`,
-  //           method: 'POST',
-  //           data: {
-  //             invite: options.userid,
-  //             userid: that.data.userid,
-  //           },
-  //         })
-  //       }
-  //     },
-  //     fail: (error) => {
-  //       console.error('获取数据失败', error);
-  //     }
-  //   });
-  // },
-
-
-
-  // fetchData: function (itsid) {
-  //   const that = this;
-  //   wx.request({
-  //     url: `https://www.ruanzi.net/jy/go/we.aspx?ituid=106&itjid=10616&itcid=10616&itsid=`,
-  //     method: 'GET',
-  //     success: function (res) {
-  //       // console.log(res.data.result.list[0].freeze);
-  //       // if (res.statusCode === 200 && res.data) {
-  //       that.setData({
-  //         content: res.data.result.list[0].quan || '1342', // 积分
-  //         freeze: res.data.result.list[0].freeze || '145', // 消费券数量
-  //         money: res.data.result.list[0].money || '3000', // 余额
-  //         score: res.data.result.list[0].score || '65' // 冻结积分
-  //       });
-  //       // }
-  //     },
-  //     fail: function (error) {
-  //       console.error('获取数据失败', error);
-  //     }
-  //   });
-  //   wx.request({
-  //     url: `https://www.ruanzi.net/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
-  //     method: 'GET',
-  //     success: (res) => {
-  //       console.log('Response data:', res.data);
-  //       app.globalData.userid = res.data.userid
-  //       console.log("user", app.globalData.userid);
-  //       console.log('Page instance:', that);
-  //       if (res.statusCode === 200 && res.data) {
-  //         const app = getApp();
-  //         app.globalData.name = res.data.name;
-  //         console.log(app.globalData.name);
-  //         that.setData({
-  //           name: res.data.name || '未登录',
-  //         });
-  //       }
-  //     },
-  //     fail: (error) => {
-  //       console.error('获取数据失败', error);
-  //     }
-  //   });
-  // },
-
   // 首页到店取：预设自提并跳到点单页
   gotoOrderPickUp() {
     app.globalData.selected = '自提';
