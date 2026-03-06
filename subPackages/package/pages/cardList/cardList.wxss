@@ -141,6 +141,7 @@ page {
 
 /* 立即购买按钮 */
 .buy-btn {
+  flex: 1;
   background: linear-gradient(90deg, #6a7efc, #8d9eff);
   color: #fff;
   font-size: 30rpx;
@@ -148,7 +149,36 @@ page {
   text-align: center;
   padding: 20rpx;
   border-radius: 40rpx;
+  margin-top: 0;
+  margin-left: 20rpx;
+}
+.purchase-row {
   margin-top: 20rpx;
+  display: flex;
+  align-items: center;
+}
+.qty-box {
+  margin-top: 20rpx;
+  display: flex;
+  align-items: center;
+  background-color: #f3f3f3;
+  border-radius: 40rpx;
+  padding: 6rpx 12rpx;
+}
+.qty-btn {
+  width: 52rpx;
+  height: 52rpx;
+  line-height: 52rpx;
+  text-align: center;
+  font-size: 34rpx;
+  color: #333;
+}
+.qty-num {
+  min-width: 56rpx;
+  text-align: center;
+  font-size: 28rpx;
+  font-weight: bold;
+  color: #333;
 }
 .none {
   text-align: center;

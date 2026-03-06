@@ -49,9 +49,15 @@
                     <text class="detail-value">4.72</text>
                 </view>
             </view>
-            <!-- 立即购买按钮 -->
-            <view class="buy-btn" bindtap="gotoBuy" data-id="1">
-                <text>立即购买</text>
+            <view class="purchase-row">
+                <view class="qty-box">
+                    <view class="qty-btn" bindtap="decreaseQty" data-id="1">-</view>
+                    <view class="qty-num">{{quantities['1']}}</view>
+                    <view class="qty-btn" bindtap="increaseQty" data-id="1">+</view>
+                </view>
+                <view class="buy-btn" bindtap="gotoBuy" data-id="1">
+                    <text>立即购买</text>
+                </view>
             </view>
         </view>
         <!-- 套餐2：卡狄C套餐 -->
@@ -93,9 +99,15 @@
                     <text class="detail-value">15.00</text>
                 </view>
             </view>
-            <!-- 立即购买按钮 -->
-            <view class="buy-btn" bindtap="gotoBuy" data-id="2">
-                <text>立即购买</text>
+            <view class="purchase-row">
+                <view class="qty-box">
+                    <view class="qty-btn" bindtap="decreaseQty" data-id="2">-</view>
+                    <view class="qty-num">{{quantities['2']}}</view>
+                    <view class="qty-btn" bindtap="increaseQty" data-id="2">+</view>
+                </view>
+                <view class="buy-btn" bindtap="gotoBuy" data-id="2">
+                    <text>立即购买</text>
+                </view>
             </view>
         </view>
         <!-- 套餐3：卡狄B套餐 -->
@@ -137,9 +149,15 @@
                     <text class="detail-value">47.50</text>
                 </view>
             </view>
-            <!-- 立即购买按钮 -->
-            <view class="buy-btn" bindtap="gotoBuy" data-id="3">
-                <text>立即购买</text>
+            <view class="purchase-row">
+                <view class="qty-box">
+                    <view class="qty-btn" bindtap="decreaseQty" data-id="3">-</view>
+                    <view class="qty-num">{{quantities['3']}}</view>
+                    <view class="qty-btn" bindtap="increaseQty" data-id="3">+</view>
+                </view>
+                <view class="buy-btn" bindtap="gotoBuy" data-id="3">
+                    <text>立即购买</text>
+                </view>
             </view>
         </view>
         <!-- 套餐4：卡狄A套餐 -->
@@ -181,9 +199,15 @@
                     <text class="detail-value">150.00</text>
                 </view>
             </view>
-            <!-- 立即购买按钮 -->
-            <view class="buy-btn" bindtap="gotoBuy" data-id="4">
-                <text>立即购买</text>
+            <view class="purchase-row">
+                <view class="qty-box">
+                    <view class="qty-btn" bindtap="decreaseQty" data-id="4">-</view>
+                    <view class="qty-num">{{quantities['4']}}</view>
+                    <view class="qty-btn" bindtap="increaseQty" data-id="4">+</view>
+                </view>
+                <view class="buy-btn" bindtap="gotoBuy" data-id="4">
+                    <text>立即购买</text>
+                </view>
             </view>
         </view>
         <view class="none">
