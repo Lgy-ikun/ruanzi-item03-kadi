@@ -150,3 +150,9 @@ page {
   border-radius: 40rpx;
   margin-top: 20rpx;
 }
+.none {
+  text-align: center;
+  font-size: 28rpx;
+  color: #999;
+  margin-top: 40rpx;
+}

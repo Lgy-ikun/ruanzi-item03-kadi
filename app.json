@@ -113,7 +113,8 @@
         "pages/jiesuan-now/jiesuan-now",
         "pages/coupon-select/coupon-select",
         "pages/agentRewards/agentRewards",
-        "pages/cardList/cardList"
+        "pages/cardList/cardList",
+        "pages/confirmOrder/confirmOrder"
       ]
     }
   ],

@@ -10,17 +10,13 @@ Page({
   },
 
   /**
-   * 点击立即购买（静态提示）
+   * 点击立即购买
    */
   gotoBuy(e) {
     const id = e.currentTarget.dataset.id;
-    wx.showToast({
-      title: `购买套餐${id}`,
-      icon: 'none'
+    // 跳转到确认订单页面，并传递套餐ID
+    wx.navigateTo({
+      url: `/subPackages/package/pages/confirmOrder/confirmOrder?id=${id}`,
     });
-    // 后续可替换为真实跳转：
-    // wx.navigateTo({
-    //   url: `/subPackages/package/pages/buy/buy?id=${id}`,
-    // });
   }
 });

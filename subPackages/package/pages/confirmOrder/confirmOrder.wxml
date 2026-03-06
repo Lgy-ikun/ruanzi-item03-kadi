@@ -1,0 +1,50 @@
+<view class="container">
+  <view class="order-card">
+    <view class="item-header">
+      <view class="header-left">
+        <text class="main-title">套餐</text>
+        <text class="sub-title">{{packageName}}</text>
+      </view>
+      <view class="header-right">
+        <text class="tag">{{packageTag}}</text>
+      </view>
+    </view>
+
+    <view class="pay-row">
+      <text class="pay-label">支付：</text>
+      <text class="pay-money">余额 {{payAmount}}</text>
+      <text class="pay-coupon">+ 咖啡券 {{coffeeAmount}}</text>
+    </view>
+
+    <view class="detail-row">
+      <view class="detail-item">
+        <text class="detail-label">咖啡券倍数</text>
+        <text class="detail-value">{{multiple}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">赠送总咖啡券</text>
+        <text class="detail-value">{{totalReturn}}</text>
+      </view>
+    </view>
+    <view class="detail-row">
+      <view class="detail-item">
+        <text class="detail-label">总天数</text>
+        <text class="detail-value">{{days}}</text>
+      </view>
+      <view class="detail-item">
+        <text class="detail-label">每日释放</text>
+        <text class="detail-value">{{dailyReturn}}</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="tips">本套餐仅支持余额+咖啡券组合支付，购买后不可退款。</view>
+
+  <view class="footer">
+    <view class="total-price">
+      <text>应付金额：</text>
+      <text class="amount">{{totalAmount}}</text>
+    </view>
+    <view class="submit-btn" bindtap="submitOrder">立即支付</view>
+  </view>
+</view>
