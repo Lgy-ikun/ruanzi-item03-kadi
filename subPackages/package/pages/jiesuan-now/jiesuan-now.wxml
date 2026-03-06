@@ -7,12 +7,12 @@
         <text class="user-id" wx:if="{{selected === '外送'}}">{{phone}} {{username}}</text>
       </view>
       <view class="pickup-delivery-group">
-        <navigator url="/subPackages/package/pages/ziti/ziti?type=jiesuan-now" class="pickup-button {{selected === '自提' ? 'active' : ''}}" bindtap="selectOption" data-option="自提">
+        <view class="pickup-button {{selected === '自提' ? 'active' : ''}}" bindtap="onTapPickup">
           <text>自提</text>
-        </navigator>
-        <navigator url="/subPackages/package/pages/chooseLocation/chooseLocation?type=jiesuan-now" class="delivery-button {{selected === '外送' ? 'active' : ''}}" bindtap="selectOption" data-option="外送">
+        </view>
+        <view class="delivery-button {{selected === '外送' ? 'active' : ''}}" bindtap="onTapDelivery">
           <text>外送</text>
-        </navigator>
+        </view>
       </view>
     </view>
     <view class="order-list">
