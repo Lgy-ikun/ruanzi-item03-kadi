@@ -2,11 +2,11 @@
   <!-- 顶部渐变背景栏（含右上角二维码） -->
   <view class="top-bar">
     <!-- 左侧头像+用户信息 -->
-    <view class="left-wrap" bindtap="tapLeftWrap">
+    <view class="left-wrap" bindtap="tapLeftWrap"> 
       <image class="avatar" src="{{avatar || '/images/default-avatar.png'}}" mode="aspectFill"></image>
       <view class="user-info-wrap">
         <text class="username">{{isLogin ? (name || '已登录') : '登录注册'}}</text>
-        <view class="card-tag">{{isLogin ? '卡狄D套餐' : ' '}}</view>
+        <view class="card-tag">{{isLogin ? '卡狄D套餐' : ''}}</view>
       </view>
     </view>
     <!-- 右上角二维码图标 -->

@@ -43,7 +43,7 @@ Page({
     const sys = wx.getSystemInfoSync();
     const windowWidth = sys.windowWidth || sys.screenWidth;
     const windowHeight = sys.windowHeight || sys.screenHeight;
-    const swiperHeightRpx = Math.round(750 * (windowHeight / windowWidth) * 0.44);
+    const swiperHeightRpx = Math.round(750 * (windowHeight / windowWidth) * 0.405);
     this.setData({ swiperHeight: swiperHeightRpx });
     const itsid = wx.getStorageSync('itsid');
     const userid = wx.getStorageSync('inviteUserid'); // 从 Storage 获取 invite
