@@ -1,0 +1,28 @@
+<view class="container">
+  <view class="balance-card">
+    <view class="balance-header">
+      <text class="label">{{titleLabel}}</text>
+      <view class="recharge-btn" bindtap="goRecharge">充值</view>
+    </view>
+    <text class="amount">{{money}}</text>
+  </view>
+
+  <view class="record-title">充值记录</view>
+
+  <view wx:if="{{records.length > 0}}" class="records-list">
+    <view class="record-item header">
+      <text class="left">充值时间</text>
+      <text class="right">充值金额</text>
+    </view>
+    <block wx:for="{{records}}" wx:key="index">
+      <view class="record-item">
+        <text class="left">{{item.time}}</text>
+        <text class="right">{{item.money}}</text>
+      </view>
+    </block>
+  </view>
+
+  <view wx:else class="no-data">
+    <text>暂无充值记录</text>
+  </view>
+</view>

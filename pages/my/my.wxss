@@ -48,6 +48,9 @@ page {
   border-radius: 8rpx;
   width: fit-content;
 }
+.card-tag-notlogin {
+  padding: 0;
+}
 /* 右上角二维码图标 */
 .qrcode-icon {
   position:relative;
@@ -117,17 +120,24 @@ page {
   background-color: #fff;
   margin: 30rpx 20rpx;
   border-radius: 16rpx;
-  padding: 20rpx;
+  padding: 40rpx 20rpx 10rpx;
   display: flex;
   flex-wrap: wrap;
   justify-content: flex-start;
+}
+.func-grid-notlogin {
+  margin: 100rpx 20rpx 30rpx 20rpx;
+  
 }
 .func-item {
   width: 25%;
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 40rpx;
+  margin-bottom: 30rpx;
+}
+.func-item-notlogin {
+  margin-bottom: -6rpx;
 }
 .func-item.empty {
   visibility: hidden;

@@ -1,0 +1,80 @@
+.container {
+  min-height: 100vh;
+  background: #f7f7f7;
+  padding: 24rpx;
+  box-sizing: border-box;
+}
+
+.balance-card {
+  background: linear-gradient(180deg, #7b7be8 0%, #8a7bef 100%);
+  border-radius: 20rpx;
+  padding: 30rpx;
+  color: #fff;
+  width: 85%;
+}
+
+.balance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.label {
+  font-size: 34rpx;
+}
+
+.recharge-btn {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 26rpx;
+  padding: 10rpx 24rpx;
+  font-size: 28rpx;
+}
+
+.amount {
+  margin-top: 28rpx;
+  font-size: 58rpx;
+  font-weight: 700;
+}
+
+.record-title {
+  margin: 20rpx 0 20rpx 0;
+  font-size: 32rpx;
+  font-weight: 600;
+  color: #333;
+  padding-left: 20rpx;
+  border-left: 8rpx solid #3472e5;
+  line-height: 1.2;
+}
+
+.records-list {
+  background: #fff;
+  border-radius: 16rpx;
+  overflow: hidden;
+  width: 90%;
+}
+
+.record-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24rpx;
+  border-bottom: 1rpx solid #f0f0f0;
+  font-size: 28rpx;
+  color: #333;
+}
+
+.record-item.header {
+  color: #666;
+  font-size: 26rpx;
+}
+
+.record-item:last-child {
+  border-bottom: 0;
+}
+
+.no-data {
+  margin-top: 140rpx;
+  text-align: center;
+  color: #999;
+  font-size: 28rpx;
+}

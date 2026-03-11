@@ -5,6 +5,7 @@ Page({
    * 页面的初始数据
    */
   data: {
+    target: 'add',
     keyid: 0,
     userid: '',
     address: '',
@@ -34,19 +35,30 @@ Page({
       wx.setNavigationBarTitle({
         title: '新增地址'
       })
+      this.setData({
+        target: 'add'
+      })
     }
     if (options.target === 'edit') {
       wx.setNavigationBarTitle({
         title: '编辑地址'
       })
       this.setData({
+        target: 'edit',
+        keyid: Number(options.keyid || 0),
         userid: app.globalData.userid,
-        username: options.username,
-        gender: options.gender,
-        phone: options.phone,
-        address: options.address,
-        addressDesc: options.addressdesc,
-        door: options.door,
+        username: decodeURIComponent(options.name || options.username || ''),
+        gender: decodeURIComponent(options.gender || ''),
+        phone: decodeURIComponent(options.phone || ''),
+        address: decodeURIComponent(options.address || ''),
+        addressDesc: decodeURIComponent(options.addressdesc || ''),
+        door: decodeURIComponent(options.door || ''),
+        province: decodeURIComponent(options.province || ''),
+        city: decodeURIComponent(options.city || ''),
+        district: decodeURIComponent(options.district || ''),
+        street: decodeURIComponent(options.street || ''),
+        w: decodeURIComponent(options.w || ''),
+        s: decodeURIComponent(options.s || ''),
         isIndex: Number(options.isIndex)
       })
     }
@@ -122,6 +134,7 @@ Page({
 
 
     // 后台接口地址
+    const isEdit = this.data.target === 'edit';
     wx.request({
       url: `${app.globalData.backUrl}phone.aspx?mbid=10605&ituid=${app.globalData.ituid}&itsid=${itsid}`,
       method: 'POST',
@@ -148,8 +161,8 @@ Page({
         // s: "that.data.s", //纬度
         // MeFlag: 0,
         delivery: 5,
-        keyid: 60, //只在修改时起效
-        count: 0, //0新增，1修改
+        keyid: isEdit ? that.data.keyid : 0, //只在修改时起效
+        count: isEdit ? 1 : 0, //0新增，1修改
       },
       success(res) {
         console.log(res);

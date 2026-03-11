@@ -32,6 +32,7 @@ Page({
     wx.removeStorageSync('userid');
     wx.removeStorageSync('name');
     wx.removeStorageSync('avatar');
+    wx.removeStorageSync('inviteUserid');
     app.globalData.userid = null;
     app.globalData.itsid = null;
   },
@@ -122,12 +123,6 @@ Page({
   },
   
   handleNavigate2() {
-    if (!wx.getStorageSync('isLoginSuccess')) {
-      wx.navigateTo({
-        url: '/subPackages/user/pages/register/register?from=home',
-      })
-      return
-    }
     wx.navigateTo({
       url: '/subPackages/package/pages/recharge/recharge',
     })

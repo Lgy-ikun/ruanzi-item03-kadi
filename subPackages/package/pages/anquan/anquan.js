@@ -1,4 +1,5 @@
 // subPackages/package/pages/anquan/anquan.js
+const app = getApp();
 Page({
 
   /**
@@ -6,6 +7,37 @@ Page({
    */
   data: {
 
+  },
+  clearAuthState() {
+    wx.setStorageSync('isLoginSuccess', false);
+    wx.removeStorageSync('itsid');
+    wx.removeStorageSync('userid');
+    wx.removeStorageSync('name');
+    wx.removeStorageSync('avatar');
+    wx.removeStorageSync('inviteUserid');
+    app.globalData.userid = null;
+    app.globalData.itsid = null;
+  },
+  logout() {
+    wx.showModal({
+      title: '提示',
+      content: '确认退出登录？',
+      confirmText: '退出登录',
+      cancelText: '取消',
+      success: (res) => {
+        if (res.confirm) {
+          try {
+            wx.clearStorageSync();
+          } catch (e) { }
+          this.clearAuthState();
+          wx.showToast({
+            "title": "退出登录成功",
+            "icon": "success"
+          });
+          wx.switchTab({ url: '/pages/my/my' });
+          }
+        }
+    });
   },
 
   /**

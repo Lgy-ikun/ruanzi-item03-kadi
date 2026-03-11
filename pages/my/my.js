@@ -24,36 +24,11 @@ Page({
     wx.removeStorageSync('userid');
     wx.removeStorageSync('name');
     wx.removeStorageSync('avatar');
+    wx.removeStorageSync('inviteUserid');
     getApp().globalData.userid = null;
     getApp().globalData.itsid = null;
   },
-  logoutConfirm() {
-    wx.showModal({
-      title: '提示',
-      content: '确认退出登录？',
-      confirmText: '退出登录',
-      cancelText: '取消',
-      success: (res) => {
-        if (res.confirm) {
-          try {
-            wx.clearStorageSync();
-          } catch (e) {}
-          this.clearAuthState();
-          this.setData({
-            isLogin: false,
-            name: '',
-            avatar: '',
-            money: 0.00,
-            coffeeCoupon: 0.00,
-            depositCard: 0.00,
-            electronicCoupon: 0.00
-          });
-          wx.switchTab({ url: '/pages/home/home' });
-        }
-      }
-    });
-  },
-
+  
   // 右上角二维码点击事件
   gotoQrcode() {
     wx.showToast({
@@ -75,8 +50,8 @@ Page({
         content: '目前暂未登录，是否跳转登录页面？',
         confirmText: '立即登录',
         cancelText: '取消',
-        success(res){
-          if (res.confirm){
+        success(res) {
+          if (res.confirm) {
             wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=cardDetail' });
           }
         }
@@ -89,12 +64,38 @@ Page({
     })
   },
 
+  gotoBalanceRecord() {
+    wx.navigateTo({
+      url: '/subPackages/package/pages/balanceRecord/balanceRecord?type=balance'
+    });
+  },
+
+  gotoDepositRecord() {
+    const isLogin = this.isRealLogin();
+    if (!isLogin) {
+      wx.showModal({
+        title: '提示',
+        content: '目前暂未登录，是否跳转登录页面？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success(res) {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
+          }
+        }
+      });
+      return;
+    }
+    wx.navigateTo({
+      url: '/subPackages/package/pages/balanceRecord/balanceRecord?type=stored'
+    });
+  },
+
   // 电商订单
   gotoEcommerceOrder() {
-    wx.showToast({
-      title: '暂未实现',
-      icon: 'none'
-    })
+    wx.switchTab({
+      url: '/pages/orders/orders'
+    });
   },
 
   // 口味定制
@@ -115,10 +116,24 @@ Page({
 
   // 领券中心
   gotoCouponCenter() {
-    wx.showToast({
-      title: '暂未实现',
-      icon: 'none'
-    })
+    const isLogin = this.isRealLogin();
+    if (!isLogin) {
+      wx.showModal({
+        title: '提示',
+        content: '目前暂未登录，是否跳转登录页面？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success(res) {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
+          }
+        }
+      });
+      return;
+    }
+    wx.navigateTo({
+      url: '/subPackages/package/pages/couponReceive/couponReceive',
+    });
   },
 
   // 我的优惠券
@@ -130,10 +145,24 @@ Page({
 
   // 收货地址
   gotoAddress() {
-    wx.showToast({
-      title: '暂未实现',
-      icon: 'none'
-    })
+    const isLogin = this.isRealLogin();
+    if (!isLogin) {
+      wx.showModal({
+        title: '提示',
+        content: '目前暂未登录，是否跳转登录页面？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success(res) {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
+          }
+        }
+      });
+      return;
+    }
+    wx.navigateTo({
+      url: '/subPackages/package/pages/chooseLocation/chooseLocation',
+    });
   },
 
   // 我的收藏
@@ -154,10 +183,24 @@ Page({
 
   // 微股东门店
   gotoShareholderStore() {
-    wx.showToast({
-      title: '暂未实现',
-      icon: 'none'
-    })
+    const isLogin = this.isRealLogin();
+    if (!isLogin) {
+      wx.showModal({
+        title: '提示',
+        content: '目前暂未登录，是否跳转登录页面？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success(res) {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
+          }
+        }
+      });
+      return;
+    }
+    wx.navigateTo({
+      url: '/subPackages/package/pages/shareholder/shareholder',
+    });
   },
 
   // 子账户
@@ -169,8 +212,8 @@ Page({
         content: '目前暂未登录，是否跳转登录页面？',
         confirmText: '立即登录',
         cancelText: '取消',
-        success(res){
-          if (res.confirm){
+        success(res) {
+          if (res.confirm) {
             wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
           }
         }
@@ -184,9 +227,23 @@ Page({
 
   // 我的好友
   gotoMyFriend() {
-    wx.showToast({
-      title: '暂未实现',
-      icon: 'none'
+    const isLogin = this.isRealLogin();
+    if (!isLogin) {
+      wx.showModal({
+        title: '提示',
+        content: '目前暂未登录，是否跳转登录页面？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success(res) {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
+          }
+        }
+      });
+      return;
+    }
+    wx.navigateTo({
+      url: '/subPackages/package/pages/huiyuanrenshu/huiyuanrenshu',
     })
   },
 
@@ -199,8 +256,8 @@ Page({
         content: '目前暂未登录，是否跳转登录页面？',
         confirmText: '立即登录',
         cancelText: '取消',
-        success(res){
-          if (res.confirm){
+        success(res) {
+          if (res.confirm) {
             wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
           }
         }
@@ -221,8 +278,8 @@ Page({
         content: '目前暂未登录，是否跳转登录页面？',
         confirmText: '立即登录',
         cancelText: '取消',
-        success(res){
-          if (res.confirm){
+        success(res) {
+          if (res.confirm) {
             wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
           }
         }
@@ -236,10 +293,24 @@ Page({
 
   // 设置
   gotoSetting() {
-    wx.showToast({
-      title: '暂未实现',
-      icon: 'none'
-    })
+    const isLogin = this.isRealLogin();
+    if (!isLogin) {
+      wx.showModal({
+        title: '提示',
+        content: '目前暂未登录，是否跳转登录页面？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success(res) {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
+          }
+        }
+      });
+      return;
+    }
+    wx.navigateTo({
+      url: '/subPackages/package/pages/anquan/anquan',
+    });
   },
 
   /**
@@ -266,8 +337,8 @@ Page({
         content: '目前暂未登录，是否跳转登录页面？',
         confirmText: '立即登录',
         cancelText: '取消',
-        success(res){
-          if (res.confirm){
+        success(res) {
+          if (res.confirm) {
             wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
           }
         }
@@ -321,6 +392,7 @@ Page({
     if (itsid && isLogin) {
       this.fetchUserData(itsid);
     } else {
+      this.clearAuthState();
       this.setData({
         isLogin: false,
         name: '',
@@ -332,6 +404,6 @@ Page({
       });
     }
     this.setData({ isLogin });
-    
+
   }
 })

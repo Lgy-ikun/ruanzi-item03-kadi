@@ -8,4 +8,9 @@
     <text class="wang">修改密码</text>
     <text class="aa">></text>
   </navigator>
+  <view class="divider"></view> <!-- 分隔线 -->
+  <view class="wangji" hover-class="none" hover-stop-propagation="false" bindtap="logout">
+    <text class="wang">退出登录</text>
+    <text class="aa">></text>
+  </view>
 </view>
