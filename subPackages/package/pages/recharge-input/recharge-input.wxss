@@ -1,0 +1,61 @@
+page {
+  background-color: #F5F7FA;
+}
+.container {
+  padding: 30rpx;
+}
+.input-card {
+  background: #FFFFFF;
+  border-radius: 24rpx;
+  padding: 40rpx 30rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.02);
+}
+.title {
+  font-size: 28rpx;
+  color: #333333;
+  margin-bottom: 40rpx;
+}
+.input-wrapper {
+  display: flex;
+  align-items: baseline;
+  margin-bottom: 20rpx;
+}
+.currency {
+  font-size: 48rpx;
+  font-weight: bold;
+  color: #333333;
+  margin-right: 10rpx;
+}
+.money-input {
+  flex: 1;
+  height: 80rpx;
+  font-size: 64rpx;
+  font-weight: bold;
+  color: #333333;
+}
+.divider {
+  height: 1rpx;
+  background-color: #EEEEEE;
+  margin-top: 20rpx;
+}
+.btn-wrapper {
+  margin-top: 80rpx;
+  display: flex;
+  justify-content: center;
+}
+.submit-btn {
+  width: 300rpx;
+  height: 88rpx;
+  line-height: 88rpx;
+  text-align: center;
+  background: #CCCCCC; /* 未激活状态灰色 */
+  color: #FFFFFF;
+  font-size: 32rpx;
+  font-weight: 500;
+  border-radius: 44rpx;
+  transition: all 0.3s;
+}
+.submit-btn.active {
+  background: linear-gradient(90deg, #2E82FF 0%, #0056D4 100%); /* 激活态蓝色渐变 */
+  box-shadow: 0 10rpx 20rpx rgba(46, 130, 255, 0.3);
+}

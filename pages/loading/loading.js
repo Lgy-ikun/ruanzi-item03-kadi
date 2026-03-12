@@ -262,7 +262,6 @@ Page({
       },
       fail: (error) => {
         console.error('10603获取数据失败', error);
-        wx.setStorageSync('isLoginSuccess', false);
       }
     });
   },

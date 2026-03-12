@@ -11,12 +11,19 @@ Page({
     AUrl: app.globalData.AUrl,
     isLogin: false
   },
-  isRealLogin() {
-    const raw = wx.getStorageSync('isLoginSuccess');
+  hasSession() {
     const itsid = String(wx.getStorageSync('itsid') || '');
     const userid = String(wx.getStorageSync('userid') || '');
-    return (raw === true || raw === 'true' || raw === 1 || raw === '1') &&
-      itsid && itsid !== '0' && userid && userid !== '0';
+    return itsid && itsid !== '0' && userid && userid !== '0';
+  },
+  isRealLogin() {
+    const raw = wx.getStorageSync('isLoginSuccess');
+    const hasSession = this.hasSession();
+    const flagLogin = raw === true || raw === 'true' || raw === 1 || raw === '1';
+    if (hasSession && !flagLogin) {
+      wx.setStorageSync('isLoginSuccess', true);
+    }
+    return hasSession;
   },
   clearAuthState() {
     wx.setStorageSync('isLoginSuccess', false);
@@ -43,22 +50,6 @@ Page({
 
   // 卡狄D套餐详情
   gotocardDetail() {
-    const isLogin = this.isRealLogin();
-    if (!isLogin) {
-      wx.showModal({
-        title: '提示',
-        content: '目前暂未登录，是否跳转登录页面？',
-        confirmText: '立即登录',
-        cancelText: '取消',
-        success(res) {
-          if (res.confirm) {
-            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=cardDetail' });
-          }
-        }
-      });
-      return;
-    }
-    // 跳转到套餐列表页面
     wx.navigateTo({
       url: '/subPackages/package/pages/cardList/cardList',
     })
@@ -71,21 +62,6 @@ Page({
   },
 
   gotoDepositRecord() {
-    const isLogin = this.isRealLogin();
-    if (!isLogin) {
-      wx.showModal({
-        title: '提示',
-        content: '目前暂未登录，是否跳转登录页面？',
-        confirmText: '立即登录',
-        cancelText: '取消',
-        success(res) {
-          if (res.confirm) {
-            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
-          }
-        }
-      });
-      return;
-    }
     wx.navigateTo({
       url: '/subPackages/package/pages/balanceRecord/balanceRecord?type=stored'
     });
@@ -317,9 +293,8 @@ Page({
    * 生命周期函数--监听页面加载
    */
   onLoad(options) {
-    // 如需从接口获取数据，保留以下逻辑（无需则删除）
     const itsid = wx.getStorageSync('itsid');
-    if (itsid) {
+    if (this.hasSession()) {
       this.fetchUserData(itsid);
     }
   },
@@ -355,30 +330,39 @@ Page({
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
       method: 'GET',
       success: (res) => {
-        const hasValidUser = res.statusCode === 200 && res.data && String(res.data.userid || '') !== '0' && !!String(res.data.name || '').trim();
+        const hasValidUser = res.statusCode === 200 && res.data && String(res.data.userid || '') !== '0';
         if (hasValidUser) {
+          wx.setStorageSync('isLoginSuccess', true);
           that.setData({
             name: res.data.name || '',
             money: res.data.money || 0.00,
             coffeeCoupon: res.data.score || 0.00,
             depositCard: res.data.chuzhika || 0.00,
             electronicCoupon: res.data.dianzi || 0.00,
-            avatar: `${app.globalData.AUrl}/jy/wxuser/106/images/singeravatar/` + (res.data.avatar || '')
+            avatar: `${app.globalData.AUrl}/jy/wxuser/106/images/singeravatar/` + (res.data.avatar || ''),
+            isLogin: true
           });
           wx.setStorageSync('name', res.data.name || '');
           wx.setStorageSync('avatar', res.data.avatar || '');
         } else {
-          that.clearAuthState();
-          that.setData({
-            isLogin: false,
-            name: '',
-            avatar: '',
-            money: 0.00,
-            coffeeCoupon: 0.00,
-            depositCard: 0.00,
-            electronicCoupon: 0.00
-          });
+          const isExplicitLogout = String(res?.data?.userid || '') === '0';
+          if (isExplicitLogout) {
+            that.clearAuthState();
+            that.setData({
+              isLogin: false,
+              name: '',
+              avatar: '',
+              money: 0.00,
+              coffeeCoupon: 0.00,
+              depositCard: 0.00,
+              electronicCoupon: 0.00
+            });
+          }
         }
+      },
+      fail: () => {
+        const isLogin = that.hasSession();
+        that.setData({ isLogin });
       }
     });
   },
@@ -388,11 +372,11 @@ Page({
    */
   onShow() {
     const itsid = wx.getStorageSync('itsid');
-    const isLogin = this.isRealLogin();
-    if (itsid && isLogin) {
+    if (this.hasSession()) {
+      this.setData({ isLogin: true });
       this.fetchUserData(itsid);
     } else {
-      this.clearAuthState();
+      wx.setStorageSync('isLoginSuccess', false);
       this.setData({
         isLogin: false,
         name: '',
@@ -403,7 +387,5 @@ Page({
         electronicCoupon: 0.00
       });
     }
-    this.setData({ isLogin });
-
   }
 })

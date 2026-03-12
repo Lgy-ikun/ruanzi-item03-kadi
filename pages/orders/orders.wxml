@@ -32,8 +32,6 @@
           <view class="order-footer">
             <text class="order-status">{{item.statusText}}</text>
             <text class="order-total">商品合计：￥{{item.subtotal}}</text>
-            <text class="order-total">优惠：-￥{{item.discountAmt}}</text>
-            <text class="order-total">运费：￥{{item.deliveryFee}}</text>
             <text class="order-total">实付：￥{{item.paidAmt}}</text>
           </view>
         </view>
@@ -68,8 +66,6 @@
         <view class="order-footer">
           <text class="order-status">{{item.statusText}}</text>
           <text class="order-total">商品合计：￥{{item.subtotal}}</text>
-          <text class="order-total">优惠：-￥{{item.discountAmt}}</text>
-          <text class="order-total">运费：￥{{item.deliveryFee}}</text>
           <text class="order-total">实付：￥{{item.paidAmt}}</text>
         </view>
       </view>
@@ -102,8 +98,6 @@
         <view class="order-footer">
           <text class="order-status">{{item.statusText}}</text>
           <text class="order-total">商品合计：￥{{item.subtotal}}</text>
-          <text class="order-total">优惠：-￥{{item.discountAmt}}</text>
-          <text class="order-total">运费：￥{{item.deliveryFee}}</text>
           <text class="order-total">实付：￥{{item.paidAmt}}</text>
         </view>
       </view>

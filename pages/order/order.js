@@ -67,39 +67,19 @@ Page({
 
   selectOption: function (e) {
     const option = e.currentTarget.dataset.option;
-    app.globalData.selected = option
+    app.globalData.selected = option;
     console.log(option);
-    // 更新全局数据和页面数据
     if (option === '外送') {
-      // app.setSelected(option);
-      // app.setAddress(''); // 如果选择外送，重置地址信息
-      // app.setStoreInfo(''); // 如果选择外送，重置门店信息
-      // this.setData({
-      // selected: option,
-      // isDelivery: true,
-      // address: '',
-      // storeInfo: ''
-      // });
-      wx.navigateTo({
-        url: '/subPackages/package/pages/chooseLocation/chooseLocation?type=order'
+      this.setData({
+        selected: option,
+        address: app.globalData.addressDesc || this.data.address || ''
       });
     } else {
-      // app.setSelected(option);
-      // app.setAddress(''); // 如果选择自提，重置地址信息
-      // app.setStoreInfo('卡狄门店'); // 更新门店信息为默认值
       this.setData({
-        selected: app.globalData.selected,
-        // isDelivery: false,
-        // address: '',
-        storeName: app.globalData.storeName
+        selected: option,
+        storeName: app.globalData.selectedStoreName || app.globalData.storeName || this.data.storeName || ''
       });
     }
-    // 更新页面数据
-    // this.setData({
-    //   selected: option,
-    //   address: option === '外送' ? app.globalData.addressDesc : '',
-    //   storeInfo: option === '自提' ? app.globalData.storeInfo : ''
-    // });
   },
   gobackPublish: function () {
     const app = getApp();

@@ -3,14 +3,16 @@
   background: #f7f7f7;
   padding: 24rpx;
   box-sizing: border-box;
+  justify-content: flex-start;
 }
 
 .balance-card {
   background: linear-gradient(180deg, #7b7be8 0%, #8a7bef 100%);
   border-radius: 20rpx;
-  padding: 30rpx;
+  padding: 30rpx 30rpx 50rpx;
   color: #fff;
-  width: 85%;
+  width: 90%;
+  
 }
 
 .balance-header {

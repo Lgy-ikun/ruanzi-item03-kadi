@@ -116,7 +116,9 @@
         "pages/coupon-select/coupon-select",
         "pages/agentRewards/agentRewards",
         "pages/cardList/cardList",
-        "pages/confirmOrder/confirmOrder"
+        "pages/confirmOrder/confirmOrder",
+        "pages/recharge-input/recharge-input",
+        "pages/new-recharge-pay/new-recharge-pay"
       ]
     }
   ],

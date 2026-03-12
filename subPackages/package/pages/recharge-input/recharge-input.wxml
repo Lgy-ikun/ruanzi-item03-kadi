@@ -1,0 +1,24 @@
+<view class="container">
+  <view class="input-card">
+    <view class="title">充值金额</view>
+    <view class="input-wrapper">
+      <text class="currency">￥</text>
+      <input 
+        class="money-input" 
+        type="digit" 
+        placeholder="请输入充值金额" 
+        value="{{amount}}" 
+        bindinput="handleInput" 
+        focus="true"
+      />
+    </view>
+    <view class="divider"></view>
+    
+    </view>
+
+  <view class="btn-wrapper">
+    <view class="submit-btn {{amount > 0 ? 'active' : ''}}" bindtap="createOrder">
+      立即充值
+    </view>
+  </view>
+</view>

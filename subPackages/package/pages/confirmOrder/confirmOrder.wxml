@@ -5,9 +5,6 @@
         <text class="main-title">套餐</text>
         <text class="sub-title">{{packageName}}</text>
       </view>
-      <view class="header-right">
-        <text class="tag">{{packageTag}}</text>
-      </view>
     </view>
 
     <view class="pay-row">
@@ -15,15 +12,6 @@
       <text class="pay-money">余额 {{payAmount}}</text>
       <text class="pay-coupon">+ 咖啡券 {{coffeeAmount}}</text>
     </view>
-    <view class="purchase-row">
-      <text class="purchase-label">购买份数</text>
-      <view class="qty-box">
-        <view class="qty-btn" bindtap="decreaseQty">-</view>
-        <view class="qty-num">{{quantity}}</view>
-        <view class="qty-btn" bindtap="increaseQty">+</view>
-      </view>
-    </view>
-
     <view class="detail-row">
       <view class="detail-item">
         <text class="detail-label">咖啡券倍数</text>

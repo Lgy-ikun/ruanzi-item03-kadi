@@ -195,19 +195,13 @@ Page({
         
       });
 
-      const deliveryField = this.pickMoneyField([orderGroup, firstItem], ['delivery', 'deliveryFee', 'peisongfei', 'psf', 'freight', 'yunfei', 'shipFee', 'delivery_amount']);
-      const discountField = this.pickMoneyField([orderGroup, firstItem], ['discount', 'youhui', 'coupon', 'couponAmt', 'coupon_amt', 'yhje', 'cardAmt', 'preferential', 'reduce', 'reduceAmt', 'youhuiAmt', 'appliedCouponAmt']);
       const paidField = this.pickMoneyField([orderGroup, firstItem], ['payable', 'paid', 'realPay', 'realpay', 'ssamt', 'sfje', 'amt', 'totalPay', 'actualAmount', 'actual_amount']);
 
       const subtotalFromGoods = this.toMoney(order.total);
-      const deliveryFee = deliveryField.value;
-      const discountAmt = discountField.value;
-      const paidAmt = paidField.found ? paidField.value : Math.max(0, subtotalFromGoods + deliveryFee - discountAmt);
-      const subtotal = subtotalFromGoods > 0 ? subtotalFromGoods : Math.max(0, paidAmt + discountAmt - deliveryFee);
+      const paidAmt = paidField.found ? paidField.value : subtotalFromGoods;
+      const subtotal = subtotalFromGoods > 0 ? subtotalFromGoods : paidAmt;
 
       order.subtotal = this.formatPrice(subtotal);
-      order.deliveryFee = this.formatPrice(deliveryFee);
-      order.discountAmt = this.formatPrice(discountAmt);
       order.paidAmt = this.formatPrice(paidAmt);
       order.total = order.paidAmt;
 
@@ -249,7 +243,9 @@ Page({
   // 获取订单数据
   fetchOrders() {
     this.setData({
-      orderList: []
+      orderList: [],
+      mendianList: [],
+      waimaiList: []
     })
     wx.showToast({
       title: '数据加载中',
@@ -258,6 +254,14 @@ Page({
       mask: true
     })
     const userid = wx.getStorageSync('userid');
+    const rawLogin = wx.getStorageSync('isLoginSuccess');
+    const itsid = String(wx.getStorageSync('itsid') || '');
+    const isLogin = (rawLogin === true || rawLogin === 'true' || rawLogin === 1 || rawLogin === '1') &&
+      itsid && itsid !== '0' && String(userid || '') !== '' && String(userid || '') !== '0';
+    if (!isLogin) {
+      wx.hideToast();
+      return;
+    }
     const that = this;
 
     wx.request({
@@ -273,12 +277,23 @@ Page({
             mendianList: mendian,
             waimaiList: waimai
           });
+        } else {
+          that.setData({
+            orderList: [],
+            mendianList: [],
+            waimaiList: []
+          });
         }
         wx.hideToast()
 
       },
       fail(err) {
         console.error('订单请求失败:', err);
+        that.setData({
+          orderList: [],
+          mendianList: [],
+          waimaiList: []
+        });
         wx.showToast({
           title: '数据加载失败',
           icon: 'none'

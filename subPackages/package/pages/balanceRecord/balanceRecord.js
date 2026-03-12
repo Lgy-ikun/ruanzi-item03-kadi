@@ -104,6 +104,9 @@ Page({
   },
 
   goRecharge() {
-    
+    wx.navigateTo({
+      // 注意检查该路径是否与你实际创建的路径一致
+      url: '/subPackages/package/pages/recharge-input/recharge-input'
+    });
   }
 });

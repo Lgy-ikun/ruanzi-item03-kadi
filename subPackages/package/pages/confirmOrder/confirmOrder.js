@@ -71,13 +71,12 @@ Page({
   },
 
   onLoad(options) {
-    const quantity = Math.max(1, Number(options.qty || 1));
     const packageId = String(options.id || '1');
     this.setData({
       packageId,
-      quantity
+      quantity: 1
     });
-    this.loadPackageDetails(packageId, quantity);
+    this.loadPackageDetails(packageId);
     const itsid = wx.getStorageSync('itsid');
     if (itsid) {
       this.fetchUserData(itsid);
@@ -88,24 +87,19 @@ Page({
     return Number(value).toFixed(2);
   },
 
-  loadPackageDetails(id, quantity = 1) {
+  loadPackageDetails(id) {
     const base = PACKAGE_CONFIG[id] || PACKAGE_CONFIG['1'];
-    const scaledPay = base.payAmount * quantity;
-    const scaledCoffee = base.coffeeAmount * quantity;
-    const scaledTotal = base.totalAmount * quantity;
-    const scaledReturn = base.totalReturn * quantity;
-    const scaledDailyReturn = base.dailyReturn * quantity;
     this.setData({
       packageName: base.packageName,
-      payAmount: this.formatAmount(scaledPay),
-      coffeeAmount: this.formatAmount(scaledCoffee),
-      totalAmount: this.formatAmount(scaledTotal),
+      payAmount: this.formatAmount(base.payAmount),
+      coffeeAmount: this.formatAmount(base.coffeeAmount),
+      totalAmount: this.formatAmount(base.totalAmount),
       multiple: base.multiple,
-      totalReturn: this.formatAmount(scaledReturn),
+      totalReturn: this.formatAmount(base.totalReturn),
       days: base.days,
-      dailyReturn: this.formatAmount(scaledDailyReturn),
-      cashAmount: this.formatAmount(scaledPay),
-      pointsAmount: this.formatAmount(scaledCoffee)
+      dailyReturn: this.formatAmount(base.dailyReturn),
+      cashAmount: this.formatAmount(base.payAmount),
+      pointsAmount: this.formatAmount(base.coffeeAmount)
     });
   },
 
@@ -122,18 +116,6 @@ Page({
         }
       }
     });
-  },
-
-  decreaseQty() {
-    const next = Math.max(1, Number(this.data.quantity) - 1);
-    this.setData({ quantity: next });
-    this.loadPackageDetails(this.data.packageId, next);
-  },
-
-  increaseQty() {
-    const next = Number(this.data.quantity) + 1;
-    this.setData({ quantity: next });
-    this.loadPackageDetails(this.data.packageId, next);
   },
 
   submitOrder() {
@@ -253,7 +235,6 @@ Page({
     const packageId = String(this.data.packageId || '1');
     const mcode = PACKAGE_CONFIG[packageId]?.mcode || 900;
     const itsid = wx.getStorageSync('itsid');
-    const quantity = Number(this.data.quantity || 1);
     if (money < cashAmount) {
       wx.showToast({
         title: '余额不足，无法充值',
@@ -278,7 +259,7 @@ Page({
         MCODE: mcode,
         OPID: '1201',
         UNITID: '1',
-        NUM: String(quantity),
+        NUM: '1',
         USERID: '0',
         NOTE: ' ',
         AMT: this.data.cashAmount

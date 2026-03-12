@@ -52,12 +52,12 @@
             </view>
             <view class="txt">储值有礼</view>
           </view>
-          <navigator url="/subPackages/package/pages/shareholder/shareholder" class="tile" hover-class="pressed">
+          <view class="tile" hover-class="pressed" bindtap="handleNavigate3">
             <view class="tile-icon">
               <view class="placeholder"></view>
             </view>
             <view class="txt">会员福利</view>
-          </navigator>
+          </view>
         </view>
       </view>
     </view>

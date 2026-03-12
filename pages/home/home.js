@@ -74,7 +74,7 @@ Page({
       url: `${AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
       method: 'GET',
       success: (res) => {
-        const hasValidUser = res.statusCode === 200 && res.data && String(res.data.userid || '') !== '0' && !!String(res.data.name || '').trim();
+        const hasValidUser = res.statusCode === 200 && res.data && String(res.data.userid || '') !== '0';
         if (hasValidUser) {
           const newName = (res.data.name || '').trim();
           const newAvatar = res.data.avatar || '';
@@ -95,17 +95,20 @@ Page({
           // console.log('用户ID已全局化:', app.globalData.userid);
           wx.setStorageSync('isLoginSuccess', true);
         } else {
-          that.clearAuthState();
-          that.setData({
-            content: '0',
-            freeze: '0',
-            money: '0',
-            score: '0',
-            name: '',
-            userid: '0',
-            avatarUrl: '',
-            isLoginSuccess: false
-          });
+          const isExplicitLogout = String(res?.data?.userid || '') === '0';
+          if (isExplicitLogout) {
+            that.clearAuthState();
+            that.setData({
+              content: '0',
+              freeze: '0',
+              money: '0',
+              score: '0',
+              name: '',
+              userid: '0',
+              avatarUrl: '',
+              isLoginSuccess: false
+            });
+          }
         }
       },
       fail: (error) => {
@@ -128,6 +131,26 @@ Page({
     })
   },
   
+  handleNavigate3() {
+    const isLogin = this.isRealLogin();
+    if (!isLogin) {
+      wx.showModal({
+        title: '提示',
+        content: '目前暂未登录，是否跳转登录页面？',
+        confirmText: '立即登录',
+        cancelText: '取消',
+        success(res) {
+          if (res.confirm) {
+            wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=my' });
+          }
+        }
+      });
+      return;
+    }
+    wx.navigateTo({
+      url: '/subPackages/package/pages/couponReceive/couponReceive',
+    });
+  },
 
 
   /**

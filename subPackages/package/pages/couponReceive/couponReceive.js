@@ -1,12 +1,11 @@
 const app = getApp();
-
+// 用于在本地缓存记录已经领取过的卡券ID
 const LOCAL_RECEIVED_KEY = 'coupon_receive_ids';
 
 Page({
   data: {
     loading: true,
-    couponList: [],
-    useMockApi: true
+    couponList: [] // 已删除 useMockApi
   },
 
   onLoad() {
@@ -31,49 +30,24 @@ Page({
         loading: false,
         couponList: []
       });
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none'
-      });
+      wx.showToast({ title: '请先登录', icon: 'none' });
       return;
     }
 
     this.setData({ loading: true });
 
-    if (this.data.useMockApi) {
-      this.mockGetCouponList(userid)
-        .then((list) => {
-          const mergedList = this.mergeLocalReceivedState(list);
-          this.setData({
-            couponList: mergedList,
-            loading: false
-          });
-        })
-        .catch(() => {
-          this.setData({
-            couponList: [],
-            loading: false
-          });
-          wx.showToast({
-            title: '加载失败，请重试',
-            icon: 'none'
-          });
-        });
-      return;
-    }
-
+    // 请求真实的接口
     wx.request({
-      url: `${app.globalData.AUrl}/coupon/list`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=0902&itcid=10655&userid=${userid}`,
       method: 'GET',
-      data: {
-        userid
-      },
       success: (res) => {
         const responseData = res && res.data ? res.data : {};
         const code = String(responseData.code || '');
-        if (code !== '0' && code !== '200') {
+        
+        // 接口约定 code 为 "1" 是成功
+        if (code !== '1') {
           wx.showToast({
-            title: responseData.message || '加载失败',
+            title: responseData.msg || '加载失败',
             icon: 'none'
           });
           this.setData({
@@ -83,8 +57,10 @@ Page({
           return;
         }
 
-        const rawList = responseData.data || [];
+        // 获取返回的 result 数组
+        const rawList = responseData.result || [];
         const mergedList = this.mergeLocalReceivedState(rawList);
+        
         this.setData({
           couponList: mergedList,
           loading: false
@@ -95,140 +71,92 @@ Page({
           couponList: [],
           loading: false
         });
-        wx.showToast({
-          title: '网络异常，请稍后重试',
-          icon: 'none'
-        });
+        wx.showToast({ title: '网络异常，请稍后重试', icon: 'none' });
       }
     });
   },
 
   getCoupon(event) {
-    const couponId = event.currentTarget.dataset.couponId;
-    if (!couponId) {
-      wx.showToast({
-        title: '券信息异常',
-        icon: 'none'
-      });
+    // 改用 cardid
+    const cardid = event.currentTarget.dataset.cardid;
+    if (!cardid) {
+      wx.showToast({ title: '券信息异常', icon: 'none' });
       return;
     }
 
     const userid = this.getUserId();
     if (!userid) {
-      wx.showToast({
-        title: '请先登录',
-        icon: 'none'
-      });
+      wx.showToast({ title: '请先登录', icon: 'none' });
       return;
     }
 
     const list = this.data.couponList || [];
-    const index = list.findIndex((item) => String(item.couponId) === String(couponId));
+    const index = list.findIndex((item) => String(item.cardid) === String(cardid));
+    
     if (index < 0) {
-      wx.showToast({
-        title: '券不存在',
-        icon: 'none'
-      });
+      wx.showToast({ title: '券不存在', icon: 'none' });
       return;
     }
 
     if (list[index].isReceived) {
-      wx.showToast({
-        title: '该券已领取',
-        icon: 'none'
-      });
+      wx.showToast({ title: '该券已领取', icon: 'none' });
       return;
     }
 
     const indexKey = `couponList[${index}].receiving`;
-    this.setData({
-      [indexKey]: true
-    });
+    this.setData({ [indexKey]: true });
 
-    if (this.data.useMockApi) {
-      this.mockReceiveCoupon(userid, couponId)
-        .then((result) => {
-          if (!result.success) {
-            throw new Error(result.message || '领取失败');
-          }
-          this.handleReceiveSuccess(index, couponId);
-        })
-        .catch((err) => {
-          this.setData({
-            [indexKey]: false
-          });
-          wx.showToast({
-            title: err.message || '领取失败',
-            icon: 'none'
-          });
-        });
-      return;
-    }
-
+    // 【注意】这里是你原有代码里的领取接口，因为你没提供新的领取API，我保留了原来的逻辑
+    // 如果领取API也变了，请替换这里的 url 和参数
     wx.request({
-      url: `${app.globalData.AUrl}/coupon/receive`,
+      url: `${app.globalData.AUrl}/coupon/receive`, // <-- 请确认此接口是否也需要更改
       method: 'POST',
-      header: {
-        'content-type': 'application/json'
-      },
+      header: { 'content-type': 'application/json' },
       data: {
         userid,
-        couponId
+        cardid: cardid // 将参数名改为 cardid 发送给后端
       },
       success: (res) => {
         const responseData = res && res.data ? res.data : {};
         const code = String(responseData.code || '');
-        const success = code === '0' || code === '200';
+        // 假设领取的成功状态也是 1（根据你实际后端接口调整）
+        const success = code === '1' || code === '0' || code === '200'; 
+        
         if (!success) {
-          this.setData({
-            [indexKey]: false
-          });
-          wx.showToast({
-            title: responseData.message || '领取失败',
-            icon: 'none'
-          });
+          this.setData({ [indexKey]: false });
+          wx.showToast({ title: responseData.msg || responseData.message || '领取失败', icon: 'none' });
           return;
         }
-        this.handleReceiveSuccess(index, couponId);
+        this.handleReceiveSuccess(index, cardid);
       },
       fail: () => {
-        this.setData({
-          [indexKey]: false
-        });
-        wx.showToast({
-          title: '网络异常，领取失败',
-          icon: 'none'
-        });
+        this.setData({ [indexKey]: false });
+        wx.showToast({ title: '网络异常，领取失败', icon: 'none' });
       }
     });
   },
 
-  handleReceiveSuccess(index, couponId) {
+  handleReceiveSuccess(index, cardid) {
     this.setData({
       [`couponList[${index}].isReceived`]: true,
       [`couponList[${index}].receiving`]: false
     });
-    this.saveReceivedCouponId(couponId);
-    wx.showToast({
-      title: '领取成功',
-      icon: 'success'
-    });
+    this.saveReceivedCouponId(cardid);
+    wx.showToast({ title: '领取成功', icon: 'success' });
   },
 
+  // 将服务器数据与本地缓存的已领取状态合并
   mergeLocalReceivedState(serverList) {
     const localReceivedIds = this.getLocalReceivedIds();
     return (serverList || []).map((item) => {
-      const couponId = item.couponId || item.id || '';
-      const serverReceived = !!item.isReceived;
-      const localReceived = localReceivedIds.includes(String(couponId));
+      const cardid = item.cardid || '';
+      // 检查本地是否有领取记录
+      const localReceived = localReceivedIds.includes(String(cardid));
+      
+      // 保留接口返回的所有属性，并添加控制UI状态的字段
       return {
-        couponId,
-        couponName: item.couponName || item.name || '',
-        amount: item.amount || item.atm || '0',
-        validStart: item.validStart || item.startTime || '',
-        validEnd: item.validEnd || item.endTime || '',
-        ruleDesc: item.ruleDesc || item.note || '以券面说明为准',
-        isReceived: serverReceived || localReceived,
+        ...item,
+        isReceived: localReceived, // 因为目前列表接口没有返回isReceived字段，所以依赖本地缓存判断
         receiving: false
       };
     });
@@ -242,59 +170,13 @@ Page({
     return [];
   },
 
-  saveReceivedCouponId(couponId) {
+  saveReceivedCouponId(cardid) {
     const ids = this.getLocalReceivedIds();
-    const targetId = String(couponId);
+    const targetId = String(cardid);
     if (ids.includes(targetId)) {
       return;
     }
     ids.push(targetId);
     wx.setStorageSync(LOCAL_RECEIVED_KEY, ids);
-  },
-
-  mockGetCouponList() {
-    const mockData = [
-      {
-        couponId: 'C1001',
-        couponName: '美式咖啡电子券',
-        amount: 8,
-        validStart: '2026-03-10',
-        validEnd: '2026-04-10',
-        ruleDesc: '满30元可用，每单限用1张',
-        isReceived: false
-      },
-      {
-        couponId: 'C1002',
-        couponName: '全场通用电子券',
-        amount: 12,
-        validStart: '2026-03-10',
-        validEnd: '2026-04-20',
-        ruleDesc: '满50元可用，不与其他优惠同享',
-        isReceived: false
-      }
-    ];
-
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(mockData);
-      }, 500);
-    });
-  },
-
-  mockReceiveCoupon(userid, couponId) {
-    return new Promise((resolve, reject) => {
-      if (!userid || !couponId) {
-        reject(new Error('参数缺失'));
-        return;
-      }
-
-      setTimeout(() => {
-        resolve({
-          success: true,
-          code: 0,
-          message: '领取成功'
-        });
-      }, 500);
-    });
   }
 });
