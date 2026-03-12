@@ -14,13 +14,19 @@ Page({
    */
   onLoad(options) {
     console.log(options);
-    const is_success = JSON.parse(options.result).is_success
+    let resultObj = {};
+    try {
+      resultObj = JSON.parse(decodeURIComponent(options.result || '{}'));
+    } catch (e) {
+      resultObj = {};
+    }
+    const is_success = resultObj.is_success
     const itsid = wx.getStorageSync('itsid')
-    const ORDERID = JSON.parse(options.result).client_sn
-    const ZFID = JSON.parse(options.result).sn
+    const ORDERID = resultObj.client_sn
+    const ZFID = resultObj.sn
     let that = this
     this.setData({
-      result: options.result,
+      result: options.result || '',
       is_success,
     });
     if (is_success) {

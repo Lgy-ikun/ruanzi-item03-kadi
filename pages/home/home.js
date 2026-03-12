@@ -33,6 +33,11 @@ Page({
     wx.removeStorageSync('name');
     wx.removeStorageSync('avatar');
     wx.removeStorageSync('inviteUserid');
+    wx.removeStorageSync('updataArray');
+    wx.removeStorageSync('sum');
+    wx.removeStorageSync('total');
+    wx.removeStorageSync('categories');
+    wx.removeStorageSync('dishSum');
     app.globalData.userid = null;
     app.globalData.itsid = null;
   },

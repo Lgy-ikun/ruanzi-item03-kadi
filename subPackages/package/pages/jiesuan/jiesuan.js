@@ -266,8 +266,10 @@ Page({
         wx.hideLoading();
         const type = opid === '1201' ? 'balance' : (opid === '1202' ? 'deposit' : 'coffee');
         this.handlePaymentResult(res, type);
+        console.log("哈哈哈", res);
       },
       fail: () => {
+        console.log("鸡你太么")
         wx.hideLoading();
         wx.showToast({ title: '支付失败，请重试', icon: 'none' });
       }
@@ -297,9 +299,16 @@ Page({
       wx.setStorageSync('sum', 0);
       wx.setStorageSync('total', 0);
 
+      const result = {
+        is_success: true,
+        msg: resp.msg || resp.desc || msg.success,
+        client_sn: resp.orderid || resp.ORDERID || resp.sn || resp.SN || '',
+        sn: resp.sn || resp.SN || resp.orderid || resp.ORDERID || ''
+      };
+      const resultParam = encodeURIComponent(JSON.stringify(result));
       wx.showToast({ title: msg.success, icon: 'success' });
       setTimeout(() => wx.navigateTo({
-        url: '/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult'
+        url: `/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult?result=${resultParam}`
       }), 1200);
     } else {
       wx.showToast({ title: resp.msg || resp.desc || msg.fail, icon: 'none' });
