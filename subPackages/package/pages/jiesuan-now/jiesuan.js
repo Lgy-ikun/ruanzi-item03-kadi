@@ -520,7 +520,7 @@ Page({
     return total;
   },
 
-  // TODO: 实现获取卡券列表接口
+  // TODO: 实现获取优惠券列表接口
   fetchCoupons() {
     const that = this;
     const userid = wx.getStorageSync('userid');
@@ -541,10 +541,6 @@ Page({
           that.setData({
             couponAvailable: false,
             useCoupon: false
-          });
-          wx.showToast({
-            title: '当前订单无可用卡券',
-            icon: 'none'
           });
         }
       },

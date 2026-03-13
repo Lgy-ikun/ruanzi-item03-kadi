@@ -585,9 +585,6 @@ Page({
             appliedCouponAmt: Number(first.atm || 0)
           });
           that.calculateTotal();
-        } else {
-          that.setData({ couponAvailable: false, useCoupon: false });
-          wx.showToast({ title: '当前订单无可用卡券', icon: 'none' });
         }
       },
       fail: (err) => {
@@ -792,13 +789,13 @@ Page({
   },
 
   balancePayment() {
-    this.storedPay('1201', '余额支付成功');
+    this.storedPay('1210', '余额支付成功');
   },
   coffeeWalletPayment() {
     this.storedPay('1203', '咖啡券支付成功');
   },
   depositPayment() {
-    this.storedPay('1202', '储值卡支付成功');
+    this.storedPay('1211', '储值卡支付成功');
   },
   storedPay(opid, successText) {
     const itsid = wx.getStorageSync('itsid');
@@ -806,11 +803,13 @@ Page({
       ? (wx.getStorageSync('selectedStoreId') || app.globalData.selectedStoreId)
       : (wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6');
     const totalAmount = Number(this.data.payableAmount || this.data.totalPrice || 0);
-    console.log('ssss',totalAmount)
+    const orderType = this.data.selected === '自提' ? 1 : 2;
+    const deliveryFee = this.data.selected === '外送' ? Number(this.data.delivery || 0) : 0;
+    const isDelivery = this.data.selected === '外送' ? 1 : 0;
     const item = (this.data.items && this.data.items[0]) ? this.data.items[0] : {};
     const mcode = item.skuCode || '';
     const num = item.num || 1;
-    const payScore = opid === '1203' ? Math.ceil(totalAmount * 1.6) : '';
+    const payScore = opid === '1203' ? (totalAmount * 1.6) : totalAmount;
     const payload = {
       MCODE: mcode,
       OPID: opid,
@@ -818,17 +817,30 @@ Page({
       NUM: num,
       USERID: '0',
       NOTE: this.data.selected === '外送' ? `${successText}-外送` : `${successText}-自提`,
-      AMT: opid === '1203' ? 0 : totalAmount,
+      AMT: 0,
       SCORE: payScore,
+      integralTotal: totalAmount.toFixed(2),
       ASK: item.ask,
-      type: this.data.selected === '自提' ? 1 : 2,
+      type: orderType,
+      orderType: orderType,
+      isDelivery: isDelivery,
+      deliveryFee: deliveryFee,
+      totalWithDelivery: totalAmount,
       username: this.data.username,
       phone: this.data.phone,
-      address: this.data.address
+      address: this.data.address,
+      extra: JSON.stringify({
+        in_lite_app: true,
+        specs: this.data.selectedSpecs,
+        isDelivery: this.data.selected === '外送',
+        deliveryFee: deliveryFee,
+        orderType: orderType,
+        totalPrice: totalAmount
+      })
     };
     const url = `${app.globalData.backUrl}phone.aspx?mbid=10643&ituid=${app.globalData.ituid}&itsid=${itsid}`
     wx.request({
-      // 钱包抵扣接口（余额/咖啡券/储值卡，与购物车结算一致）：mbid=10643, OPID=1201/1203/1202
+      // 钱包抵扣接口（余额/咖啡券/储值卡，与购物车结算一致）：mbid=10643, OPID=1210/1203/1211
       url: url,
       method: 'POST',
       data: payload,
@@ -841,7 +853,7 @@ Page({
           SCORE: payload.SCORE,
           resp: res && res.data
         });
-        const type = opid === '1201' ? 'balance' : (opid === '1202' ? 'deposit' : 'coffee');
+        const type = opid === '1210' ? 'balance' : (opid === '1211' ? 'deposit' : 'coffee');
         this.handlePaymentResult(res, type);
         wx.removeStorageSync('buyNowItems');
       },

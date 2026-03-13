@@ -8,6 +8,7 @@ Page({
    */
   data: {
     currentindex: 0,
+    skipNextFetch: false,
     mendianList: [], // 门店订单
     waimaiList: [], // 外卖订单
     orderList: [],
@@ -107,6 +108,7 @@ Page({
   gotoDetail(e) {
     console.log(e);
     console.log(e.currentTarget.dataset.id);
+    this.setData({ skipNextFetch: true });
 
     wx.navigateTo({
       url: `/subPackages/package/pages/orderDetail/orderDetail?id=${e.currentTarget.dataset.id}&channel=1`,
@@ -251,7 +253,7 @@ Page({
       title: '数据加载中',
       icon: 'loading',
       duration: 10000, // 需设置足够长的时间
-      mask: true
+      mask: false
     })
     const userid = wx.getStorageSync('userid');
     const rawLogin = wx.getStorageSync('isLoginSuccess');
@@ -324,13 +326,27 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow() {
-    this.fetchOrders()
-    this.setData({
+    const updateLocalState = () => this.setData({
       sum: wx.getStorageSync('sum'),
       address: app.globalData.addressDesc,
       categories: wx.getStorageSync('categories')
-    })
-
+    });
+    if (this.data.skipNextFetch) {
+      this.setData({ skipNextFetch: false });
+      updateLocalState();
+      return;
+    }
+    const afterLogin = () => {
+      this.fetchOrders();
+      updateLocalState();
+    };
+    if (typeof app.ensureSilentLogin === 'function') {
+      Promise.resolve(app.ensureSilentLogin()).finally(() => {
+        afterLogin();
+      });
+    } else {
+      afterLogin();
+    }
   },
   /**
    * 生命周期函数--监听页面隐藏

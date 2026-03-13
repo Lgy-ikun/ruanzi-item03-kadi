@@ -163,7 +163,6 @@ Page({
         USERID: '0',
         NOTE: ' ',
         AMT: totalAmount,
-        SCORE: 0,
         XXSQ: 'SQB',
         RURL: '/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult',
         type: this.data.selected === '自提' ? 1 : 2,
@@ -218,8 +217,8 @@ Page({
   },
 
   // ---------------- 【三大内部钱包支付逻辑】 ----------------
-  balancePayment() { this.storedPay('1201', '余额支付成功'); },
-  depositPayment() { this.storedPay('1202', '储值卡支付成功'); },
+  balancePayment() { this.storedPay('1210', '余额支付成功'); },
+  depositPayment() { this.storedPay('1211', '储值卡支付成功'); },
   coffeeWalletPayment() { this.storedPay('1203', '咖啡券支付成功'); },
 
   storedPay(opid, successText) {
@@ -230,6 +229,19 @@ Page({
       : (wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6');
     
     const totalAmount = Number(this.data.payableAmount || this.data.totalprice || 0);
+    const deliveryFee = this.data.selected === '外送' ? Number(this.data.delivery || 0) : 0;
+    const couponAmt = Number(this.data.appliedCouponAmt || 0);
+    const neededAmount = Math.max(0, Number(this.data.totalprice || 0) - couponAmt + deliveryFee);
+    const balance = Number(this.data.funds.balance || 0);
+    const deposit = Number(this.data.funds.deposit || 0);
+    if (opid === '1210' && balance < neededAmount) {
+      wx.showToast({ title: '余额不足抵扣', icon: 'none' });
+      return;
+    }
+    if (opid === '1211' && deposit < neededAmount) {
+      wx.showToast({ title: '储值卡不足抵扣', icon: 'none' });
+      return;
+    }
     if (opid === '1203') {
       const needed = Math.ceil(totalAmount * 1.6);
       const coffee = Number(this.data.funds.coffee || 0);
@@ -239,9 +251,12 @@ Page({
       }
     }
    
-    // 依据你的原逻辑：只有咖啡券(1203)把金额传在SCORE上，AMT传0。其它传在AMT上。
-    const payScore = opid === '1203' ? Math.ceil(totalAmount * 1.6) : '';
-    const payAmt = opid === '1203' ? 0 : totalAmount;
+    const payScore = opid === '1203' ? (totalAmount * 1.6) : totalAmount;
+    const noteMap = {
+      '1210': '余额支付',
+      '1211': '储值卡支付',
+      '1203': '咖啡券支付'
+    };
 
     wx.showLoading({ title: '支付中...', mask: true });
 
@@ -253,16 +268,16 @@ Page({
         MCODE: '',
         OPID: opid,
         UNITID: unitId,
-        NOTE: this.data.selected === '外送' ? `${successText}-外送` : `${successText}-自提`,
+        NOTE: noteMap[opid] || successText,
         NUM: '',
         USERID: userid,
-        AMT: payAmt,
+        AMT: 0,
         SCORE: payScore,
         extra: JSON.stringify({ in_lite_app: true })
       },
       success: (res) => {
         wx.hideLoading();
-        const type = opid === '1201' ? 'balance' : (opid === '1202' ? 'deposit' : 'coffee');
+        const type = opid === '1210' ? 'balance' : (opid === '1211' ? 'deposit' : 'coffee');
         this.handlePaymentResult(res, type);
       },
       fail: () => {
