@@ -238,6 +238,7 @@ Page({
         return;
       }
     }
+   
     // 依据你的原逻辑：只有咖啡券(1203)把金额传在SCORE上，AMT传0。其它传在AMT上。
     const payScore = opid === '1203' ? Math.ceil(totalAmount * 1.6) : '';
     const payAmt = opid === '1203' ? 0 : totalAmount;
@@ -266,10 +267,8 @@ Page({
         wx.hideLoading();
         const type = opid === '1201' ? 'balance' : (opid === '1202' ? 'deposit' : 'coffee');
         this.handlePaymentResult(res, type);
-        console.log("哈哈哈", res);
       },
       fail: () => {
-        console.log("鸡你太么")
         wx.hideLoading();
         wx.showToast({ title: '支付失败，请重试', icon: 'none' });
       }

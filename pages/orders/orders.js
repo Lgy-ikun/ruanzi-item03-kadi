@@ -276,6 +276,9 @@ Page({
             orderList: mendian.concat(waimai),
             mendianList: mendian,
             waimaiList: waimai
+          }, () => {
+            console.log('门店订单:', that.data.mendianList);
+            console.log('外卖订单:', that.data.waimaiList);
           });
         } else {
           that.setData({
