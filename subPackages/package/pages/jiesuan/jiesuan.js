@@ -258,10 +258,7 @@ Page({
         USERID: userid,
         AMT: payAmt,
         SCORE: payScore,
-        type: this.data.selected === '自提' ? 1 : 2,
-        username: this.data.username,
-        phone: this.data.phone,
-        address: this.data.address
+        extra: JSON.stringify({ in_lite_app: true })
       },
       success: (res) => {
         wx.hideLoading();
@@ -272,6 +269,44 @@ Page({
         wx.hideLoading();
         wx.showToast({ title: '支付失败，请重试', icon: 'none' });
       }
+    });
+  },
+
+  syncOrderAddressInfo() {
+    return new Promise((resolve, reject) => {
+      const userid = String(wx.getStorageSync('userid') || '');
+      const itsid = String(wx.getStorageSync('itsid') || '');
+      if (!userid || userid === '0' || !itsid || itsid === '0') {
+        resolve();
+        return;
+      }
+      wx.request({
+        url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10622&userid=${userid}`,
+        method: 'GET',
+        success: (res) => {
+          const list = res?.data?.result?.list || [];
+          const orderid = String((list[0] && list[0].orderid) || '');
+          if (!orderid) {
+            reject(new Error('订单号获取失败'));
+            return;
+          }
+          wx.request({
+            url: `${app.globalData.AUrl}/jy/go/phone.aspx?mbid=10617&ituid=106&itsid=${itsid}`,
+            method: 'POST',
+            data: {
+              orderid: orderid,
+              type: this.data.selected === '自提' ? 1 : 2,
+              username: this.data.username,
+              phone: this.data.phone,
+              address: this.data.address,
+              extra: JSON.stringify({ in_lite_app: true })
+            },
+            success: () => resolve(),
+            fail: () => reject(new Error('订单地址信息提交失败'))
+          });
+        },
+        fail: () => reject(new Error('订单号接口请求失败'))
+      });
     });
   },
 
@@ -289,26 +324,37 @@ Page({
     const success = resp.code == 1 || resp.code == 0 || resp.success || /成功/.test(resp.msg || '') || hasOrder;
 
     if (success) {
-      // 支付成功清空购物车
-      const categories = wx.getStorageSync('categories') || [];
-      categories.forEach(cat => cat.children?.forEach(i => i.num = 0));
-      wx.setStorageSync('categories', categories);
-      wx.removeStorageSync('updataArray');
-      wx.removeStorageSync('cartItems');
-      wx.setStorageSync('sum', 0);
-      wx.setStorageSync('total', 0);
-
-      const result = {
-        is_success: true,
-        msg: resp.msg || resp.desc || msg.success,
-        client_sn: resp.orderid || resp.ORDERID || resp.sn || resp.SN || '',
-        sn: resp.sn || resp.SN || resp.orderid || resp.ORDERID || ''
+      const continueSuccessFlow = () => {
+        const categories = wx.getStorageSync('categories') || [];
+        categories.forEach(cat => cat.children?.forEach(i => i.num = 0));
+        wx.setStorageSync('categories', categories);
+        wx.removeStorageSync('updataArray');
+        wx.removeStorageSync('cartItems');
+        wx.setStorageSync('sum', 0);
+        wx.setStorageSync('total', 0);
+        const result = {
+          is_success: true,
+          msg: resp.msg || resp.desc || msg.success,
+          client_sn: resp.orderid || resp.ORDERID || resp.sn || resp.SN || '',
+          sn: resp.sn || resp.SN || resp.orderid || resp.ORDERID || ''
+        };
+        const resultParam = encodeURIComponent(JSON.stringify(result));
+        wx.showToast({ title: msg.success, icon: 'success' });
+        setTimeout(() => wx.navigateTo({
+          url: `/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult?result=${resultParam}`
+        }), 1200);
       };
-      const resultParam = encodeURIComponent(JSON.stringify(result));
-      wx.showToast({ title: msg.success, icon: 'success' });
-      setTimeout(() => wx.navigateTo({
-        url: `/subPackages/package/pages/jiesuan-payResult/jiesuan-payResult?result=${resultParam}`
-      }), 1200);
+      if (type === 'coffee') {
+        this.syncOrderAddressInfo()
+          .catch((err) => {
+            console.error('10617地址信息同步失败:', err);
+          })
+          .finally(() => {
+            continueSuccessFlow();
+          });
+      } else {
+        continueSuccessFlow();
+      }
     } else {
       wx.showToast({ title: resp.msg || resp.desc || msg.fail, icon: 'none' });
     }

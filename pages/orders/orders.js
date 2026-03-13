@@ -269,13 +269,18 @@ Page({
       success(res) {
         if (res.data?.result?.goods) {
           const processedData = that.processOrderData(res.data.result.goods);
+          const sortByDateDesc = (list) => (list || []).slice().sort((a, b) => {
+            const ta = new Date(String(a?.date || '').replace(/-/g, '/')).getTime() || 0;
+            const tb = new Date(String(b?.date || '').replace(/-/g, '/')).getTime() || 0;
+            return tb - ta;
+          });
           const mendian = processedData.filter(item => that.isStoreOrder(item.order_type));
           const waimai = processedData.filter(item => that.isDeliveryOrder(item.order_type));
 
           that.setData({
-            orderList: mendian.concat(waimai),
-            mendianList: mendian,
-            waimaiList: waimai
+            orderList: sortByDateDesc(mendian.concat(waimai)),
+            mendianList: sortByDateDesc(mendian),
+            waimaiList: sortByDateDesc(waimai)
           }, () => {
             console.log('门店订单:', that.data.mendianList);
             console.log('外卖订单:', that.data.waimaiList);
