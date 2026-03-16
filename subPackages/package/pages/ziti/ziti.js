@@ -58,6 +58,7 @@ Page({
     const storeId = e.currentTarget.dataset.id;
     const selectedStore = this.data.stores.find(store => store.id === storeId);
     const app = getApp();
+    console.log('选中的门店ID:', storeId);
 
     // 存储选中的门店名称到全局变量
     app.globalData.selectedStoreName = selectedStore.name;

@@ -19,12 +19,18 @@ Page({
     ],
     companyIconUrl: app.globalData.tupianUrl + '/new/company.png',
   },
+  hasSession() {
+    const itsid = String(wx.getStorageSync('itsid') || '');
+    return itsid && itsid !== '0';
+  },
   isRealLogin() {
     const raw = wx.getStorageSync('isLoginSuccess');
-    const itsid = String(wx.getStorageSync('itsid') || '');
-    const userid = String(wx.getStorageSync('userid') || '');
-    return (raw === true || raw === 'true' || raw === 1 || raw === '1') &&
-      itsid && itsid !== '0' && userid && userid !== '0';
+    const hasSession = this.hasSession();
+    const flagLogin = raw === true || raw === 'true' || raw === 1 || raw === '1';
+    if (hasSession && !flagLogin) {
+      wx.setStorageSync('isLoginSuccess', true);
+    }
+    return hasSession;
   },
   clearAuthState() {
     wx.setStorageSync('isLoginSuccess', false);
@@ -157,6 +163,12 @@ Page({
     });
   },
 
+  handleNavigateNewStoreRecharge() {
+    wx.navigateTo({
+      url: '/subPackages/package/pages/recharge-input/recharge-input?scene=new_store'
+    });
+  },
+
 
   /**
    * 生命周期函数--监听页面初次渲染完成
@@ -170,7 +182,7 @@ Page({
    */
   onShow: function () {
     const itsid = wx.getStorageSync('itsid');
-    const isLogin = this.isRealLogin();
+    const isLogin = this.hasSession();
     this.setData({
       name: isLogin ? (wx.getStorageSync('name') || this.data.name || '') : '',
       avatarUrl: isLogin ? (wx.getStorageSync('avatar') || this.data.avatarUrl || '') : '',

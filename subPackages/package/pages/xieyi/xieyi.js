@@ -27,6 +27,15 @@ Page({
         title: '卡狄咖啡用户隐私使用协议',
       })
     }
+    else if (options.agreement == 'recharge') {
+      wx.setNavigationBarTitle({
+        title: '充值协议',
+      })
+      that.setData({
+        content: '<div style="padding: 24rpx; line-height: 1.8; color: #666;">充值协议内容待补充</div>'
+      })
+      return
+    }
 
     wx.request({
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=${itjid}`,

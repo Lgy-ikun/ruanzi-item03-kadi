@@ -2,6 +2,7 @@
 page {
   background-color: #f5f5f5;
 }
+
 .page-container {
   width: 100%;
   box-sizing: border-box;
@@ -10,19 +11,24 @@ page {
 
 /* 顶部渐变栏（含右上角二维码） */
 .top-bar {
-  background: linear-gradient(180deg,#7acbe4, #3472e5 60%, #6039e0);
+  background: linear-gradient(to bottom, #8c7cf5, #7267d9, #6960c5, #916bd1, #c086e8);
+  color: #fff;
+  box-shadow: 0 12rpx 36rpx rgba(105, 96, 197, 0.38);
   padding: 210rpx 30rpx 90rpx;
   display: flex;
-  justify-content: space-between; /* 左右分布：头像+用户信息 与 二维码 */
+  justify-content: space-between;
+  /* 左右分布：头像+用户信息 与 二维码 */
   align-items: center;
   border-radius: 40rpx;
   border-top-left-radius: 0;
   border-top-right-radius: 0;
 }
+
 .left-wrap {
   display: flex;
   align-items: center;
 }
+
 .avatar {
   width: 100rpx;
   height: 100rpx;
@@ -30,16 +36,19 @@ page {
   background-color: #fff;
   margin-right: 20rpx;
 }
+
 .user-info-wrap {
   display: flex;
   flex-direction: column;
 }
+
 .username {
   font-size: 36rpx;
   color: #fff;
   font-weight: bold;
   margin-bottom: 10rpx;
 }
+
 .card-tag {
   background-color: #ff9500;
   color: #fff;
@@ -48,12 +57,14 @@ page {
   border-radius: 8rpx;
   width: fit-content;
 }
+
 .card-tag-notlogin {
   padding: 0;
 }
+
 /* 右上角二维码图标 */
 .qrcode-icon {
-  position:relative;
+  position: relative;
   top: -70rpx;
   width: 40rpx;
   height: 40rpx;
@@ -74,14 +85,18 @@ page {
   flex-direction: column;
   gap: 8rpx;
   top: 310rpx;
-  left: 0;    /* 靠左对齐父元素 */
-  right: 0;   /* 靠右对齐父元素 */
+  left: 0;
+  /* 靠左对齐父元素 */
+  right: 0;
+  /* 靠右对齐父元素 */
 }
+
 .card-title {
   font-size: 32rpx;
   color: #451a9b;
   font-weight: bold;
 }
+
 .card-detail {
   font-size: 24rpx;
   color: #999;
@@ -98,17 +113,20 @@ page {
   align-items: center;
   margin-top: 90rpx;
 }
+
 .asset-item {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
+
 .asset-num {
   font-size: 32rpx;
   color: #e63946;
   font-weight: bold;
   margin-bottom: 8rpx;
 }
+
 .asset-name {
   font-size: 24rpx;
   color: #000000;
@@ -125,10 +143,12 @@ page {
   flex-wrap: wrap;
   justify-content: flex-start;
 }
+
 .func-grid-notlogin {
   margin: 100rpx 20rpx 30rpx 20rpx;
-  
+
 }
+
 .func-item {
   width: 25%;
   display: flex;
@@ -136,12 +156,15 @@ page {
   align-items: center;
   margin-bottom: 30rpx;
 }
+
 .func-item-notlogin {
   margin-bottom: -6rpx;
 }
+
 .func-item.empty {
   visibility: hidden;
 }
+
 .func-icon {
   width: 60rpx;
   height: 60rpx;
@@ -150,6 +173,7 @@ page {
   background-color: #eee;
   border-radius: 8rpx;
 }
+
 .func-text {
   font-size: 24rpx;
   color: #35275d;

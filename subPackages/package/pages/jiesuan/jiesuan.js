@@ -35,12 +35,15 @@ Page({
     testFocus: false,
 
     // 核心：统一支付方式与余额展示
-    payMethod: 'wechat', // wechat | balance | coffee | deposit
+    payMethod: 'wechat', // wechat | balance | coffee | deposit | storecard
     pendingPayMethod: '', // 弹窗期间暂存的支付方式
-    funds: { balance: 0, coffee: 0, deposit: 0 },
+    funds: { balance: 0, coffee: 0, deposit: 0, storecard: 0 },
+    storecardid: '',
     balanceDisabled: true,
     coffeeDisabled: true,
-    depositDisabled: true
+    depositDisabled: true,
+    storecardDisabled: true,
+    hasStoreCard: false
   },
 
   onLoad(options) {
@@ -116,6 +119,9 @@ Page({
     if (method === 'deposit' && Number(this.data.funds.deposit || 0) < payable) {
       return wx.showToast({ title: '储值卡不足抵扣', icon: 'none' });
     }
+    if (method === 'storecard' && Number(this.data.funds.storecard || 0) < payable) {
+      return wx.showToast({ title: '门店储值卡不足抵扣', icon: 'none' });
+    }
 
     // 余额充足，唤起交易码弹窗
     this.setData({ pendingPayMethod: method });
@@ -127,6 +133,7 @@ Page({
     if (method === 'coffee') return this.coffeeWalletPayment();
     if (method === 'balance') return this.balancePayment();
     if (method === 'deposit') return this.depositPayment();
+    if (method === 'storecard') return this.storeCardPayment();
     this.cashPayment(); // 兜底
   },
 
@@ -219,6 +226,7 @@ Page({
   // ---------------- 【三大内部钱包支付逻辑】 ----------------
   balancePayment() { this.storedPay('1210', '余额支付成功'); },
   depositPayment() { this.storedPay('1211', '储值卡支付成功'); },
+  storeCardPayment() { this.storedPay('1212', '门店储值卡支付成功'); },
   coffeeWalletPayment() { this.storedPay('1203', '咖啡券支付成功'); },
 
   storedPay(opid, successText) {
@@ -234,12 +242,17 @@ Page({
     const neededAmount = Math.max(0, Number(this.data.totalprice || 0) - couponAmt + deliveryFee);
     const balance = Number(this.data.funds.balance || 0);
     const deposit = Number(this.data.funds.deposit || 0);
+    const storecard = Number(this.data.funds.storecard || 0);
     if (opid === '1210' && balance < neededAmount) {
       wx.showToast({ title: '余额不足抵扣', icon: 'none' });
       return;
     }
     if (opid === '1211' && deposit < neededAmount) {
       wx.showToast({ title: '储值卡不足抵扣', icon: 'none' });
+      return;
+    }
+    if (opid === '1212' && storecard < neededAmount) {
+      wx.showToast({ title: '门店储值卡不足抵扣', icon: 'none' });
       return;
     }
     if (opid === '1203') {
@@ -255,29 +268,34 @@ Page({
     const noteMap = {
       '1210': '余额支付',
       '1211': '储值卡支付',
+      '1212': '门店储值卡支付',
       '1203': '咖啡券支付'
     };
 
     wx.showLoading({ title: '支付中...', mask: true });
 
+    const requestData = {
+      MCODE: '',
+      OPID: opid,
+      UNITID: unitId,
+      NOTE: noteMap[opid] || successText,
+      NUM: '',
+      USERID: userid,
+      AMT: 0,
+      SCORE: payScore,
+      extra: JSON.stringify({ in_lite_app: true })
+    };
+    if (opid === '1212') {
+      requestData.storecardid = this.data.storecardid || '';
+    }
     wx.request({
       url: `${app.globalData.backUrl}phone.aspx?mbid=124&ituid=${app.globalData.ituid}&itsid=${itsid}`,
       method: 'POST',
       header: { 'content-type': 'application/json' },
-      data: {
-        MCODE: '',
-        OPID: opid,
-        UNITID: unitId,
-        NOTE: noteMap[opid] || successText,
-        NUM: '',
-        USERID: userid,
-        AMT: 0,
-        SCORE: payScore,
-        extra: JSON.stringify({ in_lite_app: true })
-      },
+      data: requestData,
       success: (res) => {
         wx.hideLoading();
-        const type = opid === '1210' ? 'balance' : (opid === '1211' ? 'deposit' : 'coffee');
+        const type = opid === '1210' ? 'balance' : (opid === '1211' ? 'deposit' : (opid === '1212' ? 'storecard' : 'coffee'));
         this.handlePaymentResult(res, type);
       },
       fail: () => {
@@ -330,6 +348,7 @@ Page({
       wechat: { success: '支付成功', fail: '支付失败' },
       balance: { success: '余额支付成功', fail: '余额支付失败' },
       deposit: { success: '储值卡支付成功', fail: '储值卡支付失败' },
+      storecard: { success: '门店储值卡支付成功', fail: '门店储值卡支付失败' },
       coffee: { success: '咖啡券支付成功', fail: '咖啡券支付失败' }
     };
     const msg = msgDict[type] || msgDict['wechat'];
@@ -442,14 +461,21 @@ Page({
         const balance = Number(res.data.money || 0);
         const coffee = Number(res.data.score || 0);
         const deposit = Number(res.data.chuzhika || res.data.chuhzika || 0);
+        const storecard = Number(res.data.storecard || 0);
+        const storecardid = String(res.data.storecardid || '');
         const total = Number(this.data.selected === '外送' ? (this.data.totalprice*1 + this.data.delivery*1) : this.data.totalprice) || 0;
+        const hasStoreCard = storecard > 0;
+        const nextPayMethod = (this.data.payMethod === 'storecard' && !hasStoreCard) ? 'wechat' : (this.data.payMethod || 'wechat');
         
         this.setData({
-          funds: { balance, coffee, deposit },
+          funds: { balance, coffee, deposit, storecard },
           balanceDisabled: balance < total,
           coffeeDisabled: coffee < Math.ceil(total * 1.6),
           depositDisabled: deposit < total,
-          payMethod: this.data.payMethod || 'wechat'
+          storecardDisabled: storecard < total,
+          hasStoreCard,
+          storecardid,
+          payMethod: nextPayMethod
         });
       }
     });
@@ -547,6 +573,7 @@ Page({
     }
   },
   guardDepositPay() { if (this.data.depositDisabled) wx.showToast({ title: '储值卡不足抵扣', icon: 'none' }); else this.setData({ payMethod: 'deposit' }); },
+  guardStoreCardPay() { if (this.data.storecardDisabled) wx.showToast({ title: '门店储值卡不足抵扣', icon: 'none' }); else this.setData({ payMethod: 'storecard' }); },
   setDineType(e) { this.setData({ dineType: e.currentTarget.dataset.type, selected: '自提' }); },
   inputRemark(e) { this.setData({ remark: e.detail.value }); },
   couponSelect() { wx.navigateTo({ url: '/subPackages/package/pages/coupon-select/coupon-select?from=jiesuan' }); },

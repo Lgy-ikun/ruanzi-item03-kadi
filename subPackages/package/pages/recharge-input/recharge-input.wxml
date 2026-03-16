@@ -1,24 +1,39 @@
 <view class="container">
-  <view class="input-card">
-    <view class="title">充值金额</view>
-    <view class="input-wrapper">
-      <text class="currency">￥</text>
-      <input 
-        class="money-input" 
-        type="digit" 
-        placeholder="请输入充值金额" 
-        value="{{amount}}" 
-        bindinput="handleInput" 
-        focus="true"
-      />
+  <view class="balance-card">
+    <view class="balance-row">
+      <text class="balance-label">{{assetName}}</text>
+      <text class="record-link">充值记录</text>
     </view>
-    <view class="divider"></view>
-    
-    </view>
+    <text class="balance-value">￥{{currentBalance}}</text>
+  </view>
 
-  <view class="btn-wrapper">
-    <view class="submit-btn {{amount > 0 ? 'active' : ''}}" bindtap="createOrder">
-      立即充值
+  <view class="section-title">选择充值金额</view>
+  <view class="amount-grid">
+    <block wx:for="{{amountOptions}}" wx:key="amount">
+      <view class="amount-item {{selectedAmount === item.amount ? 'active' : ''}}" data-value="{{item.amount}}" bindtap="selectAmount">
+        <text class="amount-text">{{item.amount}}</text>
+        <text wx:if="{{item.gift > 0}}" class="gift-text">赠送：{{item.gift}}元</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="section-title">选择支付方式</view>
+  <view class="pay-list">
+    <view class="pay-item {{payMethod === 'wechat' ? 'active' : ''}}" data-method="wechat" bindtap="selectPayMethod">
+      <text class="pay-name">微信支付</text>
+      <view class="radio {{payMethod === 'wechat' ? 'checked' : ''}}"></view>
     </view>
+    <view class="pay-item {{payMethod === 'quick' ? 'active' : ''}}" data-method="quick" bindtap="selectPayMethod">
+      <text class="pay-name">快捷支付</text>
+      <view class="radio {{payMethod === 'quick' ? 'checked' : ''}}"></view>
+    </view>
+  </view>
+
+  <view wx:if="{{tips}}" class="scene-tips">{{tips}}</view>
+
+  <view class="submit-btn {{selectedAmount ? 'active' : ''}}" bindtap="createOrder">立即充值</view>
+  <view class="agreement">
+    点击立即充值，即代表同意
+    <text class="agreement-link" bindtap="goRechargeAgreement">《充值协议》</text>
   </view>
 </view>

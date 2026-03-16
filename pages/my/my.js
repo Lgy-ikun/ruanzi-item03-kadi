@@ -13,8 +13,7 @@ Page({
   },
   hasSession() {
     const itsid = String(wx.getStorageSync('itsid') || '');
-    const userid = String(wx.getStorageSync('userid') || '');
-    return itsid && itsid !== '0' && userid && userid !== '0';
+    return itsid && itsid !== '0';
   },
   isRealLogin() {
     const raw = wx.getStorageSync('isLoginSuccess');
@@ -338,6 +337,9 @@ Page({
         const hasValidUser = res.statusCode === 200 && res.data && String(res.data.userid || '') !== '0';
         if (hasValidUser) {
           wx.setStorageSync('isLoginSuccess', true);
+          if (res?.data?.userid) {
+            wx.setStorageSync('userid', res.data.userid);
+          }
           that.setData({
             name: res.data.name || '',
             money: res.data.money || 0.00,

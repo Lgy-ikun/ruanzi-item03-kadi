@@ -57,6 +57,17 @@ Page({
       url: '/pages/orders/orders',
     })
   },
+  handleBackToOrderPage() {
+    if (this.data.is_success) {
+      this.goBackOrders();
+      return;
+    }
+    this.goBackOrder();
+  },
+  onBackPress() {
+    this.handleBackToOrderPage();
+    return true;
+  },
 
   /**
    * 生命周期函数--监听页面初次渲染完成

@@ -79,6 +79,14 @@
           </view>
           <radio class="pm-radio" value="deposit" disabled="{{depositDisabled}}" checked="{{payMethod==='deposit'}}"></radio>
         </label>
+        <label wx:if="{{hasStoreCard}}" class="pay-item {{storecardDisabled ? 'disabled' : ''}}" bindtap="guardStoreCardPay">
+          <view class="pm-left">
+            <view class="pm-icon icon-deposit"></view>
+            <text class="pm-text">门店储值卡支付</text>
+            <text class="pm-hint">可用 ¥{{funds.storecard}}</text>
+          </view>
+          <radio class="pm-radio" value="storecard" disabled="{{storecardDisabled}}" checked="{{payMethod==='storecard'}}"></radio>
+        </label>
       </radio-group>
     </view>
     <view class="section-box pickup-box" wx:if="{{selected === '自提'}}">

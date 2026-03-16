@@ -36,12 +36,15 @@ Page({
     basePrice: 0, // 商品基础价格（不含配送费）
     finalDeliveryFee: 0, // 最终配送费
     // 新增UI/逻辑状态
-    payMethod: 'wechat', // wechat | balance | coffee | deposit
+    payMethod: 'wechat', // wechat | balance | coffee | deposit | storecard
     pendingPayMethod: '',
-    funds: { balance: 0, coffee: 0, deposit: 0 },
+    funds: { balance: 0, coffee: 0, deposit: 0, storecard: 0 },
+    storecardid: '',
     balanceDisabled: true,
     coffeeDisabled: true,
     depositDisabled: true,
+    storecardDisabled: true,
+    hasStoreCard: false,
     selectedCouponText: '',
     dineType: 'dine_in'
   },
@@ -70,6 +73,10 @@ Page({
     }
     if (method === 'deposit' && Number(this.data.funds.deposit || 0) < payable) {
       wx.showToast({ title: '储值卡不足抵扣', icon: 'none' });
+      return;
+    }
+    if (method === 'storecard' && Number(this.data.funds.storecard || 0) < payable) {
+      wx.showToast({ title: '门店储值卡不足抵扣', icon: 'none' });
       return;
     }
     this.setData({ pendingPayMethod: method });
@@ -205,6 +212,10 @@ Page({
     }
     if (method === 'deposit') {
       this.depositPayment();
+      return;
+    }
+    if (method === 'storecard') {
+      this.storeCardPayment();
       return;
     }
     this.cashPayment();
@@ -617,6 +628,10 @@ Page({
         success: '储值卡支付成功',
         fail: '储值卡支付失败'
       },
+      storecard: {
+        success: '门店储值卡支付成功',
+        fail: '门店储值卡支付失败'
+      },
       coffee: {
         success: '咖啡券支付成功',
         fail: '咖啡券支付失败'
@@ -797,6 +812,9 @@ Page({
   depositPayment() {
     this.storedPay('1211', '储值卡支付成功');
   },
+  storeCardPayment() {
+    this.storedPay('1212', '门店储值卡支付成功');
+  },
   storedPay(opid, successText) {
     const itsid = wx.getStorageSync('itsid');
     const unitId = this.data.selected === '自提'
@@ -810,6 +828,22 @@ Page({
     const mcode = item.skuCode || '';
     const num = item.num || 1;
     const payScore = opid === '1203' ? (totalAmount * 1.6) : totalAmount;
+    if (opid === '1210' && Number(this.data.funds.balance || 0) < totalAmount) {
+      wx.showToast({ title: '余额不足抵扣', icon: 'none' });
+      return;
+    }
+    if (opid === '1211' && Number(this.data.funds.deposit || 0) < totalAmount) {
+      wx.showToast({ title: '储值卡不足抵扣', icon: 'none' });
+      return;
+    }
+    if (opid === '1212' && Number(this.data.funds.storecard || 0) < totalAmount) {
+      wx.showToast({ title: '门店储值卡不足抵扣', icon: 'none' });
+      return;
+    }
+    if (opid === '1203' && Number(this.data.funds.coffee || 0) < totalAmount) {
+      wx.showToast({ title: '咖啡券不足抵扣', icon: 'none' });
+      return;
+    }
     const payload = {
       MCODE: mcode,
       OPID: opid,
@@ -838,6 +872,9 @@ Page({
         totalPrice: totalAmount
       })
     };
+    if (opid === '1212') {
+      payload.storecardid = this.data.storecardid || '';
+    }
     const url = `${app.globalData.backUrl}phone.aspx?mbid=10643&ituid=${app.globalData.ituid}&itsid=${itsid}`
     wx.request({
       // 钱包抵扣接口（余额/咖啡券/储值卡，与购物车结算一致）：mbid=10643, OPID=1210/1203/1211
@@ -853,7 +890,7 @@ Page({
           SCORE: payload.SCORE,
           resp: res && res.data
         });
-        const type = opid === '1210' ? 'balance' : (opid === '1211' ? 'deposit' : 'coffee');
+        const type = opid === '1210' ? 'balance' : (opid === '1211' ? 'deposit' : (opid === '1212' ? 'storecard' : 'coffee'));
         this.handlePaymentResult(res, type);
         wx.removeStorageSync('buyNowItems');
       },
@@ -873,12 +910,20 @@ Page({
         const balance = Number(res.data.money || 0);
         const coffee = Number(res.data.score || 0);
         const deposit = Number(res.data.chuzhika || res.data.chuhzika || 0);
+        const storecard = Number(res.data.storecard || 0);
+        const storecardid = String(res.data.storecardid || '');
         const total = Number(this.data.payableAmount || this.data.totalPrice || 0);
+        const hasStoreCard = storecard > 0;
+        const nextPayMethod = (this.data.payMethod === 'storecard' && !hasStoreCard) ? 'wechat' : (this.data.payMethod || 'wechat');
         this.setData({
-          funds: { balance, coffee, deposit },
+          funds: { balance, coffee, deposit, storecard },
+          storecardid,
           balanceDisabled: !(balance >= total),
           coffeeDisabled: !(coffee >= Math.ceil(total * 1.6) || coffee >= total),
           depositDisabled: !(deposit >= total),
+          storecardDisabled: !(storecard >= total),
+          hasStoreCard,
+          payMethod: nextPayMethod,
           // 不覆盖已选择的优惠券文案
         });
       }
@@ -912,6 +957,14 @@ Page({
       return;
     }
     this.setData({ payMethod: 'deposit', pendingPayMethod: '' });
+  },
+  guardStoreCardPay() {
+    const payable = Number(this.data.payableAmount || this.data.totalPrice || 0);
+    if (this.data.storecardDisabled || Number(this.data.funds.storecard || 0) < payable) {
+      wx.showToast({ title: '门店储值卡不足抵扣', icon: 'none' });
+      return;
+    }
+    this.setData({ payMethod: 'storecard', pendingPayMethod: '' });
   },
   // 优惠券行点击
   couponSelect() {

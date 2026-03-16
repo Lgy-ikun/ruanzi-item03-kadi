@@ -1,46 +1,134 @@
 const app = getApp();
 
+const SCENE_MAP = {
+  balance: {
+    title: '充值中心',
+    assetName: '个人余额',
+    options: [
+      { amount: 600, gift: 0 },
+      { amount: 1800, gift: 0 },
+      { amount: 5400, gift: 0 },
+      { amount: 12000, gift: 0 },
+      { amount: 16200, gift: 0 }
+    ],
+    amountCodeMap: { 600: 920, 1800: 920, 5400: 920, 12000: 920, 16200: 920 }
+  },
+  stored: {
+    title: '储值卡充值',
+    assetName: '储值卡',
+    options: [
+      { amount: 100, gift: 30 },
+      { amount: 300, gift: 120 },
+      { amount: 498, gift: 250 },
+      { amount: 998, gift: 600 }
+    ],
+    amountCodeMap: { 100: 920, 300: 920, 498: 920, 998: 920 },
+    tips: '当前充值储值卡，只能用于消费购物，不能用于其它使用！'
+  },
+  new_store: {
+    title: '新门店储值',
+    assetName: '新店储值卡',
+    options: [
+      { amount: 100, gift: 30 },
+      { amount: 300, gift: 120 },
+      { amount: 498, gift: 250 },
+      { amount: 998, gift: 600 }
+    ],
+    amountCodeMap: { 100: 920, 300: 920, 498: 920, 998: 920 },
+    tips: '当前充值门店储值卡，仅限指定门店使用。'
+  }
+};
+
 Page({
   data: {
-    amount: '' // 充值金额
+    scene: 'balance',
+    assetName: '个人余额',
+    tips: '',
+    currentBalance: '0.00',
+    amountOptions: [],
+    selectedAmount: 0,
+    payMethod: 'wechat'
   },
 
-  // 监听输入，严格限制只能输入正数且最多两位小数
-  handleInput(e) {
-    let value = e.detail.value;
-    // 使用正则：限制只能输入数字和一个小数点，且小数点后最多两位
-    value = value.replace(/[^\d.]/g, ''); // 清除数字和小数点以外的字符
-    value = value.replace(/^\./g, ''); // 验证第一个字符不能是小数点
-    value = value.replace(/\.{2,}/g, '.'); // 只保留第一个小数点
-    value = value.replace('.', '$#$').replace(/\./g, '').replace('$#$', '.'); // 保证只出现一次小数点
-    value = value.replace(/^(\-)*(\d+)\.(\d\d).*$/, '$1$2.$3'); // 只能输入两个小数
-    
-    this.setData({ amount: value });
+  onLoad(options) {
+    const scene = options?.scene && SCENE_MAP[options.scene] ? options.scene : 'balance';
+    const config = SCENE_MAP[scene];
+    wx.setNavigationBarTitle({ title: config.title });
+    this.setData({
+      scene,
+      assetName: config.assetName,
+      tips: config.tips || '',
+      amountOptions: config.options,
+      selectedAmount: config.options[0]?.amount || 0,
+      payMethod: 'wechat'
+    });
+    this.loadBalance(scene);
   },
 
-  // 创建充值订单
-  createOrder() {
-    const { amount } = this.data;
-    const numAmount = parseFloat(amount);
-
-    // 1. 严格校验金额
-    if (!amount || isNaN(numAmount) || numAmount <= 0) {
-      return wx.showToast({ title: '请输入正确的充值金额', icon: 'none' });
-    }
-
-    // 2. 校验登录状态
+  loadBalance(scene) {
     const itsid = wx.getStorageSync('itsid');
     if (!itsid) {
-      return wx.showToast({ title: '请先登录', icon: 'none' });
+      return;
     }
+    wx.request({
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+      method: 'GET',
+      success: (res) => {
+        const data = res?.data || {};
+        const balanceValue = scene === 'balance'
+          ? data.money
+          : (scene === 'new_store' ? data.storecard : data.chuzhika);
+        this.setData({
+          currentBalance: Number(balanceValue || 0).toFixed(2)
+        });
+      }
+    });
+  },
 
+  selectAmount(e) {
+    const value = Number(e.currentTarget.dataset.value || 0);
+    if (!value) {
+      return;
+    }
+    this.setData({ selectedAmount: value });
+  },
+
+  selectPayMethod(e) {
+    const method = e.currentTarget.dataset.method;
+    if (method === 'quick') {
+      wx.showToast({
+        title: '快捷支付暂未开放',
+        icon: 'none'
+      });
+      return;
+    }
+    this.setData({ payMethod: 'wechat' });
+  },
+
+  createOrder() {
+    const { selectedAmount, scene, payMethod } = this.data;
+    if (!selectedAmount) {
+      wx.showToast({ title: '请选择充值金额', icon: 'none' });
+      return;
+    }
+    if (payMethod !== 'wechat') {
+      wx.showToast({ title: '仅支持微信支付', icon: 'none' });
+      return;
+    }
+    const itsid = wx.getStorageSync('itsid');
+    if (!itsid) {
+      if (scene === 'new_store') {
+        wx.navigateTo({
+          url: '/subPackages/user/pages/register/register?from=home'
+        });
+        return;
+      }
+      wx.showToast({ title: '请先登录', icon: 'none' });
+      return;
+    }
+    const config = SCENE_MAP[scene] || SCENE_MAP.balance;
+    const mcode = config.amountCodeMap[selectedAmount] || 920;
     wx.showLoading({ title: '创建订单中...', mask: true });
-
-    // ⚠️ 核心修复：还原原代码的纯数字类型
-    // toFixed(2) 会变成字符串，外面必须套一层 Number() 重新转回纯数字
-    const finalAmt = Number(numAmount.toFixed(2)); 
-
-    // 3. 调用后端接口创建订单
     wx.request({
       url: `${app.globalData.backUrl}phone.aspx?mbid=10634&ituid=${app.globalData.ituid}&itsid=${itsid}`,
       method: 'POST',
@@ -48,42 +136,71 @@ Page({
         'content-type': 'application/json'
       },
       data: {
-        MCODE: 920,       // ✅ 修复：严格对标原代码，不加引号的数字 920
-        OPID: '1207', 
-        UNITID: '1', 
-        NUM: 1,           // ✅ 修复：数字 1
-        USERID: '0', 
-        NOTE: ' ', 
-        AMT: finalAmt,    // ✅ 修复：纯数字金额
-        RURL: '/subPackages/package/pages/recharge-result/recharge-result' // 这只是个跳转路径字符串，不影响创建
+        MCODE: mcode,
+        OPID: '1207',
+        UNITID: '1',
+        NUM: 1,
+        USERID: '0',
+        NOTE: ' ',
+        AMT: Number(selectedAmount),
+        RURL: '/subPackages/package/pages/recharge-result/recharge-result'
       },
       success: (res) => {
-        // 先隐藏 loading，防止和下面的 showToast 冲突
-        wx.hideLoading();
-        
-        console.log("10634接口返回的真实数据:", res.data);
-
-        // 判断是否真正成功创建了订单
-        if (res.statusCode === 200 && res.data && res.data.orderid) {
-          const data = res.data;
-          const pkg = encodeURIComponent(data.package || '');
-          const pSign = encodeURIComponent(data.paySign || '');
-          
-          // 跳转到全新收银台
-          wx.navigateTo({
-            url: `/subPackages/package/pages/new-recharge-pay/new-recharge-pay?return_url=${data.rurl}&orderid=${data.orderid}&terminal=${data.terminal_sn}&amt=${data.AMT}&sign=${data.sign}&appId=${data.appId}&nonceStr=${data.nonceStr}&package=${pkg}&paySign=${pSign}&signType=${data.signType}&timeStamp=${data.timeStamp}`
+        const data = res?.data || {};
+        if (!(res.statusCode === 200 && data.orderid)) {
+          wx.hideLoading();
+          wx.showToast({
+            title: data.msg || data.message || '订单创建失败',
+            icon: 'none'
           });
-        } else {
-          // 打印后台拒绝的具体原因
-          const errorMsg = res.data.msg || res.data.message || '订单创建失败';
-          wx.showToast({ title: errorMsg, icon: 'none', duration: 2500 });
+          return;
         }
+        const payPayload = {
+          timeStamp: String(data.timeStamp || ''),
+          nonceStr: data.nonceStr || '',
+          package: data.package || '',
+          signType: data.signType || 'MD5',
+          paySign: data.paySign || ''
+        };
+        if (!payPayload.timeStamp || !payPayload.nonceStr || !payPayload.package || !payPayload.paySign) {
+          wx.hideLoading();
+          wx.showToast({
+            title: '支付参数缺失，请稍后重试',
+            icon: 'none'
+          });
+          return;
+        }
+        wx.requestPayment({
+          ...payPayload,
+          success: () => {
+            wx.hideLoading();
+            wx.showToast({
+              title: '支付成功',
+              icon: 'success'
+            });
+            setTimeout(() => {
+              wx.navigateBack();
+            }, 800);
+          },
+          fail: () => {
+            wx.hideLoading();
+            wx.showToast({
+              title: '已取消或支付失败',
+              icon: 'none'
+            });
+          }
+        });
       },
-      fail: (err) => {
+      fail: () => {
         wx.hideLoading();
-        console.error("网络异常：", err);
         wx.showToast({ title: '网络异常，请重试', icon: 'none' });
       }
+    });
+  },
+
+  goRechargeAgreement() {
+    wx.navigateTo({
+      url: '/subPackages/package/pages/xieyi/xieyi?agreement=recharge'
     });
   }
 });
