@@ -45,6 +45,7 @@ Page({
     assetName: '个人余额',
     tips: '',
     currentBalance: '0.00',
+    storecardid: '',
     amountOptions: [],
     selectedAmount: 0,
     payMethod: 'wechat'
@@ -78,8 +79,10 @@ Page({
         const balanceValue = scene === 'balance'
           ? data.money
           : (scene === 'new_store' ? data.storecard : data.chuzhika);
+        const storecardid = String(data.storecardid || '');
         this.setData({
-          currentBalance: Number(balanceValue || 0).toFixed(2)
+          currentBalance: Number(balanceValue || 0).toFixed(2),
+          storecardid
         });
       }
     });
@@ -94,14 +97,6 @@ Page({
   },
 
   selectPayMethod(e) {
-    const method = e.currentTarget.dataset.method;
-    if (method === 'quick') {
-      wx.showToast({
-        title: '快捷支付暂未开放',
-        icon: 'none'
-      });
-      return;
-    }
     this.setData({ payMethod: 'wechat' });
   },
 
@@ -128,23 +123,39 @@ Page({
     }
     const config = SCENE_MAP[scene] || SCENE_MAP.balance;
     const mcode = config.amountCodeMap[selectedAmount] || 920;
+    const opidMap = {
+      balance: '1207',
+      stored: '1217',
+      new_store: '1218'
+    };
+    const opid = opidMap[scene];
+    if (!opid) {
+      wx.showToast({ title: '充值场景参数错误', icon: 'none' });
+      return;
+    }
     wx.showLoading({ title: '创建订单中...', mask: true });
+    const requestData = {
+      MCODE: mcode,
+      OPID: opid,
+      UNITID: '1',
+      NUM: 1,
+      USERID: '0',
+      NOTE: ' ',
+      AMT: Number(selectedAmount),
+      RURL: '/subPackages/package/pages/recharge-result/recharge-result'
+    };
+    if (scene === 'new_store') {
+      requestData.storecardid = this.data.storecardid || '';
+    }
     wx.request({
-      url: `${app.globalData.backUrl}phone.aspx?mbid=10634&ituid=${app.globalData.ituid}&itsid=${itsid}`,
+      url: `${app.globalData.backUrl}phone.aspx?mbid=10651&ituid=${app.globalData.ituid}&itsid=${itsid}`,
+      // url: `${app.globalData.backUrl}phone.aspx?mbid=10601&ituid=${app.globalData.ituid}&itsid=${itsid}`这个是会员页面充值,
+      // url: `${app.globalData.backUrl}phone.aspx?mbid=10634&ituid=${app.globalData.ituid}&itsid=${itsid}`这个是股东页面充值,
       method: 'POST',
       header: {
         'content-type': 'application/json'
       },
-      data: {
-        MCODE: mcode,
-        OPID: '1207',
-        UNITID: '1',
-        NUM: 1,
-        USERID: '0',
-        NOTE: ' ',
-        AMT: Number(selectedAmount),
-        RURL: '/subPackages/package/pages/recharge-result/recharge-result'
-      },
+      data: requestData,
       success: (res) => {
         const data = res?.data || {};
         if (!(res.statusCode === 200 && data.orderid)) {

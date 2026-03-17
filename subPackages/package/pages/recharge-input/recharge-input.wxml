@@ -23,10 +23,6 @@
       <text class="pay-name">微信支付</text>
       <view class="radio {{payMethod === 'wechat' ? 'checked' : ''}}"></view>
     </view>
-    <view class="pay-item {{payMethod === 'quick' ? 'active' : ''}}" data-method="quick" bindtap="selectPayMethod">
-      <text class="pay-name">快捷支付</text>
-      <view class="radio {{payMethod === 'quick' ? 'checked' : ''}}"></view>
-    </view>
   </view>
 
   <view wx:if="{{tips}}" class="scene-tips">{{tips}}</view>

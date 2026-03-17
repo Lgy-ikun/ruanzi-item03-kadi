@@ -21,16 +21,13 @@ Page({
   },
   hasSession() {
     const itsid = String(wx.getStorageSync('itsid') || '');
-    return itsid && itsid !== '0';
+    return Boolean(itsid && itsid !== '0');
   },
   isRealLogin() {
     const raw = wx.getStorageSync('isLoginSuccess');
     const hasSession = this.hasSession();
     const flagLogin = raw === true || raw === 'true' || raw === 1 || raw === '1';
-    if (hasSession && !flagLogin) {
-      wx.setStorageSync('isLoginSuccess', true);
-    }
-    return hasSession;
+    return hasSession && flagLogin;
   },
   clearAuthState() {
     wx.setStorageSync('isLoginSuccess', false);
@@ -65,7 +62,9 @@ Page({
 
     // const invite = wx.getStorageSync('invite');
     // console.log('从缓存中获取的 invite:', invite); // 新增此行，打印缓存中的 invite
-    this.fetchData10603(itsid);
+    if (this.hasSession()) {
+      this.fetchData10603(itsid);
+    }
     // const duifangCode = this.fetchDuiFangCode(userid)
     // console.log('对方Code', duifangCode);
     // const inviteCode = this.fetchCode()
@@ -106,20 +105,17 @@ Page({
           // console.log('用户ID已全局化:', app.globalData.userid);
           wx.setStorageSync('isLoginSuccess', true);
         } else {
-          const isExplicitLogout = String(res?.data?.userid || '') === '0';
-          if (isExplicitLogout) {
-            that.clearAuthState();
-            that.setData({
-              content: '0',
-              freeze: '0',
-              money: '0',
-              score: '0',
-              name: '',
-              userid: '0',
-              avatarUrl: '',
-              isLoginSuccess: false
-            });
-          }
+          that.clearAuthState();
+          that.setData({
+            content: '0',
+            freeze: '0',
+            money: '0',
+            score: '0',
+            name: '',
+            userid: '0',
+            avatarUrl: '',
+            isLoginSuccess: false
+          });
         }
       },
       fail: (error) => {
@@ -182,13 +178,13 @@ Page({
    */
   onShow: function () {
     const itsid = wx.getStorageSync('itsid');
-    const isLogin = this.hasSession();
+    const isLogin = this.isRealLogin();
     this.setData({
       name: isLogin ? (wx.getStorageSync('name') || this.data.name || '') : '',
       avatarUrl: isLogin ? (wx.getStorageSync('avatar') || this.data.avatarUrl || '') : '',
       isLoginSuccess: isLogin
     });
-    if (itsid && isLogin) {
+    if (this.hasSession() && itsid) {
       this.fetchData10603(itsid);
     } else {
       this.setData({

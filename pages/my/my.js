@@ -13,16 +13,13 @@ Page({
   },
   hasSession() {
     const itsid = String(wx.getStorageSync('itsid') || '');
-    return itsid && itsid !== '0';
+    return Boolean(itsid && itsid !== '0');
   },
   isRealLogin() {
     const raw = wx.getStorageSync('isLoginSuccess');
     const hasSession = this.hasSession();
     const flagLogin = raw === true || raw === 'true' || raw === 1 || raw === '1';
-    if (hasSession && !flagLogin) {
-      wx.setStorageSync('isLoginSuccess', true);
-    }
-    return hasSession;
+    return hasSession && flagLogin;
   },
   clearAuthState() {
     wx.setStorageSync('isLoginSuccess', false);
@@ -352,23 +349,20 @@ Page({
           wx.setStorageSync('name', res.data.name || '');
           wx.setStorageSync('avatar', res.data.avatar || '');
         } else {
-          const isExplicitLogout = String(res?.data?.userid || '') === '0';
-          if (isExplicitLogout) {
-            that.clearAuthState();
-            that.setData({
-              isLogin: false,
-              name: '',
-              avatar: '',
-              money: 0.00,
-              coffeeCoupon: 0.00,
-              depositCard: 0.00,
-              electronicCoupon: 0.00
-            });
-          }
+          that.clearAuthState();
+          that.setData({
+            isLogin: false,
+            name: '',
+            avatar: '',
+            money: 0.00,
+            coffeeCoupon: 0.00,
+            depositCard: 0.00,
+            electronicCoupon: 0.00
+          });
         }
       },
       fail: () => {
-        const isLogin = that.hasSession();
+        const isLogin = that.isRealLogin();
         that.setData({ isLogin });
       }
     });
@@ -380,7 +374,7 @@ Page({
   onShow() {
     const itsid = wx.getStorageSync('itsid');
     if (this.hasSession()) {
-      this.setData({ isLogin: true });
+      this.setData({ isLogin: this.isRealLogin() });
       this.fetchUserData(itsid);
     } else {
       wx.setStorageSync('isLoginSuccess', false);

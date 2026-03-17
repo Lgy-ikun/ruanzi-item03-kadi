@@ -181,8 +181,9 @@ Page({
       success: (res) => {
         wx.hideLoading();
         // 安全校验：必须确保后台返回了 yeepay 微信参数
-        console.log("【122微信支付下单】后台返回的真实数据:", res.data);
-        if (res.data && res.data.code === '1' && res.data.yeepay) {
+        console.log("【122微信支付下单】后台返回的真实数据:", res);
+        // if (res.data && res.data.yeepay &&  res.data.code === '1' )
+        if (res.data && res.data.yeepay  ) {
           const yp = res.data.yeepay;
           const packageNew = encodeURIComponent(yp.package || '');
           const paySignNew = encodeURIComponent(yp.paySign || '');
