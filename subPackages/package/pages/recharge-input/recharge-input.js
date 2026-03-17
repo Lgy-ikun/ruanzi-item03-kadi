@@ -5,13 +5,13 @@ const SCENE_MAP = {
     title: '充值中心',
     assetName: '个人余额',
     options: [
-      { amount: 600, gift: 0 },
+      { amount: 1, gift: 0 },
       { amount: 1800, gift: 0 },
       { amount: 5400, gift: 0 },
       { amount: 12000, gift: 0 },
       { amount: 16200, gift: 0 }
     ],
-    amountCodeMap: { 600: 920, 1800: 920, 5400: 920, 12000: 920, 16200: 920 }
+    amountCodeMap: { 1: 920, 1800: 920, 5400: 920, 12000: 920, 16200: 920 }
   },
   stored: {
     title: '储值卡充值',
@@ -133,78 +133,80 @@ Page({
       wx.showToast({ title: '充值场景参数错误', icon: 'none' });
       return;
     }
+    const quantity = 1;
+    const fetchMoney = Number(selectedAmount);
+    const inviteCode = String(this.data.inviteCode || wx.getStorageSync('invite') || '');
     wx.showLoading({ title: '创建订单中...', mask: true });
-    const requestData = {
-      MCODE: mcode,
-      OPID: opid,
-      UNITID: '1',
-      NUM: 1,
-      USERID: '0',
-      NOTE: ' ',
-      AMT: Number(selectedAmount),
-      RURL: '/subPackages/package/pages/recharge-result/recharge-result'
-    };
-    if (scene === 'new_store') {
-      requestData.storecardid = this.data.storecardid || '';
-    }
     wx.request({
       url: `${app.globalData.backUrl}phone.aspx?mbid=10651&ituid=${app.globalData.ituid}&itsid=${itsid}`,
-      // url: `${app.globalData.backUrl}phone.aspx?mbid=10601&ituid=${app.globalData.ituid}&itsid=${itsid}`这个是会员页面充值,
-      // url: `${app.globalData.backUrl}phone.aspx?mbid=10634&ituid=${app.globalData.ituid}&itsid=${itsid}`这个是股东页面充值,
       method: 'POST',
       header: {
         'content-type': 'application/json'
       },
-      data: requestData,
+      data: {
+        MCODE: mcode,
+        OPID: opid,
+        UNITID: '1',
+        NUM: quantity,
+        USERID: '0',
+        NOTE: ' ',
+        AMT: fetchMoney,
+        invite: inviteCode,
+        RURL: '/subPackages/package/pages/shareholder-payResult/shareholder-payResult'
+      },
       success: (res) => {
-        const data = res?.data || {};
-        if (!(res.statusCode === 200 && data.orderid)) {
-          wx.hideLoading();
-          wx.showToast({
-            title: data.msg || data.message || '订单创建失败',
-            icon: 'none'
-          });
-          return;
-        }
-        const payPayload = {
-          timeStamp: String(data.timeStamp || ''),
-          nonceStr: data.nonceStr || '',
-          package: data.package || '',
-          signType: data.signType || 'MD5',
-          paySign: data.paySign || ''
-        };
-        if (!payPayload.timeStamp || !payPayload.nonceStr || !payPayload.package || !payPayload.paySign) {
-          wx.hideLoading();
-          wx.showToast({
-            title: '支付参数缺失，请稍后重试',
-            icon: 'none'
-          });
-          return;
-        }
-        wx.requestPayment({
-          ...payPayload,
-          success: () => {
+        try {
+          let responseData = res.data;
+          if (typeof responseData === 'string') {
+            try {
+              responseData = JSON.parse(responseData);
+            } catch (e) {
+              const ybUrlMatch = responseData.match(/\"yburl\":(https:\/\/[^,\}]+)/);
+              if (ybUrlMatch && ybUrlMatch[1]) {
+                const yburl = ybUrlMatch[1].trim();
+                wx.hideLoading();
+                wx.navigateTo({
+                  url: `/subPackages/package/pages/web-view/web-view?url=${encodeURIComponent(yburl)}`
+                });
+                return;
+              }
+            }
+          }
+          if (responseData && responseData.yburl) {
             wx.hideLoading();
-            wx.showToast({
-              title: '支付成功',
-              icon: 'success'
+            wx.navigateTo({
+              url: `/subPackages/package/pages/web-view/web-view?url=${encodeURIComponent(responseData.yburl)}`
             });
-            setTimeout(() => {
-              wx.navigateBack();
-            }, 800);
-          },
-          fail: () => {
+          } else if (responseData && responseData.yeepay) {
+            let packageNew = encodeURIComponent(responseData.yeepay.package);
+            let paySignNew = encodeURIComponent(responseData.yeepay.paySign);
+            wx.hideLoading();
+            wx.navigateTo({
+              url: `/subPackages/package/pages/shareholder-pay/shareholder-pay?return_url=${responseData.rurl}&orderid=${responseData.orderid}&terminal=${responseData.terminal_sn}&amt=${responseData.AMT}&sign=${responseData.sign}&appId=${responseData.yeepay.appId}&nonceStr=${responseData.yeepay.nonceStr}&package=${packageNew}&paySign=${paySignNew}&signType=${responseData.yeepay.signType}&timeStamp=${responseData.yeepay.timeStamp}&SN=${responseData.SN}`,
+            });
+          } else {
             wx.hideLoading();
             wx.showToast({
-              title: '已取消或支付失败',
-              icon: 'none'
+              title: '支付接口返回格式异常',
+              icon: 'none',
+              duration: 2000
             });
           }
-        });
+        } catch (error) {
+          wx.hideLoading();
+          wx.showToast({
+            title: '处理支付数据失败',
+            icon: 'none',
+            duration: 2000
+          });
+        }
       },
-      fail: () => {
+      fail: (err) => {
         wx.hideLoading();
-        wx.showToast({ title: '网络异常，请重试', icon: 'none' });
+        wx.showToast({
+          title: '请求失败，请稍后再试',
+          icon: 'none'
+        });
       }
     });
   },
