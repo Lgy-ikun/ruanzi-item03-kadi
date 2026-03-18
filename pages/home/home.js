@@ -84,22 +84,24 @@ Page({
       url: `${AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
       method: 'GET',
       success: (res) => {
-        const hasValidUser = res.statusCode === 200 && res.data && String(res.data.userid || '') !== '0';
+        const data = res && res.data;
+        const useridValue = String((data && data.userid) || '');
+        const hasValidUser = res.statusCode === 200 && useridValue !== '' && useridValue !== '0';
         if (hasValidUser) {
-          const newName = (res.data.name || '').trim();
-          const newAvatar = res.data.avatar || '';
+          const newName = (data.name || '').trim();
+          const newAvatar = data.avatar || '';
           that.setData({
-            content: res.data.content || '0',
-            freeze: res.data.freeze || '0',
-            money: res.data.money || '0',
-            score: res.data.score || '0',
+            content: data.content || '0',
+            freeze: data.freeze || '0',
+            money: data.money || '0',
+            score: data.score || '0',
             name: newName || '',
-            userid: res.data.userid || '0',
+            userid: data.userid || '0',
             avatarUrl: newAvatar || ''
           });
           // 存储全局变量
           // app.globalData.userid = res.data.userid;
-          wx.setStorageSync('userid', res.data.userid);
+          wx.setStorageSync('userid', useridValue);
           if (newName) wx.setStorageSync('name', newName);
           if (newAvatar) wx.setStorageSync('avatar', newAvatar);
           // console.log('用户ID已全局化:', app.globalData.userid);
@@ -134,8 +136,8 @@ Page({
   
   handleNavigate2() {
     wx.navigateTo({
-      url: '/subPackages/package/pages/recharge/recharge',
-    })
+      url: `/subPackages/package/pages/recharge-input/recharge-input?scene=stored`
+    });
   },
   
   handleNavigate3() {

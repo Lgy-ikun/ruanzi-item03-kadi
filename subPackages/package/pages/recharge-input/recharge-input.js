@@ -5,36 +5,36 @@ const SCENE_MAP = {
     title: '充值中心',
     assetName: '个人余额',
     options: [
-      { amount: 1, gift: 0 },
+      { amount: 0.1, gift: 0 },
       { amount: 1800, gift: 0 },
       { amount: 5400, gift: 0 },
       { amount: 12000, gift: 0 },
       { amount: 16200, gift: 0 }
     ],
-    amountCodeMap: { 1: 920, 1800: 920, 5400: 920, 12000: 920, 16200: 920 }
+    amountCodeMap: { 0.1: 920, 1800: 920, 5400: 920, 12000: 920, 16200: 920 }
   },
   stored: {
     title: '储值卡充值',
     assetName: '储值卡',
     options: [
-      { amount: 100, gift: 30 },
+      { amount: 0.1, gift: 30 },
       { amount: 300, gift: 120 },
       { amount: 498, gift: 250 },
       { amount: 998, gift: 600 }
     ],
-    amountCodeMap: { 100: 920, 300: 920, 498: 920, 998: 920 },
+    amountCodeMap: { 0.1: 920, 300: 920, 498: 920, 998: 920 },
     tips: '当前充值储值卡，只能用于消费购物，不能用于其它使用！'
   },
   new_store: {
     title: '新门店储值',
     assetName: '新店储值卡',
     options: [
-      { amount: 100, gift: 30 },
+      { amount: 0.1, gift: 30 },
       { amount: 300, gift: 120 },
       { amount: 498, gift: 250 },
       { amount: 998, gift: 600 }
     ],
-    amountCodeMap: { 100: 920, 300: 920, 498: 920, 998: 920 },
+    amountCodeMap: { 0.1: 920, 300: 920, 498: 920, 998: 920 },
     tips: '当前充值门店储值卡，仅限指定门店使用。'
   }
 };
@@ -161,8 +161,11 @@ Page({
             try {
               responseData = JSON.parse(responseData);
             } catch (e) {
+              console.error("JSON解析失败，尝试手动提取yburl", e);
+               // 手动提取yburl
               const ybUrlMatch = responseData.match(/\"yburl\":(https:\/\/[^,\}]+)/);
               if (ybUrlMatch && ybUrlMatch[1]) {
+                // 找到了yburl，直接跳转
                 const yburl = ybUrlMatch[1].trim();
                 wx.hideLoading();
                 wx.navigateTo({
@@ -180,6 +183,10 @@ Page({
           } else if (responseData && responseData.yeepay) {
             let packageNew = encodeURIComponent(responseData.yeepay.package);
             let paySignNew = encodeURIComponent(responseData.yeepay.paySign);
+
+            console.log("packageNew:", packageNew);
+            console.log("paySignNew:", paySignNew);
+
             wx.hideLoading();
             wx.navigateTo({
               url: `/subPackages/package/pages/shareholder-pay/shareholder-pay?return_url=${responseData.rurl}&orderid=${responseData.orderid}&terminal=${responseData.terminal_sn}&amt=${responseData.AMT}&sign=${responseData.sign}&appId=${responseData.yeepay.appId}&nonceStr=${responseData.yeepay.nonceStr}&package=${packageNew}&paySign=${paySignNew}&signType=${responseData.yeepay.signType}&timeStamp=${responseData.yeepay.timeStamp}&SN=${responseData.SN}`,
@@ -191,6 +198,7 @@ Page({
               icon: 'none',
               duration: 2000
             });
+            console.error("接口返回数据格式异常:", responseData);
           }
         } catch (error) {
           wx.hideLoading();
@@ -203,6 +211,7 @@ Page({
       },
       fail: (err) => {
         wx.hideLoading();
+        console.error("请求失败:", err);
         wx.showToast({
           title: '请求失败，请稍后再试',
           icon: 'none'

@@ -331,23 +331,27 @@ Page({
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
       method: 'GET',
       success: (res) => {
-        const hasValidUser = res.statusCode === 200 && res.data && String(res.data.userid || '') !== '0';
+        console.log("接口返回数据哈哈哈:", res);
+        const data = res && res.data;
+        const useridValue = String((data && data.userid) || '');
+        const hasValidUser = res.statusCode === 200 && useridValue !== '' && useridValue !== '0';
+        console.log("hasValidUser:", hasValidUser);
         if (hasValidUser) {
           wx.setStorageSync('isLoginSuccess', true);
-          if (res?.data?.userid) {
-            wx.setStorageSync('userid', res.data.userid);
+          if (useridValue) {
+            wx.setStorageSync('userid', useridValue);
           }
           that.setData({
-            name: res.data.name || '',
-            money: res.data.money || 0.00,
-            coffeeCoupon: res.data.score || 0.00,
-            depositCard: res.data.chuzhika || 0.00,
-            electronicCoupon: res.data.dianzi || 0.00,
-            avatar: `${app.globalData.AUrl}/jy/wxuser/106/images/singeravatar/` + (res.data.avatar || ''),
+            name: data.name || '',
+            money: data.money || 1.00,
+            coffeeCoupon: data.score || 10.00,
+            depositCard: data.chuzhika || 0.00,
+            electronicCoupon: data.dianzi || 0.00,
+            avatar: `${app.globalData.AUrl}/jy/wxuser/106/images/singeravatar/` + (data.avatar || ''),
             isLogin: true
           });
-          wx.setStorageSync('name', res.data.name || '');
-          wx.setStorageSync('avatar', res.data.avatar || '');
+          wx.setStorageSync('name', data.name || '');
+          wx.setStorageSync('avatar', data.avatar || '');
         } else {
           that.clearAuthState();
           that.setData({

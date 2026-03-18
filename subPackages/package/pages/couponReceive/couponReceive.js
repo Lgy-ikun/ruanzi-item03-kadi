@@ -23,6 +23,17 @@ Page({
     return '';
   },
 
+  getItsid() {
+    const itsidFromStorage = wx.getStorageSync('itsid');
+    if (itsidFromStorage) {
+      return String(itsidFromStorage);
+    }
+    if (app.globalData && app.globalData.itsid) {
+      return String(app.globalData.itsid);
+    }
+    return '';
+  },
+
   loadCouponList() {
     const userid = this.getUserId();
     if (!userid) {
@@ -38,6 +49,7 @@ Page({
 
     // 请求真实的接口
     wx.request({
+      // url: `${app.globalData.AUrl}/jy/go/phone.aspx?ituid=106&mbid=10652&itsid=${itsid}
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=0902&itcid=10655&userid=${userid}`,
       method: 'GET',
       success: (res) => {
@@ -89,6 +101,11 @@ Page({
       wx.showToast({ title: '请先登录', icon: 'none' });
       return;
     }
+    const itsid = this.getItsid();
+    if (!itsid) {
+      wx.showToast({ title: '登录已失效，请重新登录', icon: 'none' });
+      return;
+    }
 
     const list = this.data.couponList || [];
     const index = list.findIndex((item) => String(item.cardid) === String(cardid));
@@ -106,28 +123,25 @@ Page({
     const indexKey = `couponList[${index}].receiving`;
     this.setData({ [indexKey]: true });
 
-    // 【注意】这里是你原有代码里的领取接口，因为你没提供新的领取API，我保留了原来的逻辑
-    // 如果领取API也变了，请替换这里的 url 和参数
     wx.request({
-      url: `${app.globalData.AUrl}/coupon/receive`, // <-- 请确认此接口是否也需要更改
+      url: `${app.globalData.AUrl}/jy/go/phone.aspx?ituid=106&mbid=10652&itsid=${itsid}`,
       method: 'POST',
       header: { 'content-type': 'application/json' },
       data: {
         userid,
-        cardid: cardid // 将参数名改为 cardid 发送给后端
+        itsid,
+        cardid: String(cardid)
       },
       success: (res) => {
         const responseData = res && res.data ? res.data : {};
-        const code = String(responseData.code || '');
-        // 假设领取的成功状态也是 1（根据你实际后端接口调整）
-        const success = code === '1' || code === '0' || code === '200'; 
-        
-        if (!success) {
-          this.setData({ [indexKey]: false });
-          wx.showToast({ title: responseData.msg || responseData.message || '领取失败', icon: 'none' });
+        const descText = String(responseData.desc || responseData.msg || responseData.message || '领取结果未知');
+        const isSuccess = descText.includes('成功');
+        if (isSuccess) {
+          this.handleReceiveSuccess(index, cardid, descText);
           return;
         }
-        this.handleReceiveSuccess(index, cardid);
+        this.setData({ [indexKey]: false });
+        wx.showToast({ title: descText, icon: 'none' });
       },
       fail: () => {
         this.setData({ [indexKey]: false });
@@ -136,13 +150,13 @@ Page({
     });
   },
 
-  handleReceiveSuccess(index, cardid) {
+  handleReceiveSuccess(index, cardid, descText) {
     this.setData({
       [`couponList[${index}].isReceived`]: true,
       [`couponList[${index}].receiving`]: false
     });
     this.saveReceivedCouponId(cardid);
-    wx.showToast({ title: '领取成功', icon: 'success' });
+    wx.showToast({ title: descText || '领取成功', icon: 'success' });
   },
 
   // 将服务器数据与本地缓存的已领取状态合并
