@@ -26,7 +26,7 @@
             <view class="pay-row">
                 <text class="pay-label">支付：</text>
                 <text class="pay-money">余额 600.00</text>
-                <text class="pay-coupon">+ 咖啡券 400.00</text>
+                <text class="pay-coupon">+ 咖啡券 或电子券400.00</text>
             </view>
             <!-- 套餐详情行 -->
             <view class="detail-box">
@@ -73,7 +73,7 @@
             <view class="pay-row">
                 <text class="pay-label">支付：</text>
                 <text class="pay-money">余额 1800.00</text>
-                <text class="pay-coupon">+ 咖啡券 1200.00</text>
+                <text class="pay-coupon">+ 咖啡券 或电子券1200.00</text>
             </view>
             <!-- 套餐详情行 -->
             <view class="detail-box">
@@ -120,7 +120,7 @@
             <view class="pay-row">
                 <text class="pay-label">支付：</text>
                 <text class="pay-money">余额 5400.00</text>
-                <text class="pay-coupon">+ 咖啡券 3600.00</text>
+                <text class="pay-coupon">+ 咖啡券 或电子券3600.00</text>
             </view>
             <!-- 套餐详情行 -->
             <view class="detail-box">
@@ -167,7 +167,7 @@
             <view class="pay-row">
                 <text class="pay-label">支付：</text>
                 <text class="pay-money">余额 16200.00</text>
-                <text class="pay-coupon">+ 咖啡券 10800.00</text>
+                <text class="pay-coupon">+ 咖啡券 或电子券10800.00</text>
             </view>
             <!-- 套餐详情行 -->
             <view class="detail-box">

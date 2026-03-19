@@ -66,8 +66,10 @@ Page({
     testFocus: false,
     money: '0.00',
     score: '0.00',
+    dianzi: '0.00',
     cashAmount: '0.00',
-    pointsAmount: '0.00'
+    pointsAmount: '0.00',
+    selectedCouponType: ''
   },
 
   onLoad(options) {
@@ -111,14 +113,38 @@ Page({
         if (res.statusCode === 200 && res.data) {
           this.setData({
             money: String(res.data.money || '0'),
-            score: String(res.data.score || '0')
+            score: String(res.data.score || '0'),
+            dianzi: String(res.data.dianzi || '0')
           });
         }
       }
     });
   },
+  onSelectCouponType(e) {
+    const type = e.currentTarget.dataset.type;
+    if (type !== 'kafei' && type !== 'dianzi') {
+      return;
+    }
+    this.setData({
+      selectedCouponType: type
+    });
+  },
+  getSelectedCouponMeta() {
+    const isKafei = this.data.selectedCouponType === 'kafei';
+    return {
+      label: isKafei ? '咖啡券' : '电子券',
+      balance: Number(isKafei ? this.data.score : this.data.dianzi)
+    };
+  },
 
   submitOrder() {
+    if (!this.data.selectedCouponType) {
+      wx.showToast({
+        title: '请选择支付方式',
+        icon: 'none'
+      });
+      return;
+    }
     this.confirmChange();
   },
 
@@ -228,10 +254,10 @@ Page({
   },
 
   executeRecharge() {
-    const score = Number(this.data.score || 0);
     const money = Number(this.data.money || 0);
     const cashAmount = Number(this.data.cashAmount || 0);
     const pointsAmount = Number(this.data.pointsAmount || 0);
+    const couponMeta = this.getSelectedCouponMeta();
     const packageId = String(this.data.packageId || '1');
     const mcode = PACKAGE_CONFIG[packageId]?.mcode || 900;
     const itsid = wx.getStorageSync('itsid');
@@ -242,9 +268,9 @@ Page({
       });
       return;
     }
-    if (score < pointsAmount) {
+    if (couponMeta.balance < pointsAmount) {
       wx.showToast({
-        title: '消费券不足，无法充值',
+        title: `${couponMeta.label}不足，无法充值`,
         icon: 'none'
       });
       return;
@@ -262,7 +288,8 @@ Page({
         NUM: '1',
         USERID: '0',
         NOTE: ' ',
-        AMT: this.data.cashAmount
+        AMT: this.data.cashAmount,
+        type: this.data.selectedCouponType
       },
       success: () => {
         wx.showToast({

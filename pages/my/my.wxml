@@ -10,7 +10,7 @@
       </view>
     </view>
     <!-- 右上角二维码图标 -->
-    <image class="qrcode-icon" src="/images/qrcode.png" mode="aspectFit" bindtap="gotoQrcode"></image>
+    <image class="qrcode-icon" src="../../images/qrcode.png" mode="aspectFit" bindtap="gotoQrcode"></image>
   </view>
 
   <!-- 模块1：卡狄D套餐 -->

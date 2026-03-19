@@ -152,6 +152,8 @@ Page({
     testFocus: false, // 隐藏输入框聚焦
     money: '0.00', // 初始化为字符串格式
     score: '0.00', // 初始化为字符串格式
+    dianzi: '0.00',
+    selectedCouponType: ''
   },
 
   onLoad(options) {
@@ -169,12 +171,12 @@ Page({
     wx.request({
       url: `${AUrl}/jy/go/we.aspx?ituid=106&itjid=10641&itcid=10641`,
       success: (res) => {
+        const pricePerUnit = Number(res.data.data || 0);
         this.setData({
           MCODE: res.data.code,
-          pricePerUnit: res.data.data,
-          showMoney: (res.data.data * 0.6).toFixed(2),
-          showQuan: (res.data.data * 0.4).toFixed(2)
+          pricePerUnit
         });
+        this.updatePaymentAmounts(this.data.quantity, pricePerUnit);
       }
     });
   },
@@ -187,10 +189,35 @@ Page({
       success: (res) => {
         this.setData({
           money: parseFloat(res.data.money || 0).toFixed(2),
-          score: parseFloat(res.data.score || 0).toFixed(2)
+          score: parseFloat(res.data.score || 0).toFixed(2),
+          dianzi: parseFloat(res.data.dianzi || 0).toFixed(2)
         });
       }
     });
+  },
+  updatePaymentAmounts(quantity, unitPrice = this.data.pricePerUnit) {
+    const amount = Number(unitPrice || 0) * Number(quantity || 0);
+    this.setData({
+      showMoney: (amount * 0.6).toFixed(2),
+      showQuan: (amount * 0.4).toFixed(2)
+    });
+  },
+  onSelectCouponType(e) {
+    const type = e.currentTarget.dataset.type;
+    if (type !== 'kafei' && type !== 'dianzi') {
+      return;
+    }
+    this.setData({
+      selectedCouponType: type
+    });
+  },
+  getSelectedCouponMeta() {
+    const isKafei = this.data.selectedCouponType === 'kafei';
+    return {
+      type: isKafei ? 'kafei' : 'dianzi',
+      label: isKafei ? '消费券' : '电子券',
+      balance: Number(isKafei ? this.data.score : this.data.dianzi)
+    };
   },
 
   // 显示交易码弹窗
@@ -350,6 +377,7 @@ Page({
         USERID: that.data.userid, // 传递userid
         NOTE: ' ',
         AMT: pricePerUnit, // 将总金额传递给接口
+        type: that.data.selectedCouponType,
         // RURL: '/subPackages/package/pages/recharge-payResult/recharge-payResult'
       },
       method: 'POST',
@@ -373,6 +401,7 @@ Page({
             that.setData({
               money: res.data.money || '0',
               score: res.data.score || '0',
+              dianzi: res.data.dianzi || '0',
             });
           },
           fail: (error) => {
@@ -427,10 +456,7 @@ Page({
     this.setData({
       quantity: newQuantity
     });
-    this.setData({
-      showMoney: newQuantity * this.data.pricePerUnit * 6 / 10,
-      showQuan: newQuantity * this.data.pricePerUnit * 4 / 10,
-    })
+    this.updatePaymentAmounts(newQuantity);
   },
 
   onIncrease: function () {
@@ -438,53 +464,16 @@ Page({
     this.setData({
       quantity: newQuantity
     });
-    this.setData({
-      showMoney: newQuantity * this.data.pricePerUnit * 6 / 10,
-      showQuan: newQuantity * this.data.pricePerUnit * 4 / 10,
-    })
-  },
-
-
-  confirmChange: function () {
-    let that = this;
-    // const invite1 = wx.getStorageSync('invite');
-    console.log('提交的推荐码:', this.data.inviteCode); // 调试日志
-    const inviteCode = this.data.inviteCode
-    // console.log('邀请人ID:', invite1);
-    const itsid = wx.getStorageSync('itsid');
-
-    const pricePerUnit = this.data.pricePerUnit * this.data.quantity * 0.6; // 计算总金额
-    wx.request({
-      url: `${app.globalData.backUrl}phone.aspx?mbid=10634&ituid=${app.globalData.ituid}&itsid=${itsid}`,
-      data: {
-        MCODE: 920, // 动态设置MCODE
-        OPID: '1207',
-        UNITID: '1',
-        NUM: that.data.quantity,
-        USERID: '0',
-        NOTE: ' ',
-        // AMT: cashAmount,
-        AMT: pricePerUnit,
-        // invite: inviteCode,
-        RURL: '/subPackages/package/pages/shareholder-payResult/shareholder-payResult'
-      },
-      method: 'POST',
-      header: {
-        'content-type': 'application/json'
-      },
-      success: (res) => {
-        console.log(res)
-        wx.navigateTo({
-          url: `/subPackages/package/pages/shareholder-pay/shareholder-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}`,
-        })
-      }
-    });
-
-
-
-
+    this.updatePaymentAmounts(newQuantity);
   },
   onRecharge: function () {
+    if (!this.data.selectedCouponType) {
+      wx.showToast({
+        title: '请选择支付方式',
+        icon: 'none'
+      });
+      return;
+    }
     if (!this.checkUpgradeBalance()) return;
     this.showCodeDialog(); // 先显示交易码弹窗
   },
@@ -493,7 +482,7 @@ Page({
     const cashNeeded = parseFloat(this.data.showMoney);
     const couponNeeded = parseFloat(this.data.showQuan);
     const currentCash = parseFloat(this.data.money);
-    const currentCoupon = parseFloat(this.data.score);
+    const couponMeta = this.getSelectedCouponMeta();
 
     // 现金检查
     if (currentCash < cashNeeded) {
@@ -505,9 +494,9 @@ Page({
     }
 
     // 消费券检查
-    if (currentCoupon < couponNeeded) {
+    if (couponMeta.balance < couponNeeded) {
       wx.showToast({
-        title: `升级消费券不足`,
+        title: `${couponMeta.label}不足`,
         icon: 'none'
       });
       return false;

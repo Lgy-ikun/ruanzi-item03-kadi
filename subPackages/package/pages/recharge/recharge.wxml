@@ -162,14 +162,29 @@
     </view>
   </view>
   <view class="desc">
-    <text>需要60%现金和40%消费券</text>
-    <text>金额：<text style="font-weight: 600;">{{showMoney}}</text> 消费券：<text style="font-weight: 600;">{{showQuan}}</text></text>
+    <text>请选择支付方式</text>
+    <view class="pay-type-row">
+      <view class="pay-type-item {{selectedCouponType === 'kafei' ? 'pay-type-item--active' : ''}}" data-type="kafei" bindtap="onSelectCouponType">
+        <text>需要60%现金和40%消费券</text>
+        <view class="pay-type-check {{selectedCouponType === 'kafei' ? 'pay-type-check--active' : ''}}"></view>
+      </view>
+      <view class="pay-type-item {{selectedCouponType === 'dianzi' ? 'pay-type-item--active' : ''}}" data-type="dianzi" bindtap="onSelectCouponType">
+        <text>需要60%现金和40%电子券</text>
+        <view class="pay-type-check {{selectedCouponType === 'dianzi' ? 'pay-type-check--active' : ''}}"></view>
+      </view>
+    </view>
+    <text class="selected-pay-tip">{{selectedCouponType === 'kafei' ? '已选择：消费券支付' : (selectedCouponType === 'dianzi' ? '已选择：电子券支付' : '未选择支付方式')}}</text>
+    <view>
+      <text>金额：</text>
+      <text style="font-weight: 600;">{{showMoney}}</text>
+      <text> {{selectedCouponType === 'dianzi' ? '电子券' : (selectedCouponType === 'kafei' ? '消费券' : '券')}}：</text>
+      <text style="font-weight: 600;">{{showQuan}}</text>
+    </view>
   </view>
   <!-- <view class="btn" bindtap="onRecharge">
     <text>确定</text>
   </view> -->
-  <view style="display: flex;justify-content: space-around; position: absolute; bottom: 150rpx;left: 50%; transform: translateX(-50%);">
-    <view class="recharge-button" bindtap="confirmChange">立即充值</view>
+  <view style="display: flex;justify-content: center; position: absolute; bottom: 150rpx;left: 50%; transform: translateX(-50%);">
     <view class="gocharge-button" bindtap="onRecharge">立即升级</view>
   </view>
   <view class="useless"></view>

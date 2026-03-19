@@ -39,14 +39,7 @@ Page({
   
   // 右上角二维码点击事件
   gotoQrcode() {
-    wx.showToast({
-      title: '二维码功能暂未实现',
-      icon: 'none'
-    })
-    // 后续补充二维码逻辑：
-    // wx.navigateTo({
-    //   url: '/subPackages/package/pages/qrcode/qrcode',
-    // })
+    this.gotoInviteCode();
   },
 
   // 卡狄D套餐详情
@@ -176,7 +169,7 @@ Page({
       return;
     }
     wx.navigateTo({
-      url: '/subPackages/package/pages/shareholder/shareholder',
+      url: '/subPackages/package/pages/recharge/recharge',
     });
   },
 

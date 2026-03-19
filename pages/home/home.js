@@ -85,7 +85,7 @@ Page({
       method: 'GET',
       success: (res) => {
         const data = res && res.data;
-        const useridValue = String((data && data.userid) || '');
+        const useridValue = String((data && data.userid) || ''); 
         const hasValidUser = res.statusCode === 200 && useridValue !== '' && useridValue !== '0';
         if (hasValidUser) {
           const newName = (data.name || '').trim();

@@ -49,6 +49,9 @@ page {
   padding: 20rpx;
   border-radius: 8rpx;
   margin-bottom: 20rpx;
+  display: flex;
+  flex-direction: column;
+  gap: 14rpx;
 }
 .pay-label {
   font-size: 28rpx;
@@ -63,6 +66,62 @@ page {
   font-size: 28rpx;
   color: #ff9500;
   font-weight: bold;
+}
+.coupon-type-row {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 18rpx;
+}
+.coupon-type-item {
+  min-width: 140rpx;
+  text-align: center;
+  line-height: 52rpx;
+  height: 52rpx;
+  border-radius: 28rpx;
+  border: 1rpx solid #ddd;
+  color: #666;
+  font-size: 24rpx;
+  background: #fff;
+}
+.coupon-type-item--active {
+  border-color: #6a7efc;
+  color: #6a7efc;
+  background: #eef1ff;
+}
+.pay-type-tip {
+  display: block;
+  color: #999;
+  font-size: 24rpx;
+}
+.pay-option {
+  background: #fff;
+  border: 1rpx solid #ddd;
+  border-radius: 12rpx;
+  padding: 18rpx 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pay-option--active {
+  border-color: #6a7efc;
+}
+.pay-option-text {
+  font-size: 26rpx;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.pay-option-check {
+  width: 34rpx;
+  height: 34rpx;
+  border: 2rpx solid #bbb;
+  border-radius: 50%;
+  background: #fff;
+}
+.pay-option-check--active {
+  border-color: #6a7efc;
+  background: #6a7efc;
+  box-shadow: inset 0 0 0 8rpx #fff;
 }
 .purchase-row {
   margin-bottom: 20rpx;
