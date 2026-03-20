@@ -128,9 +128,12 @@ page {
 .shop-info {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20rpx;
-  width: 100%;
-  height: 150rpx;
+background: #fff;
+  border-radius: 16rpx;
+  margin: 20rpx;
+  padding: 12rpx 24rpx 40rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.04);
+  
 }
 .info-detail {
   display: flex;
@@ -138,10 +141,9 @@ page {
   width: 70%;
 }
 .info-detail .item-adress {
-  margin-top: 30rpx;
+  margin-top: 25rpx;
   font-size: 32rpx;
   font-weight: bolder;
-  margin-left: 30rpx;
 }
 .info-detail .user-id {
   margin-top: 15rpx;
@@ -177,6 +179,10 @@ page {
 .order-list {
   display: flex;
   flex-direction: column;
+  background-color: #fff;
+  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.04);
+  border-radius: 16rpx;
+  margin: 0rpx 20rpx 0rpx;
 }
 .order-item {
   display: flex;

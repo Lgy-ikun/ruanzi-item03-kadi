@@ -9,7 +9,6 @@ page {
   margin: 20rpx;
   padding: 24rpx;
   box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.04);
-  background-color: lab(44.13% 36.4 43.14);
 }
 .coupon-row {
   background: #fff;
@@ -131,9 +130,12 @@ page {
 .shop-info {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 20rpx;
-  width: 100%;
-  height: 150rpx;
+  margin: 20rpx;
+  padding: 12rpx 24rpx 40rpx;
+  background-color: #fff;
+  border-radius: 16rpx;
+  padding: 12rpx 24rpx 40rpx;
+  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.04);
 }
 .info-detail {
   display: flex;
@@ -141,10 +143,9 @@ page {
   width: 70%;
 }
 .info-detail .item-adress {
-  margin-top: 30rpx;
+  margin-top: 25rpx;
   font-size: 32rpx;
   font-weight: bolder;
-  margin-left: 30rpx;
 }
 .info-detail .user-id {
   margin-top: 15rpx;
@@ -180,6 +181,10 @@ page {
 .order-list {
   display: flex;
   flex-direction: column;
+  margin: 20rpx;
+  border-radius: 16rpx;
+  background-color: #fff;
+  box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.04);
 }
 .order-item {
   display: flex;

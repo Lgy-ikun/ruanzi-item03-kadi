@@ -378,13 +378,6 @@ Page({
     }
   },
 
-  // gobackPublish() {
-  //   wx.setStorageSync('categories', this.data.categories);
-  //   wx.setStorageSync('dishSum', this.data.sum);
-  //   wx.navigateTo({
-  //     url: '/subPackages/package/pages/jiesuan/jiesuan',
-  //   });
-  // },
 
 
 
