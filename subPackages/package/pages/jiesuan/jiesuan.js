@@ -454,9 +454,13 @@ Page({
 
   // ---------------- 【基础订单与金额计算】 ----------------
   prefetchFunds() {
+    // 同时加上自提和外送的区分，但是选择外送的时候，unitid 还是默认的6！
+    let unitid = this.data.selected === '自提' 
+      ? (wx.getStorageSync('selectedStoreId') || app.globalData.selectedStoreId || '')
+      : (wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6');
     const itsid = wx.getStorageSync('itsid');
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10604&itsid=${itsid}&shopid=${app.globalData.selectedStoreId}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10604&itsid=${itsid}&shopid=${unitid}`,
       method: 'GET',
       success: (res) => {
         const balance = Number(res.data.money || 0);

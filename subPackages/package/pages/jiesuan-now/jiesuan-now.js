@@ -341,6 +341,9 @@ Page({
   // 检查积分可用性 - 需要实现
   // TODO: 实现积分检查接口调用
   fetchUserScores: function () {
+    let unitid = this.data.selected === '自提' 
+      ? (wx.getStorageSync('selectedStoreId') || app.globalData.selectedStoreId || '')
+      : (wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6');
     const that = this;
     const itsid = wx.getStorageSync('itsid');
 
@@ -348,7 +351,7 @@ Page({
 
     // 示例接口调用
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10604&itsid=${itsid}&shopid=${app.globalData.selectedStoreId}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10604&itsid=${itsid}&shopid=${unitid}`,
       method: 'GET',
       success: (res) => {
         console.log('消费券接口返回:', res.data);

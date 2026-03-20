@@ -108,6 +108,7 @@ Page({
       wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=order' });
       return;
     }
+
     if (this.data.selected === '自提' && (!unitId || this.data.storeName === '')) {
       wx.showToast({
         title: '请选择自提门店',
