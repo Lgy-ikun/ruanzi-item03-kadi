@@ -398,10 +398,13 @@ Page({
   getUserScoreForCheck: function () {
     const that = this;
     const itsid = wx.getStorageSync('itsid');
-
+    let unitid = this.data.selected === '自提' 
+      ? (wx.getStorageSync('selectedStoreId') || app.globalData.selectedStoreId || '')
+      : (wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6');
+    
     // 备用方法示例
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10604&itsid=${itsid}&shopid=${app.globalData.selectedStoreId}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10604&itsid=${itsid}&shopid=${unitid}`,  
       success(res) {
         console.log('备用积分接口返回:', res.data);
 
@@ -504,6 +507,7 @@ Page({
     }, () => {
       // 重新计算总价
       this.calculateTotal();
+      this.prefetchFunds();
     });
       // 应用选中的优惠券
       const picked = wx.getStorageSync('selectedCoupon');
@@ -905,9 +909,12 @@ Page({
   ,
   // 预取资金余额（余额/咖啡券/储值卡）
   prefetchFunds() {
+    let unitid = this.data.selected === '自提' 
+      ? (wx.getStorageSync('selectedStoreId') || app.globalData.selectedStoreId || '')
+      : (wx.getStorageSync('deliveryUnitId') || app.globalData.deliveryUnitId || '6');
     const itsid = wx.getStorageSync('itsid');
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10604&itsid=${itsid}&shopid=${app.globalData.selectedStoreId}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10604&itsid=${itsid}&shopid=${unitid}`,
       method: 'GET',
       success: (res) => {
         const balance = Number(res.data.money || 0);
