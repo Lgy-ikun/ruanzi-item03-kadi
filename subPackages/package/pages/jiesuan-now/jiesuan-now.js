@@ -348,7 +348,7 @@ Page({
 
     // 示例接口调用
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10604&itsid=${itsid}&shopid=${app.globalData.selectedStoreId}`,
       method: 'GET',
       success: (res) => {
         console.log('消费券接口返回:', res.data);
@@ -398,7 +398,7 @@ Page({
 
     // 备用方法示例
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10604&itsid=${itsid}&shopid=${app.globalData.selectedStoreId}`,
       success(res) {
         console.log('备用积分接口返回:', res.data);
 
@@ -904,7 +904,7 @@ Page({
   prefetchFunds() {
     const itsid = wx.getStorageSync('itsid');
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10604&itsid=${itsid}&shopid=${app.globalData.selectedStoreId}`,
       method: 'GET',
       success: (res) => {
         const balance = Number(res.data.money || 0);

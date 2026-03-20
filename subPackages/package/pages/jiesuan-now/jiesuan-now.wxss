@@ -1,12 +1,15 @@
 page {
   background: #f6f7fb;
+  /* background-color: #d1cdd7; */
 }
+
 .section-box {
   background: #fff;
   border-radius: 16rpx;
   margin: 20rpx;
   padding: 24rpx;
   box-shadow: 0 6rpx 20rpx rgba(0,0,0,0.04);
+  background-color: lab(44.13% 36.4 43.14);
 }
 .coupon-row {
   background: #fff;

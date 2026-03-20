@@ -8,8 +8,10 @@ Page({
     coffeeCoupon: 0.00, // 咖啡券
     depositCard: 0.00, // 储值卡
     electronicCoupon: 0.00, // 电子券
+    tupianUrl: app.globalData.tupianUrl,
     AUrl: app.globalData.AUrl,
-    isLogin: false
+    isLogin: false,
+    tupianUrl: app.globalData.tupianUrl,
   },
   hasSession() {
     const itsid = String(wx.getStorageSync('itsid') || '');
@@ -102,7 +104,7 @@ Page({
       return;
     }
     wx.navigateTo({
-      url: '/subPackages/package/pages/couponReceive/couponReceive',
+      url: '/subPackages/package/pages/CouponReceiveNew/CouponReceiveNew',
     });
   },
 

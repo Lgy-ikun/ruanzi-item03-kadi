@@ -47,9 +47,9 @@ page {
 }
 /* 导航栏标题（加粗） */
 .nav-title {
-  font-size: 34rpx;
+  font-size: 31rpx;
   color: #000000;
-  font-weight: bold; /* 标题加粗 */
+  font-weight: 600; /* 标题加粗 */
   margin-top: 22rpx;
 }
 
@@ -98,7 +98,7 @@ page {
 /* 支付方式行 */
 .pay-row {
   background-color: #f9f9f9;
-  padding: 20rpx 15rpx;
+  padding: 20rpx 0rpx 20rpx 9rpx;
   border-radius: 16rpx;
   margin-bottom: 20rpx;
 }

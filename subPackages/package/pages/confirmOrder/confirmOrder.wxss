@@ -90,7 +90,8 @@ page {
 }
 .pay-type-tip {
   display: block;
-  color: #999;
+  /* color: #747474; */
+  color: #7f7f7f;
   font-size: 24rpx;
 }
 .pay-option {

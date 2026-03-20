@@ -9,13 +9,16 @@
         <view class="card-tag {{isLogin === false ? 'card-tag-notlogin' : ''}}">{{isLogin ? '卡狄D套餐' : ''}}</view>
       </view>
     </view>
+    <view class="erweima">
+      <image class="qrcode-icon" src="{{tupianUrl}}/new/my/erweima.svg" mode="widthFix" bindtap="gotoQrcode"></image>
+    </view>
     <!-- 右上角二维码图标 -->
-    <image class="qrcode-icon" src="../../images/qrcode.png" mode="aspectFit" bindtap="gotoQrcode"></image>
+    
   </view>
 
   <!-- 模块1：卡狄D套餐 -->
   <view class="card-module" bindtap="cardLoginPrompt">
-    <text class="card-title">{{isLogin ? '卡狄D套餐' : '请先登录'}}</text>
+    <text class="card-title">{{isLogin ? '卡狄套餐' : '请先登录'}}</text>
     <text class="card-detail">{{isLogin ? '查看详情>' : '点击此处登录'}}</text>
   </view>
 
@@ -43,65 +46,65 @@
   <view class="func-grid-module {{isLogin === false ? 'func-grid-notlogin' : ''}}">
     <!-- 第一行 -->
     <view class="func-item" bindtap="gotoEcommerceOrder" wx:if="{{isLogin === true}}">
-      <image class="func-icon" src="/images/func/ecommerce-order.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/ecommerce-order.jpg" mode="aspectFit"></image>
       <text class="func-text">电商订单</text>
     </view>
     <view class="func-item" bindtap="gotoTasteCustom" wx:if="{{isLogin === true}}">
-      <image class="func-icon" src="/images/func/taste-custom.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/taste-custom.jpg" mode="aspectFit"></image>
       <text class="func-text">口味定制</text>
     </view>
     <view class="func-item {{isLogin === false ? 'func-item-notlogin' : ''}}" bindtap="gotoNotice">
-      <image class="func-icon" src="/images/func/notice.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/notice.jpg" mode="aspectFit"></image>
       <text class="func-text">公告</text>
     </view>
     <view class="func-item {{isLogin === false ? 'func-item-notlogin' : ''}}" bindtap="gotoCouponCenter">
-      <image class="func-icon" src="/images/func/coupon-center.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/coupon-center.jpg" mode="aspectFit"></image>
       <text class="func-text">领券中心</text>
     </view>
 
     <!-- 第二行 -->
     <view class="func-item" bindtap="gotoMyCoupon" wx:if="{{isLogin === true}}">
-      <image class="func-icon" src="/images/func/my-coupon.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/my-coupon.jpg" mode="aspectFit"></image>
       <text class="func-text">我的优惠券</text>
     </view>
     <view class="func-item" bindtap="gotoAddress" wx:if="{{isLogin === true}}">
-      <image class="func-icon" src="/images/func/address.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/address.jpg" mode="aspectFit"></image>
       <text class="func-text">收货地址</text>
     </view>
     <view class="func-item" bindtap="gotoCollection" wx:if="{{isLogin === true}}">
-      <image class="func-icon" src="/images/func/collection.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/collection.jpg" mode="aspectFit"></image>
       <text class="func-text">我的收藏</text>
     </view>
     <view class="func-item" bindtap="gotoMemberOrder" wx:if="{{isLogin === true}}">
-      <image class="func-icon" src="/images/func/member-order.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/member-order.jpg" mode="aspectFit"></image>
       <text class="func-text">会员订单</text>
     </view>
 
     <!-- 第三行 -->
     <view class="func-item" bindtap="gotoShareholderStore" wx:if="{{isLogin === true}}">
-      <image class="func-icon" src="/images/func/shareholder-store.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/shareholder-store.jpg" mode="aspectFit"></image>
       <text class="func-text">微股东门店</text>
     </view>
     <view class="func-item" bindtap="gotoSubAccount" wx:if="{{isLogin === true}}">
-      <image class="func-icon" src="/images/func/sub-account.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/sub-account.jpg" mode="aspectFit"></image>
       <text class="func-text">子账户</text>
     </view>
     <view class="func-item" bindtap="gotoMyFriend" wx:if="{{isLogin === true}}">
-      <image class="func-icon" src="/images/func/my-friend.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/my-friend.jpg" mode="aspectFit"></image>
       <text class="func-text">我的好友</text>
     </view>
     <view class="func-item" bindtap="gotoInvoice" wx:if="{{isLogin === true}}">
-      <image class="func-icon" src="/images/func/invoice.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/invoice.jpg" mode="aspectFit"></image>
       <text class="func-text">发票管理</text>
     </view>
 
     <!-- 第四行 -->
     <view class="func-item" bindtap="gotoInviteCode" wx:if="{{isLogin === true}}">
-      <image class="func-icon" src="/images/func/invite-code.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/invite-code.jpg" mode="aspectFit"></image>
       <text class="func-text">邀请码</text>
     </view>
     <view class="func-item {{isLogin === false ? 'func-item-notlogin' : ''}}" bindtap="gotoSetting"> 
-      <image class="func-icon" src="/images/func/setting.png" mode="aspectFit"></image>
+      <image class="func-icon" src="{{tupianUrl}}/new/my/setting.jpg" mode="aspectFit"></image>
       <text class="func-text">设置</text>
     </view>
     <view class="func-item empty"></view>

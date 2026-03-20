@@ -46,22 +46,39 @@ Page({
     tips: '',
     currentBalance: '0.00',
     storecardid: '',
+    cardid: '',
     amountOptions: [],
     selectedAmount: 0,
     payMethod: 'wechat'
   },
 
+  buildNewStoreOptionsByRate(options, storecardrate) {
+    const rate = Number(storecardrate || 100);
+    const bonusRate = rate > 100 ? (rate - 100) / 100 : 0;
+    return (options || []).map((item) => {
+      const amount = Number(item.amount || 0);
+      const gift = Number((amount * bonusRate).toFixed(2));
+      return {
+        ...item,
+        gift
+      };
+    });
+  },
+
   onLoad(options) {
     const scene = options?.scene && SCENE_MAP[options.scene] ? options.scene : 'balance';
     const config = SCENE_MAP[scene];
+    const cardid = scene === 'new_store' ? String(options?.cardid || '') : '';
+    const amountOptions = (config.options || []).map((item) => ({ ...item }));
     wx.setNavigationBarTitle({ title: config.title });
     this.setData({
       scene,
       assetName: config.assetName,
       tips: config.tips || '',
-      amountOptions: config.options,
-      selectedAmount: config.options[0]?.amount || 0,
-      payMethod: 'wechat'
+      amountOptions,
+      selectedAmount: amountOptions[0]?.amount || 0,
+      payMethod: 'wechat',
+      cardid
     });
     this.loadBalance(scene);
   },
@@ -78,11 +95,20 @@ Page({
         const data = res?.data || {};
         const balanceValue = scene === 'balance'
           ? data.money
-          : (scene === 'new_store' ? data.storecard : data.chuzhika);
+          : (scene === 'new_store' ? data.storecardtotal : data.chuzhika);
         const storecardid = String(data.storecardid || '');
-        this.setData({
+        const nextData = {
           currentBalance: Number(balanceValue || 0).toFixed(2),
           storecardid
+        };
+        if (scene === 'new_store') {
+          nextData.amountOptions = this.buildNewStoreOptionsByRate(
+            SCENE_MAP.new_store.options,
+            data.storecardrate
+          );
+        }
+        this.setData({
+          ...nextData
         });
       }
     });
@@ -101,7 +127,7 @@ Page({
   },
 
   createOrder() {
-    const { selectedAmount, scene, payMethod } = this.data;
+    const { selectedAmount, scene, payMethod, cardid } = this.data;
     if (!selectedAmount) {
       wx.showToast({ title: '请选择充值金额', icon: 'none' });
       return;
@@ -152,7 +178,8 @@ Page({
         NOTE: ' ',
         AMT: fetchMoney,
         invite: inviteCode,
-        RURL: '/subPackages/package/pages/shareholder-payResult/shareholder-payResult'
+        RURL: '/subPackages/package/pages/shareholder-payResult/shareholder-payResult',
+        ...(scene === 'new_store' && cardid ? { cardid } : {})
       },
       success: (res) => {
         try {

@@ -306,7 +306,7 @@ Page({
 
     // 示例接口调用
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}&shopid`,
       method: 'GET',
       success: (res) => {
         console.log('消费券接口返回:', res.data);

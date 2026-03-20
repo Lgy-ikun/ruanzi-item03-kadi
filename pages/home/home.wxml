@@ -49,19 +49,25 @@
           <view class="right-stack">
             <view class="tile" hover-class="pressed" bindtap="handleNavigate2">
             <view class="tile-icon right-stack-icon">
-                <view class="placeholder"></view>
+                <view class="placeholder">
+                  <image src="{{tupianUrl}}/new/home/chuzhi.svg" mode="widthFix" />
+                </view>
               </view>
               <view class="txt">储值有礼</view>
             </view>
             <view class="tile" hover-class="pressed" bindtap="handleNavigate3">
             <view class="tile-icon right-stack-icon">
-                <view class="placeholder"></view>
+                <view class="placeholder">
+                  <image src="{{tupianUrl}}/new/home/fuli.svg" mode="widthFix" />
+                </view>
               </view>
               <view class="txt">会员福利</view>
             </view>
             <view class="tile" hover-class="pressed" bindtap="handleNavigateNewStoreRecharge">
             <view class="tile-icon right-stack-icon">
-                <view class="placeholder"></view>
+                <view class="placeholder">
+                  <image src="{{tupianUrl}}/new/home/xindian.svg" mode="widthFix" />
+                </view>
               </view>
               <view class="txt">新店储值</view>
             </view>

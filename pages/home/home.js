@@ -163,7 +163,7 @@ Page({
 
   handleNavigateNewStoreRecharge() {
     wx.navigateTo({
-      url: '/subPackages/package/pages/recharge-input/recharge-input?scene=new_store'
+      url: '/subPackages/package/pages/CouponReceiveNew/CouponReceiveNew',
     });
   },
 

@@ -8,7 +8,7 @@
     </view>
 
     <view class="pay-row">
-      <text class="pay-type-tip">请选择支付方式</text>
+      <text class="pay-type-tip">请选择支付方式 :</text>
       <view class="pay-option {{selectedCouponType === 'kafei' ? 'pay-option--active' : ''}}" data-type="kafei" bindtap="onSelectCouponType">
         <view class="pay-option-text">
           <text class="pay-label">支付：</text>

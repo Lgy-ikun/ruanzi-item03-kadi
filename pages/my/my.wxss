@@ -61,16 +61,21 @@ page {
 .card-tag-notlogin {
   padding: 0;
 }
-
-/* 右上角二维码图标 */
-.qrcode-icon {
-  position: relative;
-  top: -70rpx;
+.erweima {
   width: 40rpx;
   height: 40rpx;
+  position: relative;
+  top: -30px;
+  z-index: 999;
+}
+/* 右上角二维码图标 */
+.qrcode-icon {
+  top: -70rpx;
+  width: 100%;
+  height: 100%;
   margin-right: 10rpx;
   /* 占位背景，替换真实二维码图标后可删除 */
-  background-color: #fff;
+ 
   border-radius: 8rpx;
 }
 
@@ -166,15 +171,14 @@ page {
 }
 
 .func-icon {
-  width: 60rpx;
-  height: 60rpx;
-  margin-bottom: 16rpx;
-  /* 图标占位背景，替换真实图标后可删除 */
-  background-color: #eee;
+  width: 90rpx;
+  height: 90rpx;
   border-radius: 8rpx;
 }
 
 .func-text {
   font-size: 24rpx;
-  color: #35275d;
+  /* color: #422e75 */
+  /* color: #724e99; */
+  color: #554ea2;
 }

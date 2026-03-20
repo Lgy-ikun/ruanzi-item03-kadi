@@ -118,7 +118,8 @@
         "pages/cardList/cardList",
         "pages/confirmOrder/confirmOrder",
         "pages/recharge-input/recharge-input",
-        "pages/new-recharge-pay/new-recharge-pay"
+        "pages/new-recharge-pay/new-recharge-pay",
+        "pages/CouponReceiveNew/CouponReceiveNew"
       ]
     }
   ],
