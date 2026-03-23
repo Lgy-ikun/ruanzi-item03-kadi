@@ -2,7 +2,7 @@
   <view class="balance-card">
     <view class="balance-row">
       <text class="balance-label">{{assetName}}</text>
-      <text class="record-link">充值记录</text>
+      <text class="record-link" wx:if="{{scene === 'new_store'}}">充值记录</text>
     </view>
     <text class="balance-value">￥{{currentBalance}}</text>
   </view>

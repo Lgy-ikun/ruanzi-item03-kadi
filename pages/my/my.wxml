@@ -28,7 +28,7 @@
       <text class="asset-num">{{money || 0.00}}</text>
       <text class="asset-name">个人余额</text>
     </view>
-    <view class="asset-item">
+    <view class="asset-item" bindtap="gotoCoffeeRecord">
       <text class="asset-num">{{coffeeCoupon || 0.00}}</text>
       <text class="asset-name">咖啡券</text>
     </view>
