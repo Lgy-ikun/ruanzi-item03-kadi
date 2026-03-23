@@ -349,7 +349,10 @@
     
   }
 
- 
+  .home-actions .box-bottom .order-full {
+    flex: 1;
+    height: 100%;
+  }
 
   .pressed {
     transform: scale(0.96);

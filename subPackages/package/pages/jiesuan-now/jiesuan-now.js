@@ -762,7 +762,7 @@ Page({
           OPID: '1200',
           UNITID: unitId,
           NUM: num,
-          USERID: '0',
+          USERID: userid,
           NOTE: '立即购买现金',
           ASK: item.ask, // 添加规格数据
           AMT: totalAmount, //金额
