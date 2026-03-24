@@ -40,8 +40,7 @@
     </view>
     <view class="coupon-row">
       <text class="label" style="margin-left: 30rpx;">实付</text>
-      <text class="value" style="margin-right: 30rpx;">
-        ¥{{payableAmount || (selected === '自提' ? totalprice : (totalprice*1 + delivery*1))}}
+      <text class="value" style="margin-right: 30rpx;">¥{{payableAmount || (selected === '自提' ? totalprice : (totalprice*1 + delivery*1))}}
       </text>
     </view>
     <!-- 支付方式 -->

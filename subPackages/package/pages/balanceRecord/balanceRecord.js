@@ -198,7 +198,7 @@ Page({
         const result = res && res.data ? res.data.result : null;
         const list = Array.isArray(result)
           ? result
-          : (Array.isArray(result && result.list) ? result.list : []);
+          : (Array.isArray(result && result.list) ? result.list : Array.isArray(result && result.goods) ? result.goods : []);
           console.log('list', list);
         const records = list.map((item, index) => that.normalizeRecord(item, index, tabType));
         console.log('records', records);
@@ -229,24 +229,27 @@ Page({
   },
 
   getRecordApiUrl(tabType, userid) {
+    const itsid = wx.getStorageSync('itsid') || app.globalData.itsid;
     const baseUrl = app.globalData.AUrl;
     const apiMap = {
       balance: {
         all: `${baseUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10630&userid=${userid}`,
-        // income是正确的充值记录接口
+        
         income: `${baseUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10629&userid=${userid}`,
-        expense: `${baseUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10631&userid=${userid}`
+        // income是正确的充值记录接口
+        expense: `${baseUrl}/jy/go/we.aspx?ituid=106&itjid=0107&itcid=10656&itsid=${itsid}&opid=1210`
+        // expense是正确的消费记录接口
       },
       stored: {
         all: `${baseUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10632&userid=${userid}`,
         income: `${baseUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10629&userid=${userid}`,
-        expense: `${baseUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10633&userid=${userid}`
+        expense: `${baseUrl}/jy/go/we.aspx?ituid=106&itjid=0107&itcid=10656&itsid=${itsid}&opid=1211`
       },
       coffee: {
         all: `${baseUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10630&userid=${userid}`,
         // income是正确的充值记录接口
         income: `${baseUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10643&userid=${userid}`,
-        expense: `${baseUrl}/jy/go/we.aspx?ituid=106&itjid=0902&itcid=10633&userid=${userid}`
+        expense: `${baseUrl}/jy/go/we.aspx?ituid=106&itjid=0107&itcid=10656&itsid=${itsid}&opid=1203`
       }
     };
 
@@ -265,6 +268,7 @@ Page({
       item.score,
       item.content,
       item.value,
+      item.total,
       0
     ]);
     const amountNumber = this.parseNumber(amountSource);
