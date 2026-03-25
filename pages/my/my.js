@@ -2,6 +2,8 @@ const app = getApp();
 Page({
   data: {
     // 核心数据（和图片匹配）
+    leixing: "用户",
+    agent: "",
     name: "",
     avatar: "", // 头像地址
     money: 0.0, // 个人余额
@@ -11,7 +13,6 @@ Page({
     tupianUrl: app.globalData.tupianUrl,
     AUrl: app.globalData.AUrl,
     isLogin: false,
-    tupianUrl: app.globalData.tupianUrl,
   },
   hasSession() {
     const itsid = String(wx.getStorageSync("itsid") || "");
@@ -365,14 +366,14 @@ Page({
             wx.setStorageSync("userid", useridValue);
           }
           that.setData({
+            leixing: data.leixing || "用户",
+            agent: data.agent || "",
             name: data.name || "",
-            money: data.money || 1.0,
-            coffeeCoupon: data.score || 10.0,
+            money: data.money || 0.0,
+            coffeeCoupon: data.score || 0.0,
             depositCard: data.chuzhika || 0.0,
             electronicCoupon: data.dianzi || 0.0,
-            avatar:
-              `${app.globalData.AUrl}/jy/wxuser/106/images/singeravatar/` +
-              (data.avatar || ""),
+            avatar:`${app.globalData.AUrl}/jy/wxuser/106/images/info/beiload.png/mylogo1.jpg`,
             isLogin: true,
           });
           wx.setStorageSync("name", data.name || "");
@@ -384,6 +385,7 @@ Page({
             name: "",
             avatar: "",
             money: 0.0,
+            leixing: "用户",
             coffeeCoupon: 0.0,
             depositCard: 0.0,
             electronicCoupon: 0.0,

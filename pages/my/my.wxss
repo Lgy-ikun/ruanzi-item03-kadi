@@ -65,17 +65,15 @@ page {
   width: 40rpx;
   height: 40rpx;
   position: relative;
-  top: -30px;
+  top: -40rpx;
   z-index: 999;
 }
 /* 右上角二维码图标 */
 .qrcode-icon {
-  top: -70rpx;
   width: 100%;
   height: 100%;
   margin-right: 10rpx;
   /* 占位背景，替换真实二维码图标后可删除 */
- 
   border-radius: 8rpx;
 }
 
@@ -118,7 +116,10 @@ page {
   align-items: center;
   margin-top: 90rpx;
 }
-
+.asset-module-putong {
+  justify-content: flex-start;
+  padding-left: 40rpx;
+}
 .asset-item {
   display: flex;
   flex-direction: column;
