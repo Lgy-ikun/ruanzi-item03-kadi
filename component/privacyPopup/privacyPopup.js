@@ -31,7 +31,10 @@ Component({
               this.triggerEvent("agree")
             }
           },
-          fail: () => { },
+          fail: (error) => {
+            console.error('getPrivacySetting fail:', error);
+            this.popUp();
+          },
           complete: () => { },
         })
       } else {

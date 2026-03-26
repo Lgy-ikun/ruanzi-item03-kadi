@@ -10,11 +10,11 @@ Page({
 
   onLoad: function () {
     console.log('加载页面...');
+    this.isJumping = false;
+    this.hasNavigatedHome = false;
 
     // 清除先前可能存在的定时器
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
+    this.clearCountDown();
 
     // 初始状态设置为显示隐私弹窗
     this.setData({
@@ -49,9 +49,42 @@ Page({
       console.log('清除隐私协议同意状态');
       wx.removeStorageSync('hasAgreedPrivacy');
       wx.removeStorageSync('privacyAgreedTime');
+      app.globalData.hasAgreedPrivacy = false;
     } catch (error) {
       console.error('清除隐私协议状态失败:', error);
     }
+  },
+
+  hasValidItsid: function (itsid = wx.getStorageSync('itsid')) {
+    const normalizedItsid = String(itsid || '').trim();
+    return Boolean(
+      normalizedItsid &&
+      normalizedItsid !== '0' &&
+      normalizedItsid !== 'null' &&
+      normalizedItsid !== 'undefined'
+    );
+  },
+
+  clearCountDown: function () {
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+  },
+
+  switchToHome: function () {
+    if (this.hasNavigatedHome) {
+      return;
+    }
+    this.hasNavigatedHome = true;
+    wx.switchTab({
+      url: '/pages/home/home',
+      fail: (error) => {
+        this.hasNavigatedHome = false;
+        this.isJumping = false;
+        console.error('跳转首页失败:', error);
+      }
+    });
   },
 
   // 单独抽取检查隐私协议同意状态的逻辑
@@ -119,6 +152,7 @@ Page({
       wx.setStorageSync('hasAgreedPrivacy', true);
       // 保存同意时间
       wx.setStorageSync('privacyAgreedTime', new Date().getTime());
+      app.globalData.hasAgreedPrivacy = true;
 
       this.setData({
         showPrivacy: false,
@@ -144,6 +178,8 @@ Page({
     try {
       // 确保未设置同意标志
       wx.removeStorageSync('hasAgreedPrivacy');
+      wx.removeStorageSync('privacyAgreedTime');
+      app.globalData.hasAgreedPrivacy = false;
 
       // 调用微信的退出小程序API
       wx.exitMiniProgram({
@@ -192,9 +228,7 @@ Page({
   startCountDown: function () {
     console.log('开始倒计时');
     // 清除之前的定时器
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
+    this.clearCountDown();
 
     // 将interval存储到this中，以便其他方法访问
     this.interval = setInterval(() => {
@@ -204,7 +238,7 @@ Page({
       console.log(`倒计时: ${this.data.seconds}秒`);
 
       if (this.data.seconds <= 0) {
-        clearInterval(this.interval);
+        this.clearCountDown();
         this.executeJump(); // 提取跳转逻辑到单独方法
       }
     }, 1000);
@@ -212,16 +246,21 @@ Page({
 
   // 提取跳转逻辑到单独方法
   executeJump: function () {
+    if (this.isJumping) {
+      console.log('跳转已在执行中，忽略重复触发');
+      return;
+    }
+    this.isJumping = true;
+    this.clearCountDown();
     console.log('跳转执行...');
 
-    if (wx.getStorageSync('itsid')) {
+    const itsid = wx.getStorageSync('itsid');
+    if (this.hasValidItsid(itsid)) {
       // 获取用户信息以及注册类型
-      this.fetchData10603(wx.getStorageSync('itsid'));
+      this.fetchData10603(itsid);
     } else {
       wx.setStorageSync('isLoginSuccess', false);
-      wx.switchTab({
-        url: '/pages/home/home',
-      });
+      this.switchToHome();
     }
   },
 
@@ -229,45 +268,50 @@ Page({
  * 获取10603接口数据
  */
   fetchData10603: function (itsid, invite) {
-    const that = this;
-
     const AUrl = app.globalData.AUrl;
     wx.request({
       url: `${AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
       method: 'GET',
+      timeout: 8000,
       success: (res) => {
         console.log("10603success:", res);
+        const data = res && res.data;
+        const userid = String((data && data.userid) || '').trim();
+        const usertype = data ? data.usertype : '';
 
-        if (res.statusCode === 200 && res.data) {
-          wx.switchTab({
-            url: '/pages/home/home',
-          });
-
-          let usertitle = res.data.usertitle
-          let UserNameCn = res.data.UserNameCn//用户名
-          let usertype = res.data.usertype//注册类型
+        if (res.statusCode === 200 && data && userid && userid !== '0') {
           if (usertype == '0') {
             wx.setStorageSync('isLoginSuccess', false);
           } else {
             wx.setStorageSync('isLoginSuccess', true);
           }
-          wx.setStorageSync('userid', res.data.userid);
+          wx.setStorageSync('userid', data.userid);
 
           // 存储注册类型
-          app.globalData.usertype = usertype
-          wx.switchTab({
-            url: '/pages/home/home',
-          });
+          app.globalData.usertype = usertype;
+          this.switchToHome();
+          return;
         }
+
+        console.warn('10603返回异常，按未登录状态进入首页', res);
+        wx.setStorageSync('isLoginSuccess', false);
+        this.switchToHome();
       },
       fail: (error) => {
         console.error('10603获取数据失败', error);
+        wx.setStorageSync('isLoginSuccess', false);
+        this.switchToHome();
+      },
+      complete: () => {
+        if (!this.hasNavigatedHome) {
+          this.isJumping = false;
+        }
       }
     });
   },
 
   passCountDown() {
-    clearInterval(this.interval);
+    this.clearCountDown();
     this.executeJump();
   },
 
@@ -275,24 +319,26 @@ Page({
     // 页面显示时再次检查隐私协议状态
     // 这对于从协议详情页返回很有用
     const hasAgreedPrivacy = wx.getStorageSync('hasAgreedPrivacy');
-    if (!hasAgreedPrivacy) {
+    const privacyAgreedTime = wx.getStorageSync('privacyAgreedTime');
+    const hasAgreed = (hasAgreedPrivacy === true || hasAgreedPrivacy === 'true') && privacyAgreedTime;
+    if (!hasAgreed) {
       this.setData({
         showPrivacy: true
       });
+      return;
     }
+    this.setData({
+      showPrivacy: false
+    });
   },
 
   onHide: function () {
     // 页面隐藏时清除定时器
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
+    this.clearCountDown();
   },
 
   onUnload: function () {
     // 页面卸载时清除定时器
-    if (this.interval) {
-      clearInterval(this.interval);
-    }
+    this.clearCountDown();
   }
 });
