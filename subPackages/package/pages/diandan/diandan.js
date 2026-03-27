@@ -36,8 +36,12 @@ Page({
       return;
     }
 
-    let newQuantity = this.data.quantity - 1;
-    if (newQuantity < 1) newQuantity = 0;
+    // 详情页选择数量最低保持为 1
+    const currentQuantity = Number(this.data.quantity || 1);
+    if (currentQuantity <= 1) {
+      return;
+    }
+    const newQuantity = currentQuantity - 1;
     this.setData({
       quantity: newQuantity
     });
@@ -291,6 +295,7 @@ Page({
       if (callback) callback();
     });
   },
+  /*
   updateDisplaySettings() {
     const displaySettings = {};
     Object.entries(this.data.selectedSpecs).forEach(([specName, specValue]) => {
@@ -300,6 +305,7 @@ Page({
       displaySettings
     });
   },
+  */
   // 规格选择事件[2,6](@ref)
   onSelectSpec(e) {
     const {

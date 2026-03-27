@@ -394,13 +394,16 @@ Page({
     }
     const categories = wx.getStorageSync('categories') || [];
     const updataArray = wx.getStorageSync('updataArray') || [];
+    const cartItems = this.getCartItemsFromUpdataArray(updataArray);
     this.syncCategoriesFromUpdataArray(updataArray);
     const sum = wx.getStorageSync('sum') || 0;
     const totalprice = wx.getStorageSync('total') || 0; // 这里改名成 totalprice
     this.setData({
       categories,
       totalprice: this.countTotalPrice(),
-      sum: updataArray.reduce((sum, item) => sum + item.num, 0)
+      sum: updataArray.reduce((sum, item) => sum + item.num, 0),
+      cartItems,
+      showCartPopup: false
     });
     this.getLocation();
     this.fetchCategories();
@@ -436,38 +439,38 @@ Page({
   //     });
   //   }
 
-  getLocation: function () {
-    const that = this;
-    const hasShownRecommendationPopup = wx.getStorageSync('hasShownRecommendationPopup');
-    const selectedStoreName = app.globalData.selectedStoreName;
+  // getLocation: function () {
+  //   const that = this;
+  //   const hasShownRecommendationPopup = wx.getStorageSync('hasShownRecommendationPopup');
+  //   const selectedStoreName = app.globalData.selectedStoreName;
 
-    if (hasShownRecommendationPopup || selectedStoreName) {
-      console.log("用户已看过推荐弹窗或选择过门店，不再获取位置");
-      return;
-    }
+  //   if (hasShownRecommendationPopup || selectedStoreName) {
+  //     console.log("用户已看过推荐弹窗或选择过门店，不再获取位置");
+  //     return;
+  //   }
 
-    wx.getSetting({
-      success(settingdata) {
-        if (!settingdata.authSetting['scope.userLocation']) {
-          // 用户未授权，提示用户并引导授权
-          wx.authorize({
-            scope: 'scope.userLocation',
-            success() {
-              that._getLocation();
-            },
-            fail() {
-              wx.showToast({
-                title: '需要授权位置信息',
-                icon: 'none'
-              });
-            }
-          });
-        } else {
-          that._getLocation();
-        }
-      }
-    });
-  },
+  //   wx.getSetting({
+  //     success(settingdata) {
+  //       if (!settingdata.authSetting['scope.userLocation']) {
+  //         // 用户未授权，提示用户并引导授权
+  //         wx.authorize({
+  //           scope: 'scope.userLocation',
+  //           success() {
+  //             that._getLocation();
+  //           },
+  //           fail() {
+  //             wx.showToast({
+  //               title: '需要授权位置信息',
+  //               icon: 'none'
+  //             });
+  //           }
+  //         });
+  //       } else {
+  //         that._getLocation();
+  //       }
+  //     }
+  //   });
+  // },
   // 获取用户位置
   getLocation: function () {
     const that = this;
@@ -772,12 +775,21 @@ Page({
   toggleCartPopup: function () {
     const updataArray = wx.getStorageSync('updataArray') || [];
     const cartItems = this.getCartItemsFromUpdataArray(updataArray); // 使用 updataArray 提取数据
+    if (!cartItems.length) {
+      this.setData({
+        cartItems: [],
+        totalprice: this.countTotalPrice(),
+        showCartPopup: false
+      });
+      return;
+    }
     this.setData({
       cartItems,
       totalprice: this.countTotalPrice(),
       showCartPopup: !this.data.showCartPopup
     });
   },
+  stopPropagation() { },
   // 新增方法：从categories提取购物车数据
   getCartItemsFromUpdataArray: function (updataArray) {
     const map = new Map();
@@ -804,16 +816,16 @@ Page({
   },
 
   // 关闭弹窗
-  countTotalPrice: function (categories) {
-    return (categories || this.data.categories)
-      .flatMap(category => category.children || [])
-      .reduce((total, item) => {
-        const num = Number(item.num) || 0;
-        const price = Number(item.price) || 0;
-        return total + (num * price);
-      }, 0)
-      .toFixed(2);
-  },
+  // countTotalPrice: function (categories) {
+  //   return (categories || this.data.categories)
+  //     .flatMap(category => category.children || [])
+  //     .reduce((total, item) => {
+  //       const num = Number(item.num) || 0;
+  //       const price = Number(item.price) || 0;
+  //       return total + (num * price);
+  //     }, 0)
+  //     .toFixed(2);
+  // },
   // 增加商品数量
   // 增加数量（购物车与分类页面同时更新）
   onIncrease: function (e) {
@@ -838,14 +850,43 @@ Page({
   },
 
   // 减少数量
-  onDecrease: function (e) {
-    const skuCode = e.currentTarget.dataset.skucode;
-    const updataArray = wx.getStorageSync('updataArray') || [];
-    const itemIndex = updataArray.findIndex(item => item.skuCode === skuCode);
-    if (itemIndex !== -1) {
+  // 减少数量（集成 wx.showModal 原生弹窗）
+onDecrease: function (e) {
+  const skuCode = e.currentTarget.dataset.skucode;
+  const updataArray = wx.getStorageSync('updataArray') || [];
+  const itemIndex = updataArray.findIndex(item => item.skuCode === skuCode);
+  
+  if (itemIndex !== -1) {
+    const currentNum = updataArray[itemIndex].num;
+
+    // 核心逻辑
+    if (currentNum === 1) {
+      // 数量为 1，弹出原生确认框
+      const that = this;
+      wx.showModal({
+        title: '提示',
+        content: '确定不要了吗？',
+        confirmColor: '#CDAEF2', // 确认按钮颜色（和你主题色一致）
+        success (res) {
+          if (res.confirm) {
+            // 用户点击了「确定」，执行删除
+            let newArray = updataArray.filter(item => item.skuCode !== skuCode);
+            that.syncCategoriesFromUpdataArray(newArray);
+            that.syncCartData(newArray);
+            that.setData({
+              cartItems: that.getCartItemsFromUpdataArray(newArray)
+            });
+          } else if (res.cancel) {
+            // 用户点击了「取消」，什么都不做
+            console.log('用户取消删除');
+          }
+        }
+      })
+    } else {
+      // 数量 > 1，直接减 1
       updataArray[itemIndex] = {
         ...updataArray[itemIndex],
-        num: Math.max(updataArray[itemIndex].num - 1, 0)
+        num: currentNum - 1
       };
       this.syncCategoriesFromUpdataArray(updataArray);
       this.syncCartData(updataArray);
@@ -853,7 +894,8 @@ Page({
         cartItems: this.getCartItemsFromUpdataArray(updataArray)
       });
     }
-  },
+  }
+},
 
   // 同步购物车数据和缓存
   syncCartData: function (updataArray) {
@@ -878,6 +920,7 @@ Page({
     this.setData({
       sum: sum,
       totalprice: total,
+      showCartPopup: sum > 0 ? this.data.showCartPopup : false,
       // 重新计算购物车内具体的 item 数组
       cartItems: this.getCartItemsFromUpdataArray(merged)
     });
