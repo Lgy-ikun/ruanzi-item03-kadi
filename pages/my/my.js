@@ -14,6 +14,25 @@ Page({
     AUrl: app.globalData.AUrl,
     isLogin: false,
   },
+  toLogin() {
+    const isLogin = this.isRealLogin();
+    if (!isLogin) {
+      wx.showModal({
+        title: "提示",
+        content: "目前暂未登录，是否跳转登录页面？",
+        confirmText: "立即登录",
+        cancelText: "取消",
+        success(res) {
+          if (res.confirm) {
+            wx.navigateTo({
+              url: "/subPackages/user/pages/register/register?from=my",
+            });
+          }
+        },
+      });
+    }
+    return isLogin;
+  },
   hasSession() {
     const itsid = String(wx.getStorageSync("itsid") || "");
     return Boolean(itsid && itsid !== "0");
@@ -43,6 +62,7 @@ Page({
 
   // 右上角二维码点击事件
   gotoQrcode() {
+    if(!this.toLogin()) return
     this.gotoInviteCode();
   },
 
@@ -88,6 +108,7 @@ Page({
 
   // 公告
   gotoNotice() {
+    if (!this.toLogin()) return;
     wx.showToast({
       title: "暂未实现",
       icon: "none",
@@ -96,23 +117,7 @@ Page({
 
   // 领券中心
   gotoCouponCenter() {
-    const isLogin = this.isRealLogin();
-    if (!isLogin) {
-      wx.showModal({
-        title: "提示",
-        content: "目前暂未登录，是否跳转登录页面？",
-        confirmText: "立即登录",
-        cancelText: "取消",
-        success(res) {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: "/subPackages/user/pages/register/register?from=my",
-            });
-          }
-        },
-      });
-      return;
-    }
+    if (!this.toLogin()) return;
     wx.navigateTo({
       url: "/subPackages/package/pages/CouponReceiveNew/CouponReceiveNew",
     });
@@ -127,23 +132,6 @@ Page({
 
   // 收货地址
   gotoAddress() {
-    const isLogin = this.isRealLogin();
-    if (!isLogin) {
-      wx.showModal({
-        title: "提示",
-        content: "目前暂未登录，是否跳转登录页面？",
-        confirmText: "立即登录",
-        cancelText: "取消",
-        success(res) {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: "/subPackages/user/pages/register/register?from=my",
-            });
-          }
-        },
-      });
-      return;
-    }
     wx.navigateTo({
       url: "/subPackages/package/pages/chooseLocation/chooseLocation",
     });
@@ -159,31 +147,13 @@ Page({
 
   // 会员订单
   gotoMemberOrder() {
-    wx.showToast({
-      title: "暂未实现",
-      icon: "none",
+    wx.navigateTo({
+      url: "/subPackages/package/pages/memberOrder/memberOrder",
     });
   },
 
   // 微股东门店
   gotoShareholderStore() {
-    const isLogin = this.isRealLogin();
-    if (!isLogin) {
-      wx.showModal({
-        title: "提示",
-        content: "目前暂未登录，是否跳转登录页面？",
-        confirmText: "立即登录",
-        cancelText: "取消",
-        success(res) {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: "/subPackages/user/pages/register/register?from=my",
-            });
-          }
-        },
-      });
-      return;
-    }
     wx.navigateTo({
       url: "/subPackages/package/pages/recharge/recharge",
     });
@@ -191,23 +161,6 @@ Page({
 
   // 子账户
   gotoSubAccount() {
-    const isLogin = this.isRealLogin();
-    if (!isLogin) {
-      wx.showModal({
-        title: "提示",
-        content: "目前暂未登录，是否跳转登录页面？",
-        confirmText: "立即登录",
-        cancelText: "取消",
-        success(res) {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: "/subPackages/user/pages/register/register?from=my",
-            });
-          }
-        },
-      });
-      return;
-    }
     wx.navigateTo({
       url: "/subPackages/package/pages/qiehuan/qiehuan",
     });
@@ -215,23 +168,6 @@ Page({
 
   // 我的好友
   gotoMyFriend() {
-    const isLogin = this.isRealLogin();
-    if (!isLogin) {
-      wx.showModal({
-        title: "提示",
-        content: "目前暂未登录，是否跳转登录页面？",
-        confirmText: "立即登录",
-        cancelText: "取消",
-        success(res) {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: "/subPackages/user/pages/register/register?from=my",
-            });
-          }
-        },
-      });
-      return;
-    }
     wx.navigateTo({
       url: "/subPackages/package/pages/huiyuanrenshu/huiyuanrenshu",
     });
@@ -239,23 +175,6 @@ Page({
 
   // 发票管理
   gotoInvoice() {
-    const isLogin = this.isRealLogin();
-    if (!isLogin) {
-      wx.showModal({
-        title: "提示",
-        content: "目前暂未登录，是否跳转登录页面？",
-        confirmText: "立即登录",
-        cancelText: "取消",
-        success(res) {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: "/subPackages/user/pages/register/register?from=my",
-            });
-          }
-        },
-      });
-      return;
-    }
     wx.navigateTo({
       url: "/subPackages/package/pages/fapiao/fapiao",
     });
@@ -263,23 +182,6 @@ Page({
 
   // 邀请码
   gotoInviteCode() {
-    const isLogin = this.isRealLogin();
-    if (!isLogin) {
-      wx.showModal({
-        title: "提示",
-        content: "目前暂未登录，是否跳转登录页面？",
-        confirmText: "立即登录",
-        cancelText: "取消",
-        success(res) {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: "/subPackages/user/pages/register/register?from=my",
-            });
-          }
-        },
-      });
-      return;
-    }
     wx.navigateTo({
       url: "/subPackages/package/pages/putong/putong",
     });
@@ -287,23 +189,7 @@ Page({
 
   // 设置
   gotoSetting() {
-    const isLogin = this.isRealLogin();
-    if (!isLogin) {
-      wx.showModal({
-        title: "提示",
-        content: "目前暂未登录，是否跳转登录页面？",
-        confirmText: "立即登录",
-        cancelText: "取消",
-        success(res) {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: "/subPackages/user/pages/register/register?from=my",
-            });
-          }
-        },
-      });
-      return;
-    }
+    if (!this.toLogin()) return;
     wx.navigateTo({
       url: "/subPackages/package/pages/anquan/anquan",
     });
@@ -327,23 +213,7 @@ Page({
     }
   },
   cardLoginPrompt() {
-    const isLogin = this.isRealLogin();
-    if (!isLogin) {
-      wx.showModal({
-        title: "提示",
-        content: "目前暂未登录，是否跳转登录页面？",
-        confirmText: "立即登录",
-        cancelText: "取消",
-        success(res) {
-          if (res.confirm) {
-            wx.navigateTo({
-              url: "/subPackages/user/pages/register/register?from=my",
-            });
-          }
-        },
-      });
-      return;
-    }
+    if (!this.toLogin()) return;
     this.gotocardDetail();
   },
 
@@ -373,7 +243,7 @@ Page({
             coffeeCoupon: data.score || 0.0,
             depositCard: data.chuzhika || 0.0,
             electronicCoupon: data.dianzi || 0.0,
-            avatar:`${app.globalData.AUrl}/jy/wxuser/106/images/info/beiload.png/mylogo1.jpg`,
+            avatar: `${app.globalData.AUrl}/jy/wxuser/106/images/info/beiload.png/mylogo1.jpg`,
             isLogin: true,
           });
           wx.setStorageSync("name", data.name || "");
