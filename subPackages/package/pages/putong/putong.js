@@ -1,79 +1,133 @@
 import drawQrcode from '../../../../utils/weapp.qrcode.esm.js';
-const {
-  generateRandomId
-} = require('../../../../utils/randomId.js');
 
+const { generateRandomId } = require('../../../../utils/randomId.js');
 const app = getApp();
 
 Page({
   data: {
-    isSharePage: false, // 是否是分享进入的页面
+    AUrl: app.globalData.AUrl,
+    itsid: '',
+    userid: '',
+    isSharePage: false,
     randomId: '',
     qrcodeSrc: '',
     sum: 0,
     subCount: '',
-    showContent: true, // 控制非分享内容的显示
-    percentage: 0, // 新增进度百分比
-    newQRCODE: '' // 新二维码图片
+    showContent: true,
+    percentage: 0,
+    newQRCODE: '',
+    leixing: '用户',
+    memberTitle: '用户',
+    name: '',
+    statusBarHeight: 20,
+    navBarHeight: 44,
+    headerHeight: 64,
+    contentTop: 80
   },
 
-  onLoad: function (options) {
+  onLoad(options) {
     console.log(options);
+    this.initCustomNav();
+
+    const cachedUserid = String(wx.getStorageSync('userid') || app.globalData.userid || '');
     this.setData({
-      newQRCODE: `${app.globalData.AUrl}/jy/kadi/kadi?userid=${wx.getStorageSync('userid')}`
-    })
-    // 检查是否是分享进入的页面
+      newQRCODE: `${this.data.AUrl}/jy/kadi/kadi?userid=${cachedUserid}`
+    });
+
     if (options.from === 'share') {
+      const shareUserid = String(options.userid || '');
       this.setData({
         isSharePage: true,
         showContent: false,
-        randomId: options.randomId || ''
+        randomId: options.randomId || '',
+        userid: shareUserid,
+        newQRCODE: shareUserid ? `${this.data.AUrl}/jy/kadi/kadi?userid=${shareUserid}` : this.data.newQRCODE
       });
-
-      // 直接使用传入的userid生成二维码
-      if (options.userid) {
-        // this.drawQRCode(options.userid);
-      }
-    } else {
-      // 原有正常流程
-      const itsid = wx.getStorageSync('itsid');
-      const userid = wx.getStorageSync('userid');
-      if (itsid) {
-        this.fetchData(itsid)
-          .then(userid => {
-            this.checkRandomId(userid, itsid);
-            this.fetchSumData(userid);
-            this.fetchSubCountData(userid);
-            this.fetchAccelerationRate(userid);
-          })
-          .catch(err => {
-            console.error('fetchData 失败', err);
-          });
-      }
-      // else {
-      //   wx.navigateTo({
-      //     url: '/subPackages/user/pages/register/register'
-      //   });
-      // }
     }
   },
 
-  // 新增获取加速率方法
+  initCustomNav() {
+    try {
+      const systemInfo = wx.getSystemInfoSync();
+      const statusBarHeight = systemInfo.statusBarHeight || 20;
+      let navBarHeight = 44;
+
+      if (typeof wx.getMenuButtonBoundingClientRect === 'function') {
+        const menuButtonInfo = wx.getMenuButtonBoundingClientRect();
+        if (menuButtonInfo && menuButtonInfo.top) {
+          navBarHeight = menuButtonInfo.height + (menuButtonInfo.top - statusBarHeight) * 2;
+        }
+      }
+
+      const headerHeight = statusBarHeight + navBarHeight;
+      this.setData({
+        statusBarHeight,
+        navBarHeight,
+        headerHeight,
+        contentTop: headerHeight + 16
+      });
+    } catch (error) {
+      console.error('初始化自定义标题栏失败', error);
+    }
+  },
+
+  handleBack() {
+    if (getCurrentPages().length > 1) {
+      wx.navigateBack({ delta: 1 });
+      return;
+    }
+
+    wx.switchTab({
+      url: '/pages/my/my'
+    });
+  },
+
+  refreshMemberData() {
+    if (this.data.isSharePage) {
+      return;
+    }
+
+    const itsid = String(wx.getStorageSync('itsid') || app.globalData.itsid || '').trim();
+    if (!itsid || itsid === '0') {
+      return;
+    }
+
+    app.globalData.itsid = itsid;
+    this.setData({ itsid });
+
+    this.fetchData(itsid)
+      .then((userid) => {
+        const finalUserid = String(userid || this.data.userid || '').trim();
+        if (!finalUserid || finalUserid === '0') {
+          return;
+        }
+
+        this.checkRandomId(finalUserid, itsid);
+        this.fetchSumData(finalUserid);
+        this.fetchSubCountData(finalUserid);
+        this.fetchAccelerationRate(finalUserid);
+      })
+      .catch((err) => {
+        console.error('刷新普通会员页面数据失败', err);
+      });
+  },
+
   fetchAccelerationRate(userid) {
-    const that = this;
+    if (!userid) {
+      return;
+    }
+
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10624&userid=${userid}`,
+      url: `${this.data.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10624&userid=${userid}`,
       method: 'GET',
-      success(res) {
+      success: (res) => {
         if (res.statusCode === 200 && res.data) {
-          // 处理加速率数据，假设返回格式如：{ "jiasulv": "30%" }
-          let rate = parseInt(res.data.jiasulv) || 0;
-          that.setData({
-            percentage: rate
+          this.setData({
+            percentage: parseInt(res.data.jiasulv, 10) || 0
           });
         }
       },
-      fail(err) {
+      fail: (err) => {
         console.error('获取加速率失败', err);
         wx.showToast({
           title: '获取加速率失败',
@@ -82,74 +136,63 @@ Page({
       }
     });
   },
-  // 检查或生成 randomId
+
   checkRandomId(userid, itsid) {
-    let that = this;
+    if (!userid || !itsid) {
+      return;
+    }
 
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10618&userid=${userid}`,
+      url: `${this.data.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10618&userid=${userid}`,
       method: 'GET',
-      success(res) {
+      success: (res) => {
         console.log('[推荐码接口] 原始响应:', res.data);
 
-        // 强化数据验证
-        if (res.statusCode === 200 &&
-          res.data?.code === "1" &&
+        if (
+          res.statusCode === 200 &&
+          res.data?.code === '1' &&
           res.data?.result?.list?.length > 0 &&
           res.data.result.list[0].randomId
         ) {
           const serverRandomId = res.data.result.list[0].randomId;
-          console.log('[推荐码接口] 有效推荐码:', serverRandomId);
-
-          that.setData({
+          this.setData({
             randomId: serverRandomId
           });
           wx.setStorageSync('randomId', serverRandomId);
-          // that.drawQRCode(userid);
-        } else {
-          console.warn('[推荐码接口] 无有效推荐码，生成新码');
-
-          // 生成新推荐码
-          const newRandomId = generateRandomId();
-          console.log('[新推荐码] 生成:', newRandomId);
-
-          // 保存到服务器
-          wx.request({
-            url: `${app.globalData.backUrl}/phone.aspx?mbid=10610&ituid=${app.globalData.ituid}&itsid=${itsid}`,
-            method: 'POST',
-            data: {
-              userid: userid,
-              randomId: newRandomId,
-              itsid: itsid
-            },
-            success(saveRes) {
-              console.log('[保存接口] 响应:', saveRes.data);
-
-              if (saveRes.data?.code === "1") {
-                that.setData({
-                  randomId: newRandomId
-                });
-                wx.setStorageSync('randomId', newRandomId);
-                // that.drawQRCode(userid);
-              } else {
-                console.error('[保存失败] 服务端返回异常:', saveRes.data);
-                wx.showToast({
-
-                });
-              }
-            },
-            fail(saveErr) {
-              console.error('[保存失败] 网络异常:', saveErr);
-              wx.showToast({
-                title: '网络异常，请稍后重试',
-                icon: 'none'
-              });
-            }
-          });
+          return;
         }
+
+        const newRandomId = generateRandomId();
+        wx.request({
+          url: `${app.globalData.backUrl}/phone.aspx?mbid=10610&ituid=${app.globalData.ituid}&itsid=${itsid}`,
+          method: 'POST',
+          data: {
+            userid,
+            randomId: newRandomId,
+            itsid
+          },
+          success: (saveRes) => {
+            console.log('[保存推荐码] 响应:', saveRes.data);
+            if (saveRes.data?.code === '1') {
+              this.setData({
+                randomId: newRandomId
+              });
+              wx.setStorageSync('randomId', newRandomId);
+            } else {
+              console.error('[保存推荐码失败] 服务端返回异常', saveRes.data);
+            }
+          },
+          fail: (saveErr) => {
+            console.error('[保存推荐码失败] 网络异常:', saveErr);
+            wx.showToast({
+              title: '网络异常，请稍后重试',
+              icon: 'none'
+            });
+          }
+        });
       },
-      fail(err) {
-        console.error('[接口错误] 推荐码请求失败:', err);
+      fail: (err) => {
+        console.error('[接口错误] 推荐码请求失败', err);
         wx.showToast({
           title: '网络连接异常，请检查网络设置',
           icon: 'none',
@@ -158,32 +201,47 @@ Page({
       }
     });
   },
-  // 生成随机 ID
+
   generateRandomId() {
-    return generateRandomId(); // 调用工具函数生成随机 ID
+    return generateRandomId();
   },
 
   fetchData(itsid) {
     return new Promise((resolve, reject) => {
       wx.request({
-        url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
+        url: `${this.data.AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
         method: 'GET',
         success: (res) => {
-          if (res.statusCode === 200 && res.data) {
-            app.globalData.userid = res.data.userid;
-            // 格式化电话号码，隐藏中间部分
-            // const formattedName = this.formatPhoneNumber(res.data.name);
-            this.setData({
-              leixing: res.data.leixing || '普通用户',
-              name: res.data.name // 使用格式化后的电话号码
-            });
-            resolve(res.data.userid); // 返回 userid
+          if (res.statusCode !== 200 || !res.data) {
+            reject(new Error('用户信息返回异常'));
+            return;
           }
+
+          const userid = String(res.data.userid || '');
+          const leixing = res.data.leixing || '普通会员';
+
+          if (userid) {
+            app.globalData.userid = userid;
+            wx.setStorageSync('userid', userid);
+          }
+
+          app.globalData.itsid = itsid;
+
+          this.setData({
+            itsid,
+            userid,
+            leixing,
+            memberTitle: leixing,
+            name: res.data.name || '',
+            newQRCODE: `${this.data.AUrl}/jy/kadi/kadi?userid=${userid}`
+          });
+
+          resolve(userid);
         },
         fail: (error) => {
-          console.error('获取数据失败', error);
+          console.error('获取普通会员数据失败', error);
           wx.showToast({
-            title: '获取数据失败，请检查网络或联系管理员',
+            title: '获取数据失败，请检查网络',
             icon: 'none'
           });
           reject(error);
@@ -191,46 +249,56 @@ Page({
       });
     });
   },
+
   formatPhoneNumber(phone) {
-    if (!phone) return phone; // 如果电话号码为空，直接返回
-    // 假设电话号码是11位，隐藏中间4位
+    if (!phone) {
+      return phone;
+    }
+
     return phone.replace(/(\d{3})\d{4}(\d{4})/, '$1****$2');
   },
-  // 获取 sum 数据
+
   fetchSumData(userid) {
-    const that = this;
+    if (!userid) {
+      return;
+    }
+
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10620&userid=${userid}`,
+      url: `${this.data.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10620&userid=${userid}`,
       method: 'GET',
-      success(res) {
+      success: (res) => {
         if (res.statusCode === 200 && res.data) {
-          that.setData({
-            sum: res.data.sum || '0',
+          this.setData({
+            sum: res.data.sum || '0'
           });
         }
       },
-      fail(err) {
+      fail: (err) => {
         console.error('获取 sum 数据失败', err);
         wx.showToast({
-          title: '获取数据失败，请检查网络或联系管理员',
+          title: '获取数据失败，请检查网络',
           icon: 'none'
         });
       }
     });
   },
+
   fetchSubCountData(userid) {
-    const that = this;
+    if (!userid) {
+      return;
+    }
+
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=0902&itcid=10621&userid=${userid}`,
+      url: `${this.data.AUrl}/jy/go/we.aspx?ituid=106&itjid=0902&itcid=10621&userid=${userid}`,
       method: 'GET',
-      success(res) {
+      success: (res) => {
         if (res.statusCode === 200 && res.data) {
-          that.setData({
-            subCount: res.data.subCount || '0',
+          this.setData({
+            subCount: res.data.subCount || '0'
           });
         }
       },
-      fail(err) {
+      fail: (err) => {
         console.error('获取团队成员数据失败', err);
         wx.showToast({
           title: '获取数据失败',
@@ -239,14 +307,13 @@ Page({
       }
     });
   },
-  // 绘制二维码
+
   drawQRCode(userid) {
-    const that = this;
     drawQrcode({
       width: 200,
       height: 200,
       canvasId: 'myQrcode',
-      text: `${app.globalData.AUrl}/jy/kadi/kadi?userid=${userid}`,
+      text: `${this.data.AUrl}/jy/kadi/kadi?userid=${userid}`,
       callback: () => {
         wx.canvasToTempFilePath({
           x: 0,
@@ -256,7 +323,7 @@ Page({
           canvasId: 'myQrcode',
           success: (res) => {
             console.log('二维码图片路径：', res.tempFilePath);
-            that.setData({
+            this.setData({
               qrcodeSrc: res.tempFilePath
             });
           },
@@ -268,7 +335,6 @@ Page({
     });
   },
 
-  // 保存二维码图片
   saveQRCodeImage() {
     wx.canvasToTempFilePath({
       x: 0,
@@ -277,16 +343,15 @@ Page({
       height: 200,
       canvasId: 'myQrcode',
       success: (res) => {
-        console.log('二维码图片路径：', res.tempFilePath);
         wx.saveImageToPhotosAlbum({
           filePath: res.tempFilePath,
-          success(res) {
+          success() {
             wx.showToast({
               title: '保存成功，可分享给好友注册',
               icon: 'success'
             });
           },
-          fail(err) {
+          fail() {
             wx.showToast({
               title: '保存失败，请重试',
               icon: 'none'
@@ -300,34 +365,26 @@ Page({
     });
   },
 
-  onReady() {
-    // this.drawQRCode(wx.getStorageSync('userid'));
-  },
+  onReady() {},
 
   onShow() {
-    const itsid = wx.getStorageSync('itsid');
-    const userid = wx.getStorageSync('userid');
-    if (itsid) {
-      this.checkRandomId(userid, itsid);
-    }
+    this.refreshMemberData();
   },
 
+  onHide() {},
 
+  onUnload() {},
 
-  onHide() { },
+  onPullDownRefresh() {},
 
-  onUnload() { },
-
-  onPullDownRefresh() { },
-
-  onReachBottom() { },
+  onReachBottom() {},
 
   onShareAppMessage() {
+    const shareUserid = this.data.userid || wx.getStorageSync('userid') || '';
     return {
       title: '邀请您加入',
-      path: `/subPackages/package/pages/xq/xq?from=share&userid=${wx.getStorageSync('userid')}&randomId=${this.data.randomId}`,
+      path: `/subPackages/package/pages/xq/xq?from=share&userid=${shareUserid}&randomId=${this.data.randomId}`,
       imageUrl: this.data.qrcodeSrc
-    }
-  },
-
+    };
+  }
 });

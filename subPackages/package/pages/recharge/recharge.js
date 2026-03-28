@@ -83,7 +83,12 @@ Page({
   // 显示交易码弹窗
   showCodeDialog() {
     this.setData({
-      showCodeDialog: true
+      showCodeDialog: true,
+      codeValue: '',
+      inputBoxes: ["", "", "", "", "", ""],
+      testFocus: false
+    }, () => {
+      this.handleGetFocus();
     });
   },
 
@@ -92,13 +97,19 @@ Page({
     this.setData({
       showCodeDialog: false,
       codeValue: '',
-      inputBoxes: ["", "", "", "", "", ""]
+      inputBoxes: ["", "", "", "", "", ""],
+      testFocus: false
     });
   },
 
   handleGetFocus() {
+    if (!this.data.showCodeDialog) return;
     this.setData({
-      testFocus: true
+      testFocus: false
+    }, () => {
+      this.setData({
+        testFocus: true
+      });
     });
   },
 

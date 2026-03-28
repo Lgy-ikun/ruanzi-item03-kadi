@@ -265,10 +265,13 @@ page {
 }
 
 .ipt {
-  position: absolute;
+  position: fixed;
+  left: -9999rpx;
+  top: -9999rpx;
   width: 1rpx;
   height: 1rpx;
   opacity: 0;
+  color: transparent;
 }
 
 .dialog-buttons .btn {
