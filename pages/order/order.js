@@ -13,6 +13,7 @@ Page({
     nearbyStores: [], // 附近门店数据
     latitude: '', // 用户纬度
     AUrl: app.globalData.AUrl,
+    isCheckoutSubmitting: false,
     longitude: '', // 用户经度
     showRecommendationPopup: false, // 控制推荐弹窗的显示
     recommendedStore: null, // 推荐的最近门店
@@ -21,6 +22,15 @@ Page({
   },
 
   // 按 id 分组并累加数量
+  setCheckoutSubmitting: function (isSubmitting) {
+    this._isCheckoutSubmitting = isSubmitting;
+    if (this.data.isCheckoutSubmitting !== isSubmitting) {
+      this.setData({
+        isCheckoutSubmitting: isSubmitting
+      });
+    }
+  },
+
   groupItemsByQuantity: function (updataArray) {
     return updataArray.reduce((acc, item) => {
       // 若该 id 项不存在，则初始化（初始数量为 0）
@@ -82,16 +92,24 @@ Page({
     }
   },
   gobackPublish: function () {
+    if (this._isCheckoutSubmitting) {
+      return;
+    }
+    const page = this;
     const app = getApp();
     const updataArray = wx.getStorageSync('updataArray') || [];
     const unitId = this.data.selected === '自提' ? wx.getStorageSync('selectedStoreId') : '';
     // const unitId = this.data.
     const backUrl = app.globalData.backUrl;
+    const resetCheckoutSubmitting = () => {
+      this.setCheckoutSubmitting(false);
+    };
 
     // 使用与购物车弹窗一致的合并结果，避免结算数量与购物车不一致
     const cartItems = this.getCartItemsFromUpdataArray(updataArray);
 
     if (cartItems.length === 0) {
+      resetCheckoutSubmitting();
       wx.showToast({
         title: '购物车为空',
         icon: 'none',
@@ -105,6 +123,7 @@ Page({
     const isLogin = (rawLogin === true || rawLogin === 'true' || rawLogin === 1 || rawLogin === '1') &&
       itsid && itsid !== '0' && userid && userid !== '0';
     if (!isLogin) {
+      resetCheckoutSubmitting();
       wx.navigateTo({ url: '/subPackages/user/pages/register/register?from=order' });
       return;
     }
@@ -118,6 +137,8 @@ Page({
       return;
     }
 
+    this._shouldResetCheckoutOnShow = false;
+    this.setCheckoutSubmitting(true);
     wx.request({
       url: `${backUrl}phone.aspx?mbid=10639&ituid=106&keyvalue=${unitId}`,
       success(res) {
@@ -125,6 +146,7 @@ Page({
         if (res.data.code == '0') {
           const validCartItems = cartItems.filter(item => item.skuCode);
           if (validCartItems.length !== cartItems.length) {
+            resetCheckoutSubmitting();
             wx.showToast({ title: '存在商品规格未就绪，请返回重选后再结算', icon: 'none' });
             return;
           }
@@ -178,14 +200,23 @@ Page({
             .then(() => {
               wx.navigateTo({
                 url: '/subPackages/package/pages/jiesuan/jiesuan',
+                success: () => {
+                  page._shouldResetCheckoutOnShow = true;
+                },
+                fail: () => {
+                  resetCheckoutSubmitting();
+                  wx.showToast({ title: '跳转结算页失败，请重试', icon: 'none' });
+                }
               });
             })
             .catch((err) => {
+              resetCheckoutSubmitting();
               console.error('提交结算商品失败', err);
               wx.showToast({ title: '提交结算商品失败，请重试', icon: 'none' });
             });
         }
         else {
+          resetCheckoutSubmitting();
           console.error('门店营业检查(10639)失败：', res?.data);
           wx.showToast({
             title: res.data.desc,
@@ -195,6 +226,7 @@ Page({
         }
       }
       , fail(err) {
+        resetCheckoutSubmitting();
         console.error('调用10639失败', err);
         wx.showToast({ title: '门店状态接口失败', icon: 'none' });
       }
@@ -385,6 +417,10 @@ Page({
   onReady() { },
 
   onShow: function () {
+    if (this._shouldResetCheckoutOnShow) {
+      this._shouldResetCheckoutOnShow = false;
+      this.setCheckoutSubmitting(false);
+    }
     const forceStoreSelect = app.globalData.forceStoreSelectOnOrder === true;
     if (forceStoreSelect) {
       app.globalData.forceStoreSelectOnOrder = false;

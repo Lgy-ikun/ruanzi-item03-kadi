@@ -63,7 +63,7 @@
     <image src="/images/购物袋.png" bindtap="toggleCartPopup"></image><text style="font-size: 34rpx;">预计到手¥{{totalprice}}</text>
   </view>
   <view class="right">
-    <t-button theme="primary" bind:tap="gobackPublish" style="background-color: rgb(205, 174, 242);">去结算</t-button>
+    <t-button theme="primary" bind:tap="gobackPublish" disabled="{{isCheckoutSubmitting}}" loading="{{isCheckoutSubmitting}}" style="background-color: rgb(205, 174, 242);">去结算</t-button>
   </view>
 </view>
 <!--  推荐门店弹窗 -->
