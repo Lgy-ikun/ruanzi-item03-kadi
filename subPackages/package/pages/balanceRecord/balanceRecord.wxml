@@ -20,7 +20,7 @@
       </view>
     </view>
 
-    <text class="a  mount">{{money}}</text>
+    <text class="a amount">{{money}}</text>
   </view>
 
   <view class="tabs">
@@ -60,7 +60,12 @@
         <block wx:for="{{records}}" wx:key="id">
           <view class="record-item">
             <text class="left">{{item.time}}</text>
-            <text class="right">{{item.money}}</text>
+            <!-- 【核心修改】动态 class：只有在全部Tab且是收入时，才加 orange 类 -->
+            <text 
+              class="right {{currentTab === 'all' && item.recordType === 'income' ? 'money-income' : ''}}"
+            >
+              {{item.money}}
+            </text>
           </view>
         </block>
       </view>

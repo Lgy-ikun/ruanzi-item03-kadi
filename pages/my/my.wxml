@@ -77,7 +77,7 @@
     </view>
     <view class="func-item" bindtap="gotoMemberOrder" wx:if="{{isLogin === true}}">
       <image class="func-icon" src="{{tupianUrl}}/new/my/member-order.jpg" mode="aspectFit"></image>
-      <text class="func-text">会员订单</text>
+      <text class="func-text">会员套餐</text>
     </view>
 
     <!-- 第三行 -->
