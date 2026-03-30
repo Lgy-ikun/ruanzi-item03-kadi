@@ -119,7 +119,7 @@ Page({
   gotoCouponCenter() {
     if (!this.toLogin()) return;
     wx.navigateTo({
-      url: "/subPackages/package/pages/CouponReceiveNew/CouponReceiveNew",
+      url: "/subPackages/package/pages/couponReceive/couponReceive",
     });
   },
 

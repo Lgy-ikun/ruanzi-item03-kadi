@@ -135,8 +135,8 @@ Page({
   // 验证交易码
   getServerTransactionCode() {
     return new Promise((resolve, reject) => {
-      const userid = wx.getStorageSync('userid');
-
+      // const userid = wx.getStorageSync('userid');
+      const itsid = wx.getStorageSync('itsid') || app.globalData.itsid || '';
       wx.request({
         url: `${app.globalData.AUrl}/jy/go/we.aspx`, // 请确保链接合法且可访问
         method: 'GET',
@@ -144,7 +144,7 @@ Page({
           ituid: 106,
           itjid: 10610,
           itcid: 10632,
-          userid: userid
+          itsid: itsid
         },
         success: (res) => {
           console.log('交易码接口响应：', res.data);
@@ -195,6 +195,9 @@ Page({
 
     this.getServerTransactionCode()
       .then(serverCode => {
+        wx.hideLoading();
+        const inputCode = String(codeValue);
+        const currentServerCode = String(serverCode);
         // 安全对比（防止时序攻击）
         const safeCompare = (a, b) => {
           let mismatch = 0;
@@ -205,8 +208,8 @@ Page({
           return mismatch === 0;
         };
 
-        if (safeCompare(codeValue, serverCode)) {
-          that.closeDialog();
+        if (safeCompare(inputCode, currentServerCode)) {
+          this.closeDialog();
           that.executePayment(); // 验证成功后调用支付接口
         } else {
           wx.showToast({
@@ -216,15 +219,13 @@ Page({
         }
       })
       .catch(err => {
+        wx.hideLoading();
         console.error('验证失败:', err);
         wx.showToast({
           title: err.message || '验证失败',
           icon: 'none',
           duration: 2000
         });
-      })
-      .finally(() => {
-        wx.hideLoading();
       });
   },
 
@@ -235,6 +236,7 @@ Page({
     const itsid = wx.getStorageSync('itsid');
     // const totalAmount = this.data.pricePerUnit * this.data.quantity; // 计算总金额
     const pricePerUnit = this.data.pricePerUnit * this.data.quantity // 计算总金额
+    const amt2 = (pricePerUnit * 0.4).toFixed(2);
     const MCODE = this.data.MCODE
     const AUrl = app.globalData.AUrl
     wx.request({
@@ -248,6 +250,7 @@ Page({
         USERID: that.data.userid, // 传递userid
         NOTE: ' ',
         AMT: pricePerUnit, // 将总金额传递给接口
+        amt2, // 新增amt2参数，代表电子券或咖啡券的金额
         type: that.data.selectedCouponType,
         // RURL: '/subPackages/package/pages/recharge-payResult/recharge-payResult'
       },
