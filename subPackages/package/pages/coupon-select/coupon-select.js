@@ -5,7 +5,7 @@ Page({
     selectedId: ''
   },
   onLoad() {
-    const userid = wx.getStorageSync('userid');
+    const userid = wx.getStorageSync('userid') || app.globalData.userid || '';
     wx.request({
       url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=0902&itcid=10619&userid=${userid}`,
       method: 'GET',

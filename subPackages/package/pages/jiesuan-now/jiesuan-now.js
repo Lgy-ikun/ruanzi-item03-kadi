@@ -130,7 +130,8 @@ Page({
   // TODO: 实现获取交易码的接口调用
   getServerTransactionCode() {
     return new Promise((resolve, reject) => {
-      const userid = wx.getStorageSync('userid');
+      // const userid = wx.getStorageSync('userid');
+      const itsid = wx.getStorageSync('itsid') || app.globalData.itsid || '';// ✅ 修复1：和上方保持一致，缓存+全局双兜底，防止丢失
       // 接口调用示例
       wx.request({
         url: `${app.globalData.AUrl}/jy/go/we.aspx`,
@@ -139,7 +140,7 @@ Page({
           ituid: 106,
           itjid: 10610,
           itcid: 10632,
-          userid: userid
+          itsid
         },
         success: (res) => {
           console.log('交易码接口响应：', res.data);
@@ -221,53 +222,6 @@ Page({
     this.cashPayment();
   },
 
-  // 跳转到选择地址页面
-  gotoChooseLocation() {
-    wx.navigateTo({
-      url: '/subPackages/package/pages/chooseLocation/chooseLocation?type=jiesuan-now',
-    })
-  },
-
-  // 选择配送方式
-  selectOption: function (e) {
-    const option = e.currentTarget.dataset.option;
-    app.globalData.selected = option;
-    
-    console.log('选择配送方式:', option);
-    
-    if (option === '自提') {
-      app.globalData.address = app.globalData.storeName;
-    } else if (option === '外送') {
-      // 根据地址设置对应的外送门店ID
-      // 这里默认使用恒明店号6，可根据实际地址判断使用6还是8
-      const deliveryUnitId = '6'; // 默认恒明店号
-      wx.setStorageSync('deliveryUnitId', deliveryUnitId);
-      app.globalData.deliveryUnitId = deliveryUnitId;
-      
-      console.log('设置外送门店ID:', deliveryUnitId);
-    }
-    
-    this.setData({
-      selected: option,
-      address: app.globalData.address,
-      // 确保订单类型被明确记录
-      orderType: option === '自提' ? 1 : 2
-    }, () => {
-      // 重新计算总价
-      const newTotal = this.calculateTotal();
-      console.log(`配送方式更改为: ${option}, 重新计算总价: ${newTotal}`);
-      
-      // 如果使用积分支付，重新计算所需积分
-      if (this.data.usePoints) {
-        const requiredScore = Math.ceil(newTotal * 1.6);
-        this.setData({
-          requiredScore: requiredScore
-        });
-        console.log('更新所需积分:', requiredScore);
-      }
-    });
-  },
-
   // 备注输入处理
   inputRemark(e) {
     this.setData({
@@ -275,10 +229,12 @@ Page({
     });
   },
   // 设置取餐方式（自提内）
+  /*
   setDineType(e) {
     const type = e.currentTarget.dataset.type;
     this.setData({ dineType: type, selected: '自提' });
   },
+  */
 
   // 卡券选择处理
   couponCheckboxChange: function (e) {

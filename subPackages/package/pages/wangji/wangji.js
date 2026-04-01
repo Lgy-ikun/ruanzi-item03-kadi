@@ -155,8 +155,8 @@ Page({
             icon: 'success'
           });
 
-          wx.navigateTo({
-            url: '/subPackages/package/pages/shareholder/shareholder'
+          wx.switchTab({
+            url: '/pages/my/my'
           });
         } else {
           wx.showToast({

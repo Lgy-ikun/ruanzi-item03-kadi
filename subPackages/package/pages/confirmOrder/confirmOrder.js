@@ -10,7 +10,8 @@ const PACKAGE_CONFIG = {
     totalReturn: 1700,
     days: '360天',
     dailyReturn: 4.72,
-    mcode: 900
+    mcode: 900,
+    AMT2: 400
   },
   '2': {
     packageName: '卡狄C套餐',
@@ -21,7 +22,8 @@ const PACKAGE_CONFIG = {
     totalReturn: 5400,
     days: '360天',
     dailyReturn: 15,
-    mcode: 901
+    mcode: 901,
+    AMT2: 1200
   },
   '3': {
     packageName: '卡狄B套餐',
@@ -32,7 +34,8 @@ const PACKAGE_CONFIG = {
     totalReturn: 17100,
     days: '360天',
     dailyReturn: 47.5,
-    mcode: 902
+    mcode: 902,
+    AMT2: 3600
   },
   '4': {
     packageName: '卡狄A套餐',
@@ -43,7 +46,8 @@ const PACKAGE_CONFIG = {
     totalReturn: 54000,
     days: '360天',
     dailyReturn: 150,
-    mcode: 903
+    mcode: 903,
+    AMT2: 10800
   }
 };
 
@@ -59,6 +63,7 @@ Page({
     totalReturn: '0.00',
     days: '0',
     dailyReturn: '0.00',
+    AMT2: '0.00',
     quantity: 1,
     showCodeDialog: false,
     inputBoxes: ['', '', '', '', '', ''],
@@ -101,7 +106,7 @@ Page({
       days: base.days,
       dailyReturn: this.formatAmount(base.dailyReturn),
       cashAmount: this.formatAmount(base.payAmount),
-      pointsAmount: this.formatAmount(base.coffeeAmount)
+      pointsAmount: this.formatAmount(base.coffeeAmount),
     });
   },
 
@@ -201,7 +206,8 @@ Page({
 
   getServerTransactionCode() {
     return new Promise((resolve, reject) => {
-      const userid = wx.getStorageSync('userid');
+      // const userid = wx.getStorageSync('userid');
+      const itsid = wx.getStorageSync('itsid') || app.globalData.itsid || '';// ✅ 修复1：和上方保持一致，缓存+全局双兜底，防止丢失
       wx.request({
         url: `${app.globalData.AUrl}/jy/go/we.aspx`,
         method: 'GET',
@@ -209,7 +215,7 @@ Page({
           ituid: 106,
           itjid: 10610,
           itcid: 10632,
-          userid
+          itsid
         },
         success: (res) => {
           const code = res?.data?.result?.list?.[0]?.transactionCode;
@@ -260,6 +266,7 @@ Page({
     const couponMeta = this.getSelectedCouponMeta();
     const packageId = String(this.data.packageId || '1');
     const mcode = PACKAGE_CONFIG[packageId]?.mcode || 900;
+    const AMT2 = this.formatAmount(PACKAGE_CONFIG[packageId]?.AMT2 || 0);
     const itsid = wx.getStorageSync('itsid');
     if (money < cashAmount) {
       wx.showToast({
@@ -289,7 +296,8 @@ Page({
         USERID: '0',
         NOTE: ' ',
         AMT: this.data.cashAmount,
-        type: this.data.selectedCouponType
+        type: this.data.selectedCouponType,
+        AMT2 //新加的变量代表电子券或者咖啡券的金额，后端根据type区分是电子券还是咖啡券
       },
       success: () => {
         wx.showToast({

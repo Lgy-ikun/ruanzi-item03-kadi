@@ -264,7 +264,9 @@ Page({
         return;
       }
     }
-   
+   //新添加一个type类型
+    const type = this.data.selected === '自提' ? 1 : 2;
+    
     const payScore = opid === '1203' ? (totalAmount * 1.6) : totalAmount;
     const noteMap = {
       '1210': '余额支付',
@@ -284,6 +286,7 @@ Page({
       USERID: userid,
       AMT: 0,
       SCORE: payScore,
+      type,
       extra: JSON.stringify({ in_lite_app: true })
     };
     if (opid === '1212') {
@@ -412,11 +415,12 @@ Page({
 
   getServerTransactionCode() {
     return new Promise((resolve, reject) => {
-      const userid = wx.getStorageSync('userid');
+      // const userid = wx.getStorageSync('userid');
+      const itsid = wx.getStorageSync('itsid') || app.globalData.itsid || '';// ✅ 修复1：和上方保持一致，缓存+全局双兜底，防止丢失
       wx.request({
         url: `${app.globalData.AUrl}/jy/go/we.aspx`,
         method: 'GET',
-        data: { ituid: 106, itjid: 10610, itcid: 10632, userid: userid },
+        data: { ituid: 106, itjid: 10610, itcid: 10632, itsid: itsid },
         success: (res) => {
           if (res.data.code === "1" && res.data.result?.list?.[0]?.transactionCode) {
             const serverCode = res.data.result.list[0].transactionCode;

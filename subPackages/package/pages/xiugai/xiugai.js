@@ -56,7 +56,8 @@ Page({
 
   getServerTransactionCode() {
     return new Promise((resolve, reject) => {
-      const userid = wx.getStorageSync('userid');
+      // const userid = wx.getStorageSync('userid');
+      const itsid = wx.getStorageSync('itsid') || app.globalData.itsid || '';// ✅ 修复1：和上方保持一致，缓存+全局双兜底，防止丢失
       wx.request({
         url: `${app.globalData. AUrl}/jy/go/we.aspx`,
         method: 'GET',
@@ -64,7 +65,7 @@ Page({
           ituid: 106,
           itjid: 10610,
           itcid: 10632,
-          userid: userid
+          itsid
         },
         success: (res) => {
           console.log('交易码接口响应：', res.data);
