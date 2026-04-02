@@ -119,7 +119,9 @@
         "pages/confirmOrder/confirmOrder",
         "pages/recharge-input/recharge-input",
         "pages/new-recharge-pay/new-recharge-pay",
-        "pages/CouponReceiveNew/CouponReceiveNew"
+        "pages/CouponReceiveNew/CouponReceiveNew",
+        "pages/memberOrder/memberOrder",
+        "pages/favorite/favorite"
       ]
     }
   ],

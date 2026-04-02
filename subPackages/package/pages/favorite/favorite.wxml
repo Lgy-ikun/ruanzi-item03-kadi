@@ -1,0 +1,46 @@
+<view class="page">
+  <view class="header">
+    <text class="title">我的收藏</text>
+  </view>
+
+  <view wx:if="{{loading}}" class="center">
+    <text>加载中...</text>
+  </view>
+
+  <view wx:elif="{{list.length === 0}}" class="center">
+    <text class="empty-text">暂无收藏</text>
+  </view>
+
+  <view wx:else class="list">
+    <view 
+      wx:for="{{list}}" 
+      wx:key="id" 
+      class="item-box" 
+      bindtap="goDetail" 
+      data-id="{{item.id}}"
+    >
+      <image class="item-img" src="{{item.image}}" mode="aspectFill"></image>
+      
+      <view class="item-info">
+        <text class="item-name">{{item.name}}</text>
+        
+        <view class="price-row">
+          <text class="price">¥{{item.price}}</text>
+          <text wx:if="{{item.oldPrice > item.price}}" class="price-old">¥{{item.oldPrice}}</text>
+        </view>
+
+        <view class="specs-row">
+          <view wx:if="{{item.hasMacode}}" class="specs-list">
+            <view class="spec-tag saved">已选规格</view>
+          </view>
+          
+          <view wx:else class="specs-list">
+            <block wx:for="{{item.allSpecs}}" wx:key="name">
+              <view class="spec-tag">{{item.name}}</view>
+            </block>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

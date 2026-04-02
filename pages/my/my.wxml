@@ -36,7 +36,7 @@
       <text class="asset-num">{{depositCard || 0.00}}</text>
       <text class="asset-name">储值卡</text>
     </view>
-    <view class="asset-item" wx:if="{{leixing !== '用户'}}">
+    <view class="asset-item" bindtap="gotoElectronicRecord" wx:if="{{leixing !== '用户'}}">
       <text class="asset-num">{{electronicCoupon || 0.00}}</text>
       <text class="asset-name">电子券</text>
     </view>
@@ -49,10 +49,10 @@
       <image class="func-icon" src="{{tupianUrl}}/new/my/ecommerce-order.jpg" mode="aspectFit"></image>
       <text class="func-text">电商订单</text>
     </view>
-    <view class="func-item" bindtap="gotoTasteCustom" wx:if="{{isLogin === true}}">
+    <!-- <view class="func-item" bindtap="gotoTasteCustom" wx:if="{{isLogin === true}}">
       <image class="func-icon" src="{{tupianUrl}}/new/my/taste-custom.jpg" mode="aspectFit"></image>
       <text class="func-text">口味定制</text>
-    </view>
+    </view> -->
     <view class="func-item {{isLogin === false ? 'func-item-notlogin' : ''}}" bindtap="gotoNotice">
       <image class="func-icon" src="{{tupianUrl}}/new/my/notice.jpg" mode="aspectFit"></image>
       <text class="func-text">公告</text>

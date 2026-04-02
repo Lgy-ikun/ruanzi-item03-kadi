@@ -234,9 +234,8 @@ Page({
     const that = this;
 
     const itsid = wx.getStorageSync('itsid');
-    // const totalAmount = this.data.pricePerUnit * this.data.quantity; // 计算总金额
-    const pricePerUnit = this.data.pricePerUnit * this.data.quantity // 计算总金额
-    const amt2 = (pricePerUnit * 0.4).toFixed(2);
+    const allPrice =  this.data.pricePerUnit * this.data.quantity
+    const AMT2 = (allPrice * 0.4).toFixed(2);
     const MCODE = this.data.MCODE
     const AUrl = app.globalData.AUrl
     wx.request({
@@ -249,8 +248,8 @@ Page({
         NUM: that.data.quantity,
         USERID: that.data.userid, // 传递userid
         NOTE: ' ',
-        AMT: pricePerUnit, // 将总金额传递给接口
-        amt2, // 新增amt2参数，代表电子券或咖啡券的金额
+        AMT: that.data.pricePerUnit, // 将总金额传递给接口
+        AMT2, // 新增AMT2参数，代表电子券或咖啡券的金额
         type: that.data.selectedCouponType,
         // RURL: '/subPackages/package/pages/recharge-payResult/recharge-payResult'
       },
@@ -260,13 +259,14 @@ Page({
       },
       success: (res) => {
         console.log("mbid=10602:", res);
+        const successDuration = 2000;
         // wx.navigateTo({
         //   url: `/subPackages/package/pages/recharge-pay/recharge-pay?return_url=${res.data.rurl}&orderid=${res.data.orderid}&terminal=${res.data.terminal_sn}&amt=${res.data.AMT}&sign=${res.data.sign}`,
         // })
 
         wx.showToast({
           title: '升级成功',
-          duration: 2000
+          duration: successDuration
         });
         wx.request({
           url: `${AUrl}/jy/go/we.aspx?ituid=106&itjid=10603&itcid=10603&itsid=${itsid}`,
@@ -283,6 +283,11 @@ Page({
           }
         });
         // 发起微信支付
+        setTimeout(() => {
+          wx.switchTab({
+            url: '/pages/my/my',
+          });
+        }, successDuration);
         // wx.requestPayment({
         //   "timeStamp": res.data.timeStamp, // 时间戳
         //   "nonceStr": res.data.nonceStr, // 随机字符串

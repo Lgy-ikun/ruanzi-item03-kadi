@@ -1,144 +1,152 @@
 const app = getApp();
-Page({
+const storeUtils = require('../../../../utils/store');
 
-  /**
-   * 页面的初始数据
-   */
+Page({
   data: {
     stores: [],
     type: 'order',
+    latitude: '',
+    longitude: ''
   },
 
-  /**
-   * 生命周期函数--监听页面加载
-   */
-  onLoad: function (options) {
+  onLoad(options) {
+    this.setData({
+      type: options.type || 'order'
+    });
+
     const itsid = wx.getStorageSync('itsid');
     if (itsid) {
       this.getResult(itsid);
     } else {
       wx.showToast({
-        title: 'itsid 未设置',
+        title: '登录信息已失效',
         icon: 'none'
       });
     }
-    this.setData({
-      type: options.type || 'order'
+
+    this.getLocation();
+  },
+
+  onShow() {
+    this.refreshStores();
+  },
+
+  getLocation() {
+    wx.getLocation({
+      type: 'wgs84',
+      success: ({ latitude, longitude }) => {
+        this.setData({
+          latitude,
+          longitude
+        }, () => {
+          this.refreshStores();
+        });
+      },
+      fail: () => {
+        this.refreshStores();
+      }
     });
   },
-  getResult: function (itsid) {
+
+  getResult(itsid) {
     wx.request({
-      url: `${app.globalData. AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10626&itsid=${itsid}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10626&itsid=${itsid}`,
       method: 'GET',
       success: (res) => {
         if (res.statusCode === 200 && res.data.code === '1') {
-          this.setData({
-            stores: res.data.result.list
-          });
-        } else {
-          console.error('服务器返回错误状态码或操作失败', res);
-          wx.showToast({
-            title: '请求失败',
-            icon: 'none'
-          });
+          this.rawStores = res?.data?.result?.list || [];
+          this.refreshStores();
+          return;
         }
-      },
-      fail: (err) => {
-        console.error('请求失败', err);
+
         wx.showToast({
-          title: '请求失败',
+          title: '门店加载失败',
+          icon: 'none'
+        });
+      },
+      fail: () => {
+        wx.showToast({
+          title: '门店加载失败',
           icon: 'none'
         });
       }
     });
   },
 
-  onStoreSelect: function (e) {
-    console.log(e);
-    const storeId = e.currentTarget.dataset.id;
-    const selectedStore = this.data.stores.find(store => store.id === storeId);
-    const app = getApp();
-    console.log('选中的门店ID:', storeId);
+  refreshStores() {
+    const selectedStoreId = String(wx.getStorageSync('selectedStoreId') || app.globalData.selectedStoreId || '');
+    const sourceStores = Array.isArray(this.rawStores) ? this.rawStores : [];
+    const storesWithDistance = storeUtils.enrichStoresWithDistance(
+      sourceStores,
+      this.data.latitude,
+      this.data.longitude
+    );
 
-    // 存储选中的门店名称到全局变量
+    const stores = storesWithDistance.map((store) => {
+      const businessTime = storeUtils.getStoreBusinessTime(store);
+      return {
+        ...store,
+        isSelected: String(store.id) === selectedStoreId,
+        displayAddress: storeUtils.getStoreAddress(store),
+        displayBusinessTime: businessTime || '以门店实际为准',
+        displayTag: storeUtils.getStoreTag(store)
+      };
+    });
+
+    this.setData({ stores });
+  },
+
+  getStoreById(storeId) {
+    const targetId = String(storeId || '');
+    return (this.data.stores || []).find(store => String(store.id) === targetId)
+      || (this.rawStores || []).find(store => String(store.id) === targetId)
+      || null;
+  },
+
+  onCallStore(e) {
+    const store = this.getStoreById(e.currentTarget.dataset.id);
+    storeUtils.makeStorePhoneCall(store);
+  },
+
+  onNavigateStore(e) {
+    const store = this.getStoreById(e.currentTarget.dataset.id);
+    storeUtils.openStoreLocation(store);
+  },
+
+  onStoreSelect(e) {
+    const storeId = String(e.currentTarget.dataset.id || '');
+    const selectedStore = this.getStoreById(storeId);
+
+    if (!selectedStore) {
+      wx.showToast({
+        title: '未找到门店',
+        icon: 'none'
+      });
+      return;
+    }
+
     app.globalData.selectedStoreName = selectedStore.name;
-
-    // 存储选中的门店ID到全局变量
-    wx.setStorageSync('selectedStoreId', storeId);
+    app.globalData.storeName = selectedStore.name;
     app.globalData.selectedStoreId = storeId;
     app.globalData.selected = '自提';
+    app.setStoreInfo && app.setStoreInfo(selectedStore);
+    wx.setStorageSync('selectedStoreId', storeId);
 
     wx.showToast({
       title: `已选择：${selectedStore.name}`,
       icon: 'success',
-      duration: 2000
+      duration: 1600
     });
-    console.log(`Navigating to order page with store name: ${encodeURIComponent(selectedStore.name)}`);
+
     if (this.data.type === 'order') {
       wx.switchTab({
-        url: '/pages/order/order',
-      })
-    }
-    if (this.data.type === 'jiesuan') {
-      wx.navigateBack({
-        url: '/subPackages/package/pages/jiesuan/jiesuan',
+        url: '/pages/order/order'
       });
+      return;
     }
-    if (this.data.type === 'jiesuan-now') {
-      wx.navigateBack({
-        url: '/subPackages/package/pages/jiesuan-now/jiesuan-now',
-      });
+
+    if (this.data.type === 'jiesuan' || this.data.type === 'jiesuan-now') {
+      wx.navigateBack();
     }
-  },
-
-
-  /**
-   * 生命周期函数--监听页面初次渲染完成
-   */
-  onReady() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面显示
-   */
-  onShow() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面隐藏
-   */
-  onHide() {
-
-  },
-
-  /**
-   * 生命周期函数--监听页面卸载
-   */
-  onUnload() {
-
-  },
-
-  /**
-   * 页面相关事件处理函数--监听用户下拉动作
-   */
-  onPullDownRefresh() {
-
-  },
-
-  /**
-   * 页面上拉触底事件的处理函数
-   */
-  onReachBottom() {
-
-  },
-
-  /**
-   * 用户点击右上角分享
-   */
-  onShareAppMessage() {
-
   }
-
-})
+});

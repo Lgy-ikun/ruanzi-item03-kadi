@@ -3,34 +3,51 @@
     <view class="pickup-button {{selected === '自提' ? 'active' : ''}}" bindtap="selectOption" data-option="自提">
       <text>自提</text>
     </view>
-    <navigator url="/subPackages/package/pages/chooseLocation/chooseLocation?type=order" class="delivery-button {{selected === '外送' ? 'active' : ''}}" bindtap="selectOption" data-option="外送">
+    <view class="delivery-button {{selected === '外送' ? 'active' : ''}}" bindtap="handleDeliveryClick">
       <text>外送</text>
-    </navigator>
+    </view>
   </view>
   <navigator url="/subPackages/package/pages/search/search" class="example-search">
     <view class="search-bar">
       <icon class="search-icon" type="search" size="14"></icon>
-      <input class="search-input" placeholder="搜索商品" bindinput="onSearchInput" value="{{searchValue}}" />
+      <input class="search-input" placeholder="拿铁" bindinput="onSearchInput" value="{{searchValue}}" />
     </view>
   </navigator>
   <view class="ad">
-    <view class="store-section" style="position: relative;top: 20rpx; left: -10rpx; font-size: 30rpx;" wx:if="{{selected === '自提'}}">
-      <text>门店：{{storeName || '未选择'}}</text>
-      <navigator url="/subPackages/package/pages/ziti/ziti?type=order" class="choose-store" style="margin-left: 20rpx; color: #7f7f7f;">
-        选择门店
-      </navigator>
+    <view class="ad-card ad-card-store" wx:if="{{selected === '自提'}}">
+      <view class="ad-main ad-main-clickable" hover-class="ad-main-hover" bindtap="handleChooseStoreClick">
+        <view class="ad-line ad-line-store">
+          <text class="ad-value">{{storeName || '未选择'}}</text>
+          <text class="ad-arrow">></text>
+          <view class="store-distance" wx:if="{{selectedStoreDistance}}">
+            <image class="store-distance-icon" src="{{tupianUrl}}/new/location.png" mode="aspectFit"></image>
+            <text class="store-distance-label">距离:</text>
+            <text class="store-distance-text">{{selectedStoreDistance}}</text>
+          </view>
+        </view>
+      </view>
     </view>
-    <view class="address-section" wx:else>
-      <text class="a" style="font-size: 28rpx; position: relative;top: 5rpx; left: -10rpx;">{{address}}</text>
+    <view class="ad-card" wx:else>
+      <view class="ad-main">
+        <view class="ad-line">
+          <text class="ad-prefix">地址:</text>
+          <text class="ad-value ad-value-address">{{address || '请选择收货地址'}}</text>
+        </view>
+      </view>
+      <view class="ad-action ad-action-ghost" hover-class="ad-action-hover" bindtap="handleDeliveryClick">
+        更换地址
+      </view>
     </view>
   </view>
 </view>
-<view class="side-bar-wrapper" style="height:calc(100vh - 200rpx)">
-  <t-side-bar value="{{sideBarIndex}}" bind:change="onSideBarChange">
-    <t-side-bar-item wx:for="{{categories}}" wx:key="label" value="{{item.value || index}}" label="{{item.text}}" disabled="{{item.disabled}}" badge-props="{{item.badgeProps}}" />
-  </t-side-bar>
+<view class="side-bar-wrapper" style="height:calc(100vh - 300rpx)">
+  <scroll-view class="side-nav-scroll" enhanced scroll-y show-scrollbar="{{false}}">
+    <t-side-bar value="{{sideBarIndex}}" bind:change="onSideBarChange" style="--td-side-bar-height: auto;">
+      <t-side-bar-item wx:for="{{categories}}" wx:key="label" value="{{item.value || index}}" label="{{item.text}}" disabled="{{item.disabled}}" badge-props="{{item.badgeProps}}" />
+    </t-side-bar>
+  </scroll-view>
   <view class="content" style="transform: translateY(-{{sideBarIndex * 100}}%)">
-    <scroll-view wx:for="{{categories}}" wx:for-index="cIndex" wx:key="label" class="section" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation show-scrollbar="{{false}}">
+    <scroll-view enhanced wx:for="{{categories}}" wx:for-index="cIndex" wx:key="label" class="section" scroll-y scroll-top="{{scrollTop}}" scroll-with-animation show-scrollbar="{{false}}">
       <view class="title">{{item.text}}</view>
       <t-cell-group>
         <view class="dishItem" wx:for="{{item.children}}" wx:for-item="dItem" wx:for-index="dIndex" wx:key="dIndex" bindtap="navigateToDianDan" data-dishId="{{dItem.id}}" data-img="{{dItem.image}}" data-index1="{{cIndex}}" data-index2="{{dIndex}}">

@@ -62,7 +62,7 @@ Page({
 
   // 右上角二维码点击事件
   gotoQrcode() {
-    if(!this.toLogin()) return
+    if (!this.toLogin()) return
     this.gotoInviteCode();
   },
 
@@ -88,6 +88,12 @@ Page({
   gotoCoffeeRecord() {
     wx.navigateTo({
       url: "/subPackages/package/pages/balanceRecord/balanceRecord?type=coffee",
+    });
+  },
+
+  gotoElectronicRecord() {
+    wx.navigateTo({
+      url: "/subPackages/package/pages/balanceRecord/balanceRecord?type=electronic",
     });
   },
 
@@ -139,9 +145,8 @@ Page({
 
   // 我的收藏
   gotoCollection() {
-    wx.showToast({
-      title: "暂未实现",
-      icon: "none",
+    wx.navigateTo({
+      url: '/subPackages/package/pages/favorite/favorite'
     });
   },
 

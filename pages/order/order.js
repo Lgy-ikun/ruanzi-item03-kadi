@@ -1,4 +1,5 @@
 const app = getApp();
+const storeUtils = require('../../utils/store');
 Page({
   data: {
     sideBarIndex: 0,
@@ -13,10 +14,12 @@ Page({
     nearbyStores: [], // 附近门店数据
     latitude: '', // 用户纬度
     AUrl: app.globalData.AUrl,
+    tupianUrl: app.globalData.tupianUrl,
     isCheckoutSubmitting: false,
     longitude: '', // 用户经度
     showRecommendationPopup: false, // 控制推荐弹窗的显示
     recommendedStore: null, // 推荐的最近门店
+    selectedStoreDistance: '',
     showCartPopup: false, // 控制弹窗显示
     cartItems: [], // 弹窗内购物车数据，与 updataArray 同步
   },
@@ -72,6 +75,130 @@ Page({
   chooseAddress: function () {
     wx.navigateTo({
       url: '/subPackages/package/pages/chooseLocation/chooseLocation?type=order'
+    });
+  },
+
+  formatDistanceText: function (distance) {
+    return storeUtils.formatDistanceText(distance);
+  },
+
+  updateSelectedStoreDistance: function (userLatitude = this.data.latitude, userLongitude = this.data.longitude) {
+    const selectedStoreId = String(wx.getStorageSync('selectedStoreId') || app.globalData.selectedStoreId || '');
+    const latitude = Number(userLatitude);
+    const longitude = Number(userLongitude);
+
+    if (!selectedStoreId || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+      if (this.data.selectedStoreDistance) {
+        this.setData({
+          selectedStoreDistance: ''
+        });
+      }
+      return;
+    }
+
+    const recommendedStore = this.data.recommendedStore;
+    if (recommendedStore && String(recommendedStore.id) === selectedStoreId && recommendedStore.distance !== undefined) {
+      const selectedStoreDistance = this.formatDistanceText(recommendedStore.distance);
+      if (selectedStoreDistance !== this.data.selectedStoreDistance) {
+        this.setData({
+          selectedStoreDistance
+        });
+      }
+      return;
+    }
+
+    const itsid = wx.getStorageSync('itsid');
+    if (!itsid) {
+      return;
+    }
+
+    wx.request({
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10626&itsid=${itsid}`,
+      method: 'GET',
+      data: {
+        latitude,
+        longitude
+      },
+      success: (res) => {
+        const stores = res?.data?.result?.list || [];
+        const selectedStore = stores.find(store => String(store.id) === selectedStoreId);
+
+        if (!selectedStore) {
+          if (this.data.selectedStoreDistance) {
+            this.setData({
+              selectedStoreDistance: ''
+            });
+          }
+          return;
+        }
+
+        const distance = this.calculateDistance(
+          latitude,
+          longitude,
+          parseFloat(selectedStore.longitude),
+          parseFloat(selectedStore.latitude)
+        );
+        const selectedStoreDistance = this.formatDistanceText(distance);
+
+        if (selectedStoreDistance !== this.data.selectedStoreDistance) {
+          this.setData({
+            selectedStoreDistance
+          });
+        }
+      },
+      fail: () => { }
+    });
+  },
+
+  hasValidLogin: function () {
+    const rawLogin = wx.getStorageSync('isLoginSuccess');
+    const itsid = String(wx.getStorageSync('itsid') || '');
+    const userid = String(wx.getStorageSync('userid') || '');
+    return (rawLogin === true || rawLogin === 'true' || rawLogin === 1 || rawLogin === '1') &&
+      itsid && itsid !== '0' && userid && userid !== '0';
+  },
+
+  promptLoginForOrder: function () {
+    wx.showModal({
+      title: '提示',
+      content: '目前暂未登录，是否跳转登录页面？',
+      confirmText: '立即登录',
+      cancelText: '取消',
+      success(res) {
+        if (res.confirm) {
+          wx.navigateTo({
+            url: '/subPackages/user/pages/register/register?from=order'
+          });
+        }
+      }
+    });
+  },
+
+  handleDeliveryClick: function () {
+    if (!this.hasValidLogin()) {
+      this.promptLoginForOrder();
+      return;
+    }
+
+    app.globalData.selected = '外送';
+    this.setData({
+      selected: '外送',
+      address: app.globalData.addressDesc || this.data.address || ''
+    });
+
+    wx.navigateTo({
+      url: '/subPackages/package/pages/chooseLocation/chooseLocation?type=order'
+    });
+  },
+
+  handleChooseStoreClick: function () {
+    if (!this.hasValidLogin()) {
+      this.promptLoginForOrder();
+      return;
+    }
+
+    wx.navigateTo({
+      url: '/subPackages/package/pages/ziti/ziti?type=order'
     });
   },
 
@@ -465,6 +592,8 @@ Page({
       address: app.globalData.addressDesc,
       storeName: app.globalData.selectedStoreName || '',
       totalprice: this.countTotalPrice() // 使用函数计算
+    }, () => {
+      this.updateSelectedStoreDistance();
     });
   },
 
@@ -523,6 +652,7 @@ Page({
           longitude: longitude
         });
         that.getNearbyStores(latitude, longitude); // 调用获取附近门店
+        that.updateSelectedStoreDistance(latitude, longitude);
       },
       fail(err) {
         console.error("获取位置失败：", err);
@@ -665,6 +795,7 @@ Page({
     });
   },
   findNearestStore: function (latitude, longitude, stores) {
+    return storeUtils.findNearestStore(latitude, longitude, stores);
     console.log(latitude, longitude, stores);
     const R = 6371; // 地球半径（单位：公里）
     let nearestStore = null;
@@ -712,6 +843,7 @@ Page({
     return d * Math.PI / 180.0
   },
   calculateDistance: function (lat1, lng1, lat2, lng2) {
+    return storeUtils.calculateDistance(lat1, lng1, lat2, lng2);
     console.log(lat1, lng1, lat2, lng2);
     // const R = 6371; // 地球半径（单位：公里）
     // const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -752,6 +884,8 @@ Page({
     }
 
     // 调起微信导航
+    storeUtils.openStoreLocation(recommendedStore);
+    return;
     wx.openLocation({
       latitude: parseFloat(recommendedStore.longitude),
       longitude: parseFloat(recommendedStore.latitude),
@@ -784,6 +918,7 @@ Page({
     // 更新页面数据
     this.setData({
       storeName: recommendedStore.name, // 同步门店名称
+      selectedStoreDistance: this.formatDistanceText(recommendedStore.distance),
       showRecommendationPopup: false // 关闭弹窗
     });
 
