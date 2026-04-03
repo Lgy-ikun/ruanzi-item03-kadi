@@ -4,12 +4,16 @@ Page({
   data: {
     sideBarIndex: 0,
     scrollTop: 0,
+    contentScrollTarget: '',
     sum: 0,
     totalprice: 0,
     categories: [], // 使用空数组初始化，稍后从服务器加载数据
     selected: '',
     address: '',
     storeName: '',
+    selectedStoreIsOpen: true,
+    selectedStoreBusinessStatusText: '',
+    selectedStoreBusinessTime: '',
     authorized: false, // 是否已授权
     nearbyStores: [], // 附近门店数据
     latitude: '', // 用户纬度
@@ -60,7 +64,65 @@ Page({
     // 使用全量更新确保触发渲染
     this.setData({
       categories: newCategories
+    }, () => {
+      this.scheduleMeasureSections();
     });
+  },
+
+  scheduleMeasureSections: function () {
+    clearTimeout(this._measureSectionTimer);
+    this._measureSectionTimer = setTimeout(() => {
+      this.measureSectionPositions();
+    }, 80);
+  },
+
+  measureSectionPositions: function () {
+    const currentScrollTop = this._contentScrollTop || 0;
+    const query = wx.createSelectorQuery().in(this);
+    query.select('.content-scroll-view').boundingClientRect();
+    query.selectAll('.menu-section-anchor').boundingClientRect();
+    query.exec((res) => {
+      const containerRect = res && res[0];
+      const sectionRects = (res && res[1]) || [];
+
+      if (!containerRect || !sectionRects.length) {
+        this.sectionTops = [];
+        return;
+      }
+
+      this.sectionTops = sectionRects.map((rect) => Math.max(0, rect.top - containerRect.top + currentScrollTop));
+    });
+  },
+
+  handleDishImageLoad: function () {
+    this.scheduleMeasureSections();
+  },
+
+  onContentScroll: function (e) {
+    const scrollTop = Number(e.detail.scrollTop || 0);
+    this._contentScrollTop = scrollTop;
+
+    const sectionTops = this.sectionTops || [];
+    if (!sectionTops.length) {
+      return;
+    }
+
+    const currentOffset = scrollTop + 20;
+    let activeIndex = sectionTops.length - 1;
+
+    for (let i = 0; i < sectionTops.length; i += 1) {
+      const nextTop = sectionTops[i + 1];
+      if (nextTop === undefined || currentOffset < nextTop) {
+        activeIndex = i;
+        break;
+      }
+    }
+
+    if (activeIndex !== this.data.sideBarIndex) {
+      this.setData({
+        sideBarIndex: activeIndex
+      });
+    }
   },
 
   onAddressSelected: function (e) {
@@ -78,37 +140,211 @@ Page({
     });
   },
 
+  hasDeliveryAddress: function () {
+    return !!String(app.globalData.addressDesc || this.data.address || '').trim();
+  },
+
+  navigateToDeliveryAddressPicker: function (type = 'order') {
+    app.globalData.selected = '外送';
+    this.setData({
+      selected: '外送',
+      address: app.globalData.addressDesc || ''
+    });
+
+    wx.navigateTo({
+      url: `/subPackages/package/pages/chooseLocation/chooseLocation?type=${type}`
+    });
+  },
+
   formatDistanceText: function (distance) {
     return storeUtils.formatDistanceText(distance);
   },
 
-  updateSelectedStoreDistance: function (userLatitude = this.data.latitude, userLongitude = this.data.longitude) {
-    const selectedStoreId = String(wx.getStorageSync('selectedStoreId') || app.globalData.selectedStoreId || '');
-    const latitude = Number(userLatitude);
-    const longitude = Number(userLongitude);
+  normalizeLocationCoordinate: function (value) {
+    if (value === null || value === undefined) {
+      return NaN;
+    }
 
-    if (!selectedStoreId || !Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-      if (this.data.selectedStoreDistance) {
-        this.setData({
-          selectedStoreDistance: ''
+    if (typeof value === 'string' && !value.trim()) {
+      return NaN;
+    }
+
+    const parsedValue = Number(value);
+    return Number.isFinite(parsedValue) ? parsedValue : NaN;
+  },
+
+  hasUsableUserLocation: function (latitude, longitude) {
+    const normalizedLatitude = this.normalizeLocationCoordinate(latitude);
+    const normalizedLongitude = this.normalizeLocationCoordinate(longitude);
+
+    if (!Number.isFinite(normalizedLatitude) || !Number.isFinite(normalizedLongitude)) {
+      return false;
+    }
+
+    if (
+      normalizedLatitude < -90 ||
+      normalizedLatitude > 90 ||
+      normalizedLongitude < -180 ||
+      normalizedLongitude > 180
+    ) {
+      return false;
+    }
+
+    if (Math.abs(normalizedLatitude) < 0.000001 && Math.abs(normalizedLongitude) < 0.000001) {
+      return false;
+    }
+
+    return true;
+  },
+
+  clearLocationDisplay: function () {
+    this.setData({
+      latitude: '',
+      longitude: '',
+      recommendedStore: null,
+      showRecommendationPopup: false
+    });
+    this.clearSelectedStoreMeta();
+  },
+
+  getLocationFailureType: function (err = {}) {
+    const errMsg = String(err.errMsg || err.message || '').toLowerCase();
+
+    if (errMsg.includes('auth deny') || errMsg.includes('auth denied')) {
+      return 'authDenied';
+    }
+
+    if (
+      errMsg.includes('system permission denied') ||
+      errMsg.includes('location service disabled') ||
+      errMsg.includes('locationswitchoff') ||
+      errMsg.includes('location unavailable') ||
+      errMsg.includes('system not support location') ||
+      errMsg.includes('gps')
+    ) {
+      return 'serviceDisabled';
+    }
+
+    return 'other';
+  },
+
+  showLocationPermissionModal: function () {
+    if (this._hasShownLocationPermissionModal) {
+      return;
+    }
+
+    this._hasShownLocationPermissionModal = true;
+    wx.showModal({
+      title: '提示',
+      content: '需要您授权位置权限才能获取附近的门店，是否去设置开启？',
+      confirmText: '去设置',
+      cancelText: '取消',
+      success: (res) => {
+        if (!res.confirm) {
+          return;
+        }
+
+        wx.openSetting({
+          success: (settingRes) => {
+            if (settingRes.authSetting && settingRes.authSetting['scope.userLocation']) {
+              this.getLocation({
+                showSystemLocationPrompt: true
+              });
+            }
+          }
         });
       }
+    });
+  },
+
+  showLocationServiceDisabledModal: function () {
+    if (this._hasShownLocationServiceModal) {
+      return;
+    }
+
+    this._hasShownLocationServiceModal = true;
+    wx.showModal({
+      title: '提示',
+      content: '手机定位未开启，无法显示与店铺的距离，请先开启手机定位。',
+      showCancel: false,
+      confirmText: '我知道了'
+    });
+  },
+
+  clearSelectedStoreMeta: function () {
+    this.setData({
+      selectedStoreDistance: '',
+      selectedStoreIsOpen: true,
+      selectedStoreBusinessStatusText: '',
+      selectedStoreBusinessTime: ''
+    });
+  },
+
+  clearSelectedStoreSelection: function () {
+    app.globalData.selectedStoreName = '';
+    app.globalData.selectedStoreId = '';
+    app.globalData.storeName = '';
+    wx.removeStorageSync('selectedStoreId');
+    this.setData({
+      storeName: ''
+    });
+    this.clearSelectedStoreMeta();
+  },
+
+  applySelectedStoreMeta: function (store) {
+    if (!store) {
+      this.clearSelectedStoreMeta();
+      return;
+    }
+
+    this.setData({
+      selectedStoreDistance: store.distanceText || this.formatDistanceText(store.distance),
+      selectedStoreIsOpen: store.isOpen !== false,
+      selectedStoreBusinessStatusText: store.businessStatusText || '',
+      selectedStoreBusinessTime: store.displayBusinessTime || ''
+    });
+  },
+
+  showNoOpenStoreModal: function () {
+    if (this._hasShownNoOpenStoreModal) {
+      return;
+    }
+
+    this._hasShownNoOpenStoreModal = true;
+    wx.showModal({
+      title: '提示',
+      content: '你好，当前没有店铺在营业噢',
+      showCancel: false
+    });
+  },
+
+  updateSelectedStoreDistance: function (userLatitude = this.data.latitude, userLongitude = this.data.longitude) {
+    const selectedStoreId = String(wx.getStorageSync('selectedStoreId') || app.globalData.selectedStoreId || '');
+    const latitude = this.normalizeLocationCoordinate(userLatitude);
+    const longitude = this.normalizeLocationCoordinate(userLongitude);
+
+    if (!selectedStoreId || !this.hasUsableUserLocation(latitude, longitude)) {
+      this.clearSelectedStoreMeta();
       return;
     }
 
     const recommendedStore = this.data.recommendedStore;
-    if (recommendedStore && String(recommendedStore.id) === selectedStoreId && recommendedStore.distance !== undefined) {
-      const selectedStoreDistance = this.formatDistanceText(recommendedStore.distance);
-      if (selectedStoreDistance !== this.data.selectedStoreDistance) {
-        this.setData({
-          selectedStoreDistance
-        });
-      }
+    if (recommendedStore && String(recommendedStore.id) === selectedStoreId) {
+      const enrichedRecommendedStore = storeUtils.enrichStores([recommendedStore], latitude, longitude)[0];
+      this.applySelectedStoreMeta(enrichedRecommendedStore);
+      return;
+    }
+
+    const currentStoreInfo = app.globalData.storeInfo;
+    if (currentStoreInfo && String(currentStoreInfo.id) === selectedStoreId) {
+      const enrichedCurrentStore = storeUtils.enrichStores([currentStoreInfo], latitude, longitude)[0];
+      this.applySelectedStoreMeta(enrichedCurrentStore);
       return;
     }
 
     const itsid = wx.getStorageSync('itsid');
     if (!itsid) {
+      this.clearSelectedStoreMeta();
       return;
     }
 
@@ -120,31 +356,15 @@ Page({
         longitude
       },
       success: (res) => {
-        const stores = res?.data?.result?.list || [];
+        const stores = storeUtils.enrichStores(res?.data?.result?.list || [], latitude, longitude);
         const selectedStore = stores.find(store => String(store.id) === selectedStoreId);
 
         if (!selectedStore) {
-          if (this.data.selectedStoreDistance) {
-            this.setData({
-              selectedStoreDistance: ''
-            });
-          }
+          this.clearSelectedStoreMeta();
           return;
         }
 
-        const distance = this.calculateDistance(
-          latitude,
-          longitude,
-          parseFloat(selectedStore.longitude),
-          parseFloat(selectedStore.latitude)
-        );
-        const selectedStoreDistance = this.formatDistanceText(distance);
-
-        if (selectedStoreDistance !== this.data.selectedStoreDistance) {
-          this.setData({
-            selectedStoreDistance
-          });
-        }
+        this.applySelectedStoreMeta(selectedStore);
       },
       fail: () => { }
     });
@@ -166,6 +386,7 @@ Page({
       cancelText: '取消',
       success(res) {
         if (res.confirm) {
+          wx.setStorageSync('loginRedirectUrl', '/pages/order/order');
           wx.navigateTo({
             url: '/subPackages/user/pages/register/register?from=order'
           });
@@ -192,11 +413,6 @@ Page({
   },
 
   handleChooseStoreClick: function () {
-    if (!this.hasValidLogin()) {
-      this.promptLoginForOrder();
-      return;
-    }
-
     wx.navigateTo({
       url: '/subPackages/package/pages/ziti/ziti?type=order'
     });
@@ -255,9 +471,25 @@ Page({
       return;
     }
 
+    if (this.data.selected === '外送' && !this.hasDeliveryAddress()) {
+      resetCheckoutSubmitting();
+      this._pendingDeliveryCheckoutAfterAddress = true;
+      this.navigateToDeliveryAddressPicker('order');
+      return;
+    }
+
     if (this.data.selected === '自提' && (!unitId || this.data.storeName === '')) {
+      resetCheckoutSubmitting();
+      this._pendingPickupCheckoutAfterStoreSelect = true;
+      wx.navigateTo({
+        url: '/subPackages/package/pages/ziti/ziti?type=order'
+      });
+      return;
+    }
+
+    if (this.data.selected === '自提' && this.data.selectedStoreIsOpen === false) {
       wx.showToast({
-        title: '请选择自提门店',
+        title: '当前门店休息中，请重新选择',
         icon: 'none',
         duration: 2000
       });
@@ -364,8 +596,13 @@ Page({
 
   onLoad: function (options) {
     const AUrl = app.globalData.AUrl;
+    this._hasShownLocationPermissionModal = false;
+    this._hasShownLocationServiceModal = false;
+    this.checkLocationPermission({
+      showAuthPrompt: true,
+      showSystemLocationPrompt: true
+    });
     this.fetchCategories();
-    this.checkLocationPermission();
     if (options.selected) {
       this.setData({
         selected: decodeURIComponent(options.selected)
@@ -394,25 +631,42 @@ Page({
 
 
   // 检查位置权限并获取位置
-  checkLocationPermission: function () {
-    console.log(123);
-    const that = this;
-    wx.getLocation({
-      success(res) {
-        console.log('获取位置成功:', res);
-        that.getLocation(); // 或者直接用 res 中的经纬度
-      },
-      fail(err) {
-        console.log('获取位置失败:', err);
-        if (err.errMsg === 'getLocation:fail auth deny' || err.errMsg === 'getLocation:fail:auth denied') {
-          wx.showToast({
-            title: '需要授权位置信息',
-            icon: 'none'
-          });
-          that.setData({
+  checkLocationPermission: function (options = {}) {
+    const normalizedOptions = typeof options === 'boolean'
+      ? {
+        showAuthPrompt: options,
+        showSystemLocationPrompt: options
+      }
+      : options;
+    const {
+      showAuthPrompt = false,
+      showSystemLocationPrompt = false
+    } = normalizedOptions;
+
+    wx.getSetting({
+      success: (settingRes) => {
+        const authSetting = settingRes.authSetting || {};
+        if (authSetting['scope.userLocation'] === false) {
+          this.setData({
             authorized: false
           });
+          this.clearLocationDisplay();
+          if (showAuthPrompt) {
+            this.showLocationPermissionModal();
+          }
+          return;
         }
+
+        this.getLocation({
+          showAuthPrompt,
+          showSystemLocationPrompt
+        });
+      },
+      fail: () => {
+        this.getLocation({
+          showAuthPrompt,
+          showSystemLocationPrompt
+        });
       }
     });
   },
@@ -462,6 +716,8 @@ Page({
 
           that.setData({
             categories
+          }, () => {
+            that.scheduleMeasureSections();
           });
           wx.setStorageSync('categories', categories);
         }
@@ -472,12 +728,19 @@ Page({
 
 
   onSideBarChange(e) {
-    const {
-      value
-    } = e.detail;
+    const value = Number(e.detail.value);
+    if (!Number.isFinite(value)) {
+      return;
+    }
+
     this.setData({
       sideBarIndex: value,
-      scrollTop: 0
+      scrollTop: 0,
+      contentScrollTarget: ''
+    }, () => {
+      this.setData({
+        contentScrollTarget: `category-section-${value}`
+      });
     });
   },
 
@@ -548,6 +811,9 @@ Page({
       this._shouldResetCheckoutOnShow = false;
       this.setCheckoutSubmitting(false);
     }
+    this._hasShownLocationPermissionModal = false;
+    this._hasShownLocationServiceModal = false;
+    this._hasShownNoOpenStoreModal = false;
     const forceStoreSelect = app.globalData.forceStoreSelectOnOrder === true;
     if (forceStoreSelect) {
       app.globalData.forceStoreSelectOnOrder = false;
@@ -568,15 +834,19 @@ Page({
       cartItems,
       showCartPopup: false
     });
-    this.getLocation();
+    this.clearLocationDisplay();
+    this.checkLocationPermission({
+      showAuthPrompt: false,
+      showSystemLocationPrompt: true
+    });
     this.fetchCategories();
     this.setData({
       categories
     }, () => {
-      // 在setData回调中确保数据更新后计算
       this.setData({
         totalprice: this.countTotalPrice()
       });
+      this.scheduleMeasureSections();
     });
 
     const selectedDishName = app.globalData.selectedDishName;
@@ -594,6 +864,25 @@ Page({
       totalprice: this.countTotalPrice() // 使用函数计算
     }, () => {
       this.updateSelectedStoreDistance();
+
+      if (this._pendingDeliveryCheckoutAfterAddress) {
+        const shouldContinueCheckout = this.data.selected === '外送' && this.hasDeliveryAddress();
+        this._pendingDeliveryCheckoutAfterAddress = false;
+        if (shouldContinueCheckout) {
+          this.gobackPublish();
+        }
+        return;
+      }
+
+      if (this._pendingPickupCheckoutAfterStoreSelect) {
+        const shouldContinueCheckout = this.data.selected === '自提'
+          && !!String(wx.getStorageSync('selectedStoreId') || '').trim()
+          && !!String(this.data.storeName || '').trim();
+        this._pendingPickupCheckoutAfterStoreSelect = false;
+        if (shouldContinueCheckout) {
+          this.gobackPublish();
+        }
+      }
     });
   },
 
@@ -637,7 +926,7 @@ Page({
   //   });
   // },
   // 获取用户位置
-  getLocation: function () {
+  getLocation: function (options = {}) {
     const that = this;
     wx.getLocation({
       type: 'wgs84', // 返回可以用于地图的经纬度
@@ -646,26 +935,53 @@ Page({
           latitude,
           longitude
         } = res;
+        const normalizedLatitude = that.normalizeLocationCoordinate(latitude);
+        const normalizedLongitude = that.normalizeLocationCoordinate(longitude);
+
+        if (!that.hasUsableUserLocation(normalizedLatitude, normalizedLongitude)) {
+          console.warn('获取到无效定位坐标:', res);
+          that.setData({
+            authorized: false
+          });
+          that.clearLocationDisplay();
+          if (options.showSystemLocationPrompt) {
+            that.showLocationServiceDisabledModal();
+          }
+          return;
+        }
         console.log("获取到用户位置：", latitude, longitude);
         that.setData({
-          latitude: latitude,
-          longitude: longitude
+          authorized: true,
+          latitude: normalizedLatitude,
+          longitude: normalizedLongitude
         });
         that.getNearbyStores(latitude, longitude); // 调用获取附近门店
-        that.updateSelectedStoreDistance(latitude, longitude);
+        that.updateSelectedStoreDistance(normalizedLatitude, normalizedLongitude);
       },
       fail(err) {
         console.error("获取位置失败：", err);
-        if (err.errMsg === 'getLocation:fail auth deny') {
-          wx.showToast({
-            title: '用户拒绝授权位置信息',
-            icon: 'none'
-          });
-        } else {
-          wx.showToast({
-            title: '获取位置失败，请检查网络',
-            icon: 'none'
-          });
+        that.setData({
+          authorized: false
+        });
+        that.clearLocationDisplay();
+
+        const failureType = that.getLocationFailureType(err);
+        if (failureType === 'authDenied') {
+          if (options.showAuthPrompt) {
+            that.showLocationPermissionModal();
+          }
+          return;
+        }
+
+        if (failureType === 'serviceDisabled') {
+          if (options.showSystemLocationPrompt) {
+            that.showLocationServiceDisabledModal();
+          }
+          return;
+        }
+
+        if (options.showSystemLocationPrompt) {
+          that.showLocationServiceDisabledModal();
         }
       }
     });
@@ -747,7 +1063,85 @@ Page({
   // },
   getNearbyStores: function (latitude, longitude) {
     const that = this;
+    if (!this.hasUsableUserLocation(latitude, longitude)) {
+      this.clearLocationDisplay();
+      return;
+    }
+
     const hasShownRecommendationPopup = wx.getStorageSync('hasShownRecommendationPopup');
+    const itsidValue = wx.getStorageSync('itsid');
+
+    wx.request({
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10626&itsid=${itsidValue}`,
+      method: 'GET',
+      data: {
+        latitude: latitude,
+        longitude: longitude
+      },
+      success(res) {
+        if (res.data.code === '1' && res.data.result) {
+          const stores = storeUtils.enrichStores(res.data.result.list || [], latitude, longitude);
+          const selectedStoreId = String(wx.getStorageSync('selectedStoreId') || app.globalData.selectedStoreId || '');
+          const selectedStore = stores.find(store => String(store.id) === selectedStoreId);
+          const openStores = stores.filter(store => store.isOpen);
+          const shouldForceRecommend = !!selectedStore && !selectedStore.isOpen;
+
+          that.setData({
+            nearbyStores: stores
+          });
+
+          if (selectedStore && selectedStore.isOpen) {
+            that.setData({
+              storeName: selectedStore.name || that.data.storeName
+            });
+            that.applySelectedStoreMeta(selectedStore);
+            return;
+          }
+
+          if (selectedStore && !selectedStore.isOpen) {
+            that.clearSelectedStoreSelection();
+          }
+
+          if (!openStores.length) {
+            that.setData({
+              recommendedStore: null,
+              showRecommendationPopup: false
+            });
+            that.showNoOpenStoreModal();
+            return;
+          }
+
+          if (hasShownRecommendationPopup && !shouldForceRecommend) {
+            return;
+          }
+
+          const nearestStore = that.findNearestStore(latitude, longitude, openStores);
+          if (!nearestStore) {
+            that.showNoOpenStoreModal();
+            return;
+          }
+
+          that.setData({
+            recommendedStore: nearestStore,
+            showRecommendationPopup: true
+          });
+          return;
+        }
+
+        wx.showToast({
+          title: '未找到附近门店',
+          icon: 'none'
+        });
+      },
+      fail(err) {
+        console.error('请求失败:', err);
+        wx.showToast({
+          title: '请求失败，请检查网络',
+          icon: 'none'
+        });
+      }
+    });
+    return;
     const selectedStoreName = app.globalData.selectedStoreName;
 
     if (hasShownRecommendationPopup || selectedStoreName) {
@@ -758,7 +1152,7 @@ Page({
     const itsid = wx.getStorageSync('itsid'); // 从本地存储获取 itsid
 
     wx.request({
-      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10626&itsid= ${itsid}`,
+      url: `${app.globalData.AUrl}/jy/go/we.aspx?ituid=106&itjid=10610&itcid=10626&itsid=${itsid}`,
       method: 'GET',
       data: {
         latitude: latitude,
@@ -907,6 +1301,33 @@ Page({
 
   // 选择推荐的门店
   selectRecommendedStore: function () {
+    const recommendedStoreCurrent = this.data.recommendedStore;
+    if (!recommendedStoreCurrent || recommendedStoreCurrent.isOpen === false) {
+      wx.showToast({
+        title: '当前门店休息中，请选择其他门店',
+        icon: 'none'
+      });
+      return;
+    }
+
+    app.globalData.selectedStoreName = recommendedStoreCurrent.name;
+    app.globalData.storeName = recommendedStoreCurrent.name;
+    app.globalData.selectedStoreId = recommendedStoreCurrent.id;
+    app.setStoreInfo && app.setStoreInfo(recommendedStoreCurrent);
+    wx.setStorageSync('selectedStoreId', recommendedStoreCurrent.id);
+
+    this.setData({
+      storeName: recommendedStoreCurrent.name,
+      showRecommendationPopup: false
+    });
+    this.applySelectedStoreMeta(recommendedStoreCurrent);
+    wx.setStorageSync('hasShownRecommendationPopup', true);
+    wx.showToast({
+      title: `已选择自提门店：${recommendedStoreCurrent.name}`,
+      icon: 'success'
+    });
+    return;
+
     const {
       recommendedStore
     } = this.data;
