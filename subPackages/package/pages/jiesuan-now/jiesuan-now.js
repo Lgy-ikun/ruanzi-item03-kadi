@@ -439,12 +439,14 @@ Page({
   // 加载用户信息 - 需要实现
   loadUserInfo() {
     // 从全局获取基本信息
+    const currentSelected = app.globalData.selected || '自提';
+    const resolvedStoreName = app.globalData.selectedStoreName || app.globalData.storeName || wx.getStorageSync('selectedStoreName') || '';
     this.setData({
-      selected: app.globalData.selected || '自提',
-      address: app.globalData.address || '',
+      selected: currentSelected,
+      address: currentSelected === '外送' ? (app.globalData.addressDesc || '') : resolvedStoreName,
       phone: app.globalData.phone || '',
       username: app.globalData.username || '',
-      storeName: app.globalData.selectedStoreName || '',
+      storeName: resolvedStoreName,
     });
   },
 
@@ -452,13 +454,14 @@ Page({
   onShow: function () {
     // 更新全局相关信息
     const currentSelected = app.globalData.selected || this.data.selected || '自提';
+    const resolvedStoreName = app.globalData.selectedStoreName || app.globalData.storeName || wx.getStorageSync('selectedStoreName') || '';
     this.setData({
       isShow: true,
       selected: currentSelected,
-      address: currentSelected === '外送' ? app.globalData.addressDesc : app.globalData.storeName,
+      address: currentSelected === '外送' ? app.globalData.addressDesc : resolvedStoreName,
       phone: app.globalData.phone,
       username: app.globalData.username,
-      storeName: app.globalData.selectedStoreName,
+      storeName: resolvedStoreName,
       delivery: app.globalData.delivery || 5
     }, () => {
       // 重新计算总价

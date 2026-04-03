@@ -743,6 +743,14 @@ Page({
       return;
     }
 
+    const currentSelected = app.globalData.selected || '自提';
+    if (currentSelected === '外送' && !String(app.globalData.addressDesc || '').trim()) {
+      wx.navigateTo({
+        url: '/subPackages/package/pages/chooseLocation/chooseLocation?type=diandan-jiesuan-now'
+      });
+      return;
+    }
+
     const skuCode = this.data.targetSkuCode;
     if (!this.data.skuReady || !skuCode) {
       wx.showToast({

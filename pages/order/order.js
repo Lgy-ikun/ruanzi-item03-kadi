@@ -285,10 +285,47 @@ Page({
     app.globalData.selectedStoreId = '';
     app.globalData.storeName = '';
     wx.removeStorageSync('selectedStoreId');
+    wx.removeStorageSync('selectedStoreName');
     this.setData({
       storeName: ''
     });
     this.clearSelectedStoreMeta();
+  },
+
+  applySelectedStoreSelection: function (store, options = {}) {
+    if (!store) {
+      return;
+    }
+
+    const {
+      showRecommendationPopup = false,
+      markRecommendationShown = false,
+      showToast = false
+    } = options;
+
+    app.globalData.selectedStoreName = store.name;
+    app.globalData.storeName = store.name;
+    app.globalData.selectedStoreId = store.id;
+    app.setStoreInfo && app.setStoreInfo(store);
+    wx.setStorageSync('selectedStoreId', store.id);
+    wx.setStorageSync('selectedStoreName', store.name);
+
+    this.setData({
+      storeName: store.name,
+      showRecommendationPopup
+    });
+    this.applySelectedStoreMeta(store);
+
+    if (markRecommendationShown) {
+      wx.setStorageSync('hasShownRecommendationPopup', true);
+    }
+
+    if (showToast) {
+      wx.showToast({
+        title: `已选择自提门店：${store.name}`,
+        icon: 'success'
+      });
+    }
   },
 
   applySelectedStoreMeta: function (store) {
@@ -818,7 +855,9 @@ Page({
     if (forceStoreSelect) {
       app.globalData.forceStoreSelectOnOrder = false;
       app.globalData.selectedStoreName = '';
+      app.globalData.storeName = '';
       wx.removeStorageSync('selectedStoreId');
+      wx.removeStorageSync('selectedStoreName');
       wx.removeStorageSync('hasShownRecommendationPopup');
     }
     const categories = wx.getStorageSync('categories') || [];
@@ -1111,13 +1150,18 @@ Page({
             return;
           }
 
-          if (hasShownRecommendationPopup && !shouldForceRecommend) {
-            return;
-          }
-
           const nearestStore = that.findNearestStore(latitude, longitude, openStores);
           if (!nearestStore) {
             that.showNoOpenStoreModal();
+            return;
+          }
+
+          if (!selectedStore && !shouldForceRecommend) {
+            that.applySelectedStoreSelection(nearestStore);
+            return;
+          }
+
+          if (hasShownRecommendationPopup && !shouldForceRecommend) {
             return;
           }
 
@@ -1310,18 +1354,10 @@ Page({
       return;
     }
 
-    app.globalData.selectedStoreName = recommendedStoreCurrent.name;
-    app.globalData.storeName = recommendedStoreCurrent.name;
-    app.globalData.selectedStoreId = recommendedStoreCurrent.id;
-    app.setStoreInfo && app.setStoreInfo(recommendedStoreCurrent);
-    wx.setStorageSync('selectedStoreId', recommendedStoreCurrent.id);
-
-    this.setData({
-      storeName: recommendedStoreCurrent.name,
-      showRecommendationPopup: false
+    this.applySelectedStoreSelection(recommendedStoreCurrent, {
+      showRecommendationPopup: false,
+      markRecommendationShown: true
     });
-    this.applySelectedStoreMeta(recommendedStoreCurrent);
-    wx.setStorageSync('hasShownRecommendationPopup', true);
     wx.showToast({
       title: `已选择自提门店：${recommendedStoreCurrent.name}`,
       icon: 'success'

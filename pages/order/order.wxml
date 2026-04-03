@@ -100,7 +100,7 @@
   </view>
 </view>
 <!-- 推荐门店弹窗 -->
-<view wx:if="{{showRecommendationPopup}}" class="recommendation-popup" style="position: fixed; top:0; left:0; right:0; bottom:0;  z-index: 1;">
+<view wx:if="{{showRecommendationPopup}}" class="recommendation-popup" style="position: fixed; top:0; left:0; right:0; bottom:0;  z-index: 300;">
   <view class="popup-content">
     <view class="popup-header">
       <text>离你最近</text>
@@ -119,28 +119,32 @@
   </view>
 </view>
 <!-- 购物车弹窗 -->
-<view wx:if="{{showCartPopup && sum > 0}}" class="cart-popup" style="position: fixed; top:0; left:0; right:0; bottom:0; z-index: 999;" bindtap="toggleCartPopup">
-  <view class="popup-content1" style="background: rgb(245, 246, 247); margin: 20rpx; padding: 20rpx; border-radius: 10rpx;" catchtap="stopPropagation">
-    <view class="popup-header" style="display: flex; justify-content: space-between; align-items: center;">
-      <text style="font-size: 30rpx;">购物车</text>
+<view wx:if="{{showCartPopup && sum > 0}}" class="cart-popup" bindtap="toggleCartPopup">
+  <view class="popup-content1" catchtap="stopPropagation">
+    <view class="cart-sheet-handle"></view>
+    <view class="popup-header cart-popup-header">
+      <view class="cart-popup-title-wrap">
+        <text class="cart-popup-title">购物车</text>
+        <text class="cart-popup-count">共{{sum}}件</text>
+      </view>
     </view>
-    <scroll-view class="popup-body" style="max-height: 70vh; margin-top: 20rpx;">
+    <scroll-view class="popup-body cart-popup-body" enhanced scroll-y>
       <block wx:for="{{cartItems}}" wx:key="index">
-        <view class="cart-item" style="display: flex; padding: 10rpx 0; border-bottom: 1px solid #eee; align-items: center;">
-          <image class="item-image" src='{{AUrl}}/jy/wxUserImg/106/{{item.image}}' style="width: 100rpx; height: 100rpx;"></image>
-          <view class="item-info" style="flex: 1; margin-left: 10rpx;">
-            <text class="item-name" style="font-size: 28rpx;">{{item.name}}</text>
+        <view class="cart-item">
+          <image class="item-image" src='{{AUrl}}/jy/wxUserImg/106/{{item.image}}'></image>
+          <view class="item-info">
+            <text class="item-name">{{item.name}}</text>
             <!-- 显示杯型、温度、甜度 -->
-            <view class="item-options" style="margin-top: 5rpx;">
-              <text wx:if="{{item.add}}">杯型：{{item.add}}</text>
+            <view class="item-options" wx:if="{{item.add}}">
+              <text class="item-option-tag">杯型：{{item.add}}</text>
             </view>
             <!-- 显示数量 -->
-            <view class="stepper" style="display: flex; align-items: center; margin-top: 10rpx;">
-              <button class="btn-minus" data-skucode="{{item.skuCode}}" bindtap="onDecrease" style="width: 40rpx; height: 40rpx; display: flex; justify-content: center; align-items: center;">
+            <view class="stepper">
+              <button class="btn-minus" data-skucode="{{item.skuCode}}" bindtap="onDecrease">
                 <text class="jianhao">-</text>
               </button>
-              <text class="num" style="margin: 0 20rpx;">{{item.num || 0}}</text>
-              <button class="btn-plus" data-skucode="{{item.skuCode}}" bindtap="onIncrease" style="width: 40rpx; height: 40rpx;display: flex; justify-content: center; align-items: center;">
+              <text class="num">{{item.num || 0}}</text>
+              <button class="btn-plus" data-skucode="{{item.skuCode}}" bindtap="onIncrease">
                 +
               </button>
             </view>

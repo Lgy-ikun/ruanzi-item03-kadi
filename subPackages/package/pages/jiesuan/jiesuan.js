@@ -54,14 +54,17 @@ Page({
 
   onShow() {
     // 页面显示时，更新全局状态
+    const currentSelected = app.globalData.selected || '自提';
+    const resolvedStoreName = app.globalData.selectedStoreName || app.globalData.storeName || wx.getStorageSync('selectedStoreName') || '';
+    const resolvedStoreId = wx.getStorageSync('selectedStoreId') || app.globalData.selectedStoreId || '';
     this.setData({
       isShow: true,
-      selected: app.globalData.selected || '自提',
-      address: app.globalData.selected === '外送' ? (app.globalData.addressDesc || '') : (app.globalData.storeName || ''),
+      selected: currentSelected,
+      address: currentSelected === '外送' ? (app.globalData.addressDesc || '') : resolvedStoreName,
       phone: app.globalData.phone,
       username: app.globalData.username,
-      storeName: app.globalData.selectedStoreName,
-      unitId: app.globalData.selectedStoreId,
+      storeName: resolvedStoreName,
+      unitId: resolvedStoreId,
       delivery: app.globalData.delivery || 5
     }, () => {
       // 1. 获取商品，算总价
