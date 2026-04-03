@@ -153,6 +153,10 @@
   margin-top: 10px;
 }
 
+.openidLogin-disabled {
+  opacity: 0.72;
+}
+
 /* 邮箱注册样式 */
 .email-register {
   margin: 40rpx 30rpx;

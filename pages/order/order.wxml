@@ -136,7 +136,7 @@
             <text class="item-name">{{item.name}}</text>
             <!-- 显示杯型、温度、甜度 -->
             <view class="item-options" wx:if="{{item.add}}">
-              <text class="item-option-tag">杯型：{{item.add}}</text>
+              <text class="item-option-tag">{{item.add}}</text>
             </view>
             <!-- 显示数量 -->
             <view class="stepper">

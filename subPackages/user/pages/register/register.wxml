@@ -67,8 +67,8 @@
     <button wx:else class="phone-btn" bind:tap="handleGetPhone">
       手机号安全登录
     </button>
-    <button data-agreed="{{agreed}}" data-registerType="2" class="openidLogin" bind:tap="openidLogin">
-      微信一键登录
+    <button data-agreed="{{agreed}}" data-registerType="2" class="openidLogin {{isWechatLoginSubmitting ? 'openidLogin-disabled' : ''}}" bind:tap="openidLogin" disabled="{{isWechatLoginSubmitting}}">
+      {{isWechatLoginSubmitting ? '登录中' : '微信一键登录'}}
     </button>
 
     <view wx:if="{{from=='diandan'}}" style="color: rgb(0, 102, 255);font-weight: bold;margin-top: 10px;" data-agreed="{{agreed}}" data-registerType="0" bind:tap="openidLogin">免登录下单</view>

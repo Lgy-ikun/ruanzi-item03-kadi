@@ -37,7 +37,18 @@ Page({
     ],
     from: 0,
     agreed: false,
-    RegWay: 'shouji'
+    RegWay: 'shouji',
+    isWechatLoginSubmitting: false
+  },
+
+  setWechatLoginSubmitting(isSubmitting) {
+    if (this.data.isWechatLoginSubmitting === isSubmitting) {
+      return;
+    }
+
+    this.setData({
+      isWechatLoginSubmitting: isSubmitting
+    });
   },
 
   toggleAgreement() {
@@ -151,6 +162,7 @@ Page({
   },
 
   fetchEmailLogin(email, password) {
+    const that = this;
     // 发送请求
     wx.request({
       url: `${app.globalData.backUrl}phone.aspx?mbid=10631&ituid=106`,
@@ -162,14 +174,61 @@ Page({
         console.log(res)
         wx.setStorageSync('itsid', res.data.itsid)
         wx.setStorageSync('userid', res.data.userid)
+        wx.setStorageSync('isLoginSuccess', true)
         app.globalData.itsid = res.data.itsid;
         app.globalData.userid = res.data.userid;
         console.log('登录成功，其itsid:', res.data.itsid, 'userid:', res.data.userid);
-        wx.switchTab({
-          url: '/pages/home/home',
-        })
+        that.redirectAfterAuthSuccess();
       }
     })
+  },
+
+  getPostAuthTabUrl() {
+    const loginRedirectUrl = wx.getStorageSync('loginRedirectUrl');
+
+    if (this.data.from === 'order' || loginRedirectUrl === '/pages/order/order') {
+      wx.removeStorageSync('loginRedirectUrl');
+      return '/pages/order/order';
+    }
+
+    return '';
+  },
+
+  redirectAfterAuthSuccess() {
+    const postAuthTabUrl = this.getPostAuthTabUrl();
+
+    if (postAuthTabUrl) {
+      wx.switchTab({
+        url: postAuthTabUrl
+      });
+      return;
+    }
+
+    wx.switchTab({
+      url: '/pages/home/home'
+    });
+  },
+
+  redirectAfterProfileSuccess() {
+    const postAuthTabUrl = this.getPostAuthTabUrl();
+
+    if (postAuthTabUrl) {
+      wx.switchTab({
+        url: postAuthTabUrl
+      });
+      return;
+    }
+
+    if (String(this.data.from) === '2') {
+      wx.switchTab({
+        url: '/pages/home/home'
+      });
+      return;
+    }
+
+    wx.reLaunch({
+      url: '/pages/user/user',
+    });
   },
 
   // 新增方法 - 验证码输入
@@ -517,7 +576,7 @@ Page({
   },
 
   // 新增：获取 itsid 并存入全局变量和缓存
-  getItsid() {
+  getItsid(callback) {
     const that = this; // 新增此行以捕获Page实例
     wx.showLoading({
       title: '正在获取账号信息...',
@@ -535,8 +594,12 @@ Page({
             if (res3.data.value && res3.data.value.itsid && res3.data.value.userid) {
               app.globalData.itsid = res3.data.value.itsid;
               app.globalData.userid = res3.data.value.userid;
+              wx.setStorageSync('isLoginSuccess', true);
               wx.setStorageSync('itsid', res3.data.value.itsid);
               wx.setStorageSync('userid', res3.data.value.userid);
+              if (typeof callback === 'function') {
+                callback();
+              }
             } else {
               const itsid_exist = wx.getStorageSync(app.globalData.projectName); // 确保itsid_exist已定义
               wx.request({
@@ -586,7 +649,6 @@ Page({
 
     wx.login({
       success: (res) => {
-        that.getItsid();
         wx.request({
           url: `${app.globalData.backUrl}phone.aspx?ituid=${app.globalData.ituid}&mbid=120&code=${res.code}`,
           success(result) {
@@ -610,18 +672,9 @@ Page({
                   icon: "success",
                   duration: 2000
                 })
-                wx.reLaunch({
-                  url: '/pages/home/home?userid=' + that.data.userid2,
-                })
-                if (that.data.from == 2) { //注册
-                  wx.switchTab({ //跳转回首页
-                    url: '/pages/home/home?userid=' + that.data.userid2,
-                  })
-                } else { //修改
-                  wx.reLaunch({
-                    url: '/pages/user/user',
-                  })
-                }
+                that.getItsid(() => {
+                  that.redirectAfterProfileSuccess();
+                });
               }
             })
           }
@@ -651,17 +704,9 @@ Page({
                   icon: "success",
                   duration: 2000
                 });
-                that.getItsid();
-                // 注册成功后跳转到首页
-                if (that.data.from == 2) { // 注册
-                  wx.switchTab({
-                    url: '/pages/home/home?userid=' + that.data.userid2,
-                  });
-                } else { // 修改
-                  wx.reLaunch({
-                    url: '/pages/user/user',
-                  });
-                }
+                that.getItsid(() => {
+                  that.redirectAfterProfileSuccess();
+                });
               }
             });
           }
@@ -792,8 +837,10 @@ Page({
                             code: newLoginRes.code
                           },
                           success(res3) {
-                            console.log("res3是：", res3);
+                            console.log("res3是: ", res3);
+                            wx.setStorageSync('isLoginSuccess', true);
                             wx.setStorageSync('itsid', res3.data.value.itsid);
+                            wx.setStorageSync('userid', res3.data.value.userid);
                             app.globalData.itsid = res3.data.value.itsid;
                             app.globalData.userid = res3.data.value.userid;
                             console.log("userid是:" + app.globalData.userid);
@@ -812,9 +859,7 @@ Page({
                             console.log('存储 itsid:', res3.data.value.itsid);
                             wx.setStorageSync('itsid', itsid);
                             app.globalData.itsid = itsid;
-                            wx.switchTab({
-                              url: `/pages/home/home?userid=${app.globalData.userid}&itsid=${itsid}`
-                            });
+                            that.redirectAfterAuthSuccess();
                           } // 关闭 success(res3)
                         }); // 关闭 wx.request
                       } // 关闭 wx.login 的 success
@@ -942,9 +987,7 @@ Page({
                               });
                             } else {
                               // 无回调页面，正常跳转首页
-                              wx.switchTab({
-                                url: '/pages/home/home'
-                              });
+                              that.redirectAfterAuthSuccess();
                             }
                           } else {
                             wx.showToast({
@@ -1014,6 +1057,10 @@ Page({
 
   // 微信号登录、免登录
   openidLogin(e) {
+    if (this.data.isWechatLoginSubmitting) {
+      return;
+    }
+
     let that = this;
     console.log("e:", e);
 
@@ -1023,6 +1070,7 @@ Page({
     console.log("是否登录：", agreed);
     // 同意协议
     if (agreed) {
+      this.setWechatLoginSubmitting(true);
       wx.login({
         success: (res) => {
           if (res.code) {
@@ -1085,11 +1133,10 @@ Page({
                                 });
                               } else {
                                 // 无回调页面，正常跳转首页
-                                wx.switchTab({
-                                  url: '/pages/home/home'
-                                });
+                                that.redirectAfterAuthSuccess();
                               }
                             } else {
+                              that.setWechatLoginSubmitting(false);
                               wx.showToast({
                                 title: '获取用户信息失败',
                                 icon: 'none'
@@ -1099,6 +1146,7 @@ Page({
                           },
                           fail: (err) => {
                             console.error('获取用户信息失败:', err);
+                            that.setWechatLoginSubmitting(false);
                             wx.showToast({
                               title: '获取信息失败',
                               icon: 'none'
@@ -1109,6 +1157,7 @@ Page({
                       },
                       fail: (err) => {
                         console.error('重新登录失败:', err);
+                        that.setWechatLoginSubmitting(false);
                         wx.showToast({
                           title: '登录失败',
                           icon: 'none'
@@ -1119,6 +1168,7 @@ Page({
                   },
                   fail: (err) => {
                     console.error('注册请求失败:', err);
+                    that.setWechatLoginSubmitting(false);
                     wx.showToast({
                       title: '注册失败',
                       icon: 'none'
@@ -1126,12 +1176,18 @@ Page({
                     wx.hideToast();
                   }
                 });
+              },
+              fail: () => {
+                that.setWechatLoginSubmitting(false);
               }
             })
+          } else {
+            that.setWechatLoginSubmitting(false);
           }
         },
         fail: (err) => {
           console.error('获取登录code失败:', err);
+          that.setWechatLoginSubmitting(false);
           wx.showToast({
             title: '登录失败',
             icon: 'none'
@@ -1292,9 +1348,7 @@ Page({
                         wx.setStorageSync('inviteUserid', that.data.userid2); // 存储到缓存，键名为invite
                         wx.setStorageSync('itsid', itsid);
                         wx.setStorageSync('userid', userid);
-                        wx.switchTab({
-                          url: '/pages/home/home'
-                        });
+                        that.redirectAfterAuthSuccess();
                       } else {
                         wx.showToast({
                           title: '获取用户信息失败',
